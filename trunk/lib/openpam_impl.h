@@ -68,8 +68,6 @@ struct pam_chain {
 	pam_chain_t	*next;
 };
 
-#define PAM_NUM_ITEMS	       10
-
 typedef struct pam_data pam_data_t;
 struct pam_data {
 	char		*name;
