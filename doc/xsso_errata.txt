@@ -5,6 +5,9 @@ Errata in XSSO, chapter 5:
 p. 25:	the first member of struct pam_response is named "resp", not
 	"response".
 
+p. 28:	the first pam_sm_chauthtok() flag is PAM_PRELIM_CHECK, not
+	PAM_CRED_PRELIM_CHECK.
+
 Errata in XSSO, chapter 6:
 
 p. 32:	"PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
