@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#16 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#17 $
 #
 
 use strict;
@@ -188,7 +188,7 @@ sub parse_source($) {
 		if ($inliteral) {
 		    $man .= "\0\n";
 		} elsif ($inlist) {
-		    $man .= ".El\n";
+		    $man .= ".El\n.Pp\n";
 		    $inlist = 0;
 		} else {
 		    $man .= ".Pp\n";
@@ -214,7 +214,7 @@ sub parse_source($) {
 	    $man .= "$_\n";
 	    next;
 	} elsif ($inlist && m/^\S/) {
-	    $man .= ".El\n";
+	    $man .= ".El\n.Pp\n";
 	    $inlist = 0;
 	} elsif ($inliteral && m/^\S/) {
 	    $man .= ".Ed\n";
