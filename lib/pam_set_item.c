@@ -69,7 +69,7 @@ pam_set_item(pam_handle_t *pamh,
 	case PAM_RHOST:
 	case PAM_RUSER:
 	case PAM_USER_PROMPT:
-	case PAM_PASSWD_PROMPT:
+	case PAM_AUTHTOK_PROMPT:
 		if (item == NULL) {
 			tmp = NULL;
 			break;
