@@ -1,7 +1,8 @@
-# $P4: //depot/projects/openpam/Makefile.inc#1 $
+# $P4: //depot/projects/openpam/Makefile.inc#2 $
 
-BINDIR		 = ${DESTDIR}/bin
-LIBDIR		 = ${DESTDIR}/lib
+DESTDIR		?= /usr
+BINDIR		 = /bin
+LIBDIR		 = /lib
 
 SHLIB_MAJOR	 = 2
 SHLIB_MINOR	 = 0
