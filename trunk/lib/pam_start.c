@@ -62,7 +62,7 @@ pam_start(const char *service,
 	struct pam_handle *ph;
 	int r;
 
-	if ((ph = calloc(1, sizeof(*ph))) == NULL)
+	if ((ph = calloc(1, sizeof *ph)) == NULL)
 		return (PAM_BUF_ERR);
 	if ((r = pam_set_item(ph, PAM_SERVICE, service)) != PAM_SUCCESS)
 		goto fail;
