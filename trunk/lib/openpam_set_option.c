@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_set_option.c#11 $
+ * $P4: //depot/projects/openpam/lib/openpam_set_option.c#12 $
  */
 
 #include <sys/param.h>
@@ -113,4 +113,6 @@ openpam_set_option(pam_handle_t *pamh,
 /**
  * The =openpam_set_option function sets the specified option in the
  * context of the currently executing service module.
+ *
+ * >openpam_get_option
  */
