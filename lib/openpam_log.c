@@ -36,6 +36,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 
 #include <security/pam_appl.h>
@@ -47,9 +48,10 @@
  */
 
 void
-openpam_log(int level, const char *fmt, ...)
+_openpam_log(int level, const char *func, const char *fmt, ...)
 {
 	va_list ap;
+	char *format;
 	int priority;
 
 	switch (level) {
@@ -67,7 +69,13 @@ openpam_log(int level, const char *fmt, ...)
 		break;
 	}
 	va_start(ap, fmt);
-	vsyslog(priority, fmt, ap);
+	if ((format = malloc(strlen(func) + strlen(fmt) + 8)) != NULL) {
+		sprintf(format, "in %s(): %s", func, fmt);
+		vsyslog(priority, format, ap);
+		free(format);
+	} else {
+		vsyslog(priority, fmt, ap);
+	}
 	va_end(ap);
 }
 
