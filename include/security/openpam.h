@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam.h#12 $
+ * $P4: //depot/projects/openpam/include/security/openpam.h#13 $
  */
 
 #ifndef _SECURITY_OPENPAM_H_INCLUDED
@@ -65,6 +65,7 @@ pam_error(pam_handle_t *_pamh,
 
 int
 pam_get_authtok(pam_handle_t *_pamh,
+	int _item,
 	const char **_authtok,
 	const char *_prompt);
 
