@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#21 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#22 $
 #
 
 use strict;
@@ -141,7 +141,7 @@ sub parse_source($) {
 
     $func = $fn;
     $func =~ s,^(?:.*/)?([^/]+)\.c$,$1,;
-    if ($source !~ m,\n \* ([\S ]+)\n \*/\n\n([\S ]+)\n$func\((.*?)\)\n\{,s) {
+    if ($source !~ m,\n \* ([\S ]+)\n \*/\n\n([\S ]+)\n_?$func\((.*?)\)\n\{,s) {
 	warn("$fn: can't find $func\n");
 	return undef;
     }
@@ -235,7 +235,7 @@ sub parse_source($) {
 	s/\s*=(struct \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
 	s/\s*:([a-z_]+)\b\s*/\n.Va $1\n/gs;
 	s/\s*;([a-z_]+)\b\s*/\n.Dv $1\n/gs;
-	if (s/\s*=([a-z_]+)\b\s*/\n.Xr $1 3\n/gs) {
+	while (s/\s*=([a-z_]+)\b\s*/\n.Xr $1 3\n/s) {
 	    ++$xref{"$1 3"};
 	}
 	s/\s*\"(?=\w)/\n.Do\n/gs;
