@@ -31,10 +31,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_configure.c#8 $
+ * $P4: //depot/projects/openpam/lib/openpam_configure.c#9 $
  */
 
-#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +42,21 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+
+const char *_pam_facility_name[PAM_NUM_FACILITIES] = {
+	[PAM_ACCOUNT]		= "account",
+	[PAM_AUTH]		= "auth",
+	[PAM_PASSWORD]		= "password",
+	[PAM_SESSION]		= "session",
+};
+
+const char *_pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
+	[PAM_BINDING]		= "binding",
+	[PAM_OPTIONAL]		= "optional",
+	[PAM_REQUIRED]		= "required",
+	[PAM_REQUISITE]		= "requisite",
+	[PAM_SUFFICIENT]	= "sufficient",
+};
 
 static int openpam_load_chain(pam_chain_t **, const char *, const char *);
 
@@ -67,10 +81,10 @@ next_word(const char *str)
 {
 
 	/* skip current word */
-	while (*str && !isspace(*str))
+	while (*str && *str != ' ')
 		++str;
 	/* skip whitespace */
-	while (isspace(*str))
+	while (*str == ' ')
 		++str;
 	return (str);
 }
@@ -84,11 +98,24 @@ dup_word(const char *str)
 	const char *end;
 	char *word;
 
-	for (end = str; *end && !isspace(*end); ++end)
+	for (end = str; *end && *end != ' '; ++end)
 		/* nothing */ ;
 	if (asprintf(&word, "%.*s", (int)(end - str), str) < 0)
 		return (NULL);
 	return (word);
+}
+
+/*
+ * Return the length of the first word in a string.
+ */
+static int
+wordlen(const char *str)
+{
+	int i;
+
+	for (i = 0; str[i] && str[i] != ' '; ++i)
+		/* nothing */ ;
+	return (i);
 }
 
 typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
@@ -105,19 +132,19 @@ openpam_read_chain(pam_chain_t **chain,
 {
 	pam_chain_t *this, **next;
 	const char *p, *q;
-	int count, i, ret;
+	int count, i, lineno, ret;
 	char *line, *name;
 	FILE *f;
 
 	if ((f = fopen(filename, "r")) == NULL) {
-		openpam_log(errno == ENOENT ? PAM_LOG_NOTICE : PAM_LOG_ERROR,
+		openpam_log(errno == ENOENT ? PAM_LOG_DEBUG : PAM_LOG_NOTICE,
 		    "%s: %m", filename);
 		return (0);
 	}
 	next = chain;
 	this = *next = NULL;
-	count = 0;
-	while ((line = openpam_readline(f, NULL)) != NULL) {
+	count = lineno = 0;
+	while ((line = openpam_readline(f, &lineno, NULL)) != NULL) {
 		p = line;
 
 		/* match service name */
@@ -130,6 +157,14 @@ openpam_read_chain(pam_chain_t **chain,
 		}
 
 		/* match facility name */
+		for (i = 0; i < PAM_NUM_FACILITIES; ++i)
+			if (match_word(p, _pam_facility_name[i]))
+				break;
+		if (i == PAM_NUM_FACILITIES) {
+			openpam_log(PAM_LOG_NOTICE,
+			    "%s(%d): invalid facility '%.*s' (ignored)",
+			    filename, lineno, wordlen(p), p);
+		}
 		if (!match_word(p, facility)) {
 			FREE(line);
 			continue;
@@ -141,8 +176,8 @@ openpam_read_chain(pam_chain_t **chain,
 			p = next_word(p);
 			if (*next_word(p) != '\0')
 				openpam_log(PAM_LOG_NOTICE,
-				    "%s: garbage at end of 'include' line",
-				    filename);
+				    "%s(%d): garbage at end of 'include' line",
+				    filename, lineno);
 			if ((name = dup_word(p)) == NULL)
 				goto syserr;
 			ret = openpam_load_chain(next, name, facility);
@@ -162,30 +197,23 @@ openpam_read_chain(pam_chain_t **chain,
 			goto syserr;
 
 		/* control flag */
-		if (match_word(p, "required")) {
-			this->flag = PAM_REQUIRED;
-		} else if (match_word(p, "requisite")) {
-			this->flag = PAM_REQUISITE;
-		} else if (match_word(p, "sufficient")) {
-			this->flag = PAM_SUFFICIENT;
-		} else if (match_word(p, "optional")) {
-			this->flag = PAM_OPTIONAL;
-		} else if (match_word(p, "binding")) {
-			this->flag = PAM_BINDING;
-		} else {
-			q = next_word(p);
+		for (i = 0; i < PAM_NUM_CONTROL_FLAGS; ++i)
+			if (match_word(p, _pam_control_flag_name[i]))
+				break;
+		if (i == PAM_NUM_CONTROL_FLAGS) {
 			openpam_log(PAM_LOG_ERROR,
-			    "%s: invalid control flag '%.*s'",
-			    filename, (int)(q - p), p);
+			    "%s(%d): invalid control flag '%.*s'",
+			    filename, lineno, wordlen(p), p);
 			goto fail;
 		}
+		this->flag = i;
 
 		/* module name */
 		p = next_word(p);
-		q = next_word(p);
 		if (*p == '\0') {
 			openpam_log(PAM_LOG_ERROR,
-			    "%s: missing module name", filename);
+			    "%s(%d): missing module name",
+			    filename, lineno);
 			goto fail;
 		}
 		if ((name = dup_word(p)) == NULL)
@@ -196,6 +224,7 @@ openpam_read_chain(pam_chain_t **chain,
 			goto fail;
 
 		/* module options */
+		p = q = next_word(p);
 		while (*q != '\0') {
 			++this->optc;
 			q = next_word(q);
@@ -204,16 +233,16 @@ openpam_read_chain(pam_chain_t **chain,
 		if (this->optv == NULL)
 			goto syserr;
 		for (i = 0; i < this->optc; ++i) {
-			p = next_word(p);
 			if ((this->optv[i] = dup_word(p)) == NULL)
 				goto syserr;
+			p = next_word(p);
 		}
 
 		/* hook it up */
 		*next = this;
 		next = &this->next;
 		this = NULL;
-	        ++count;
+		++count;
 
 		/* next please... */
 		FREE(line);
@@ -273,13 +302,6 @@ openpam_load_chain(pam_chain_t **chain,
 	return (0);
 }
 
-const char *_pam_chain_name[PAM_NUM_CHAINS] = {
-	[PAM_AUTH] = "auth",
-	[PAM_ACCOUNT] = "account",
-	[PAM_SESSION] = "session",
-	[PAM_PASSWORD] = "password"
-};
-
 /*
  * OpenPAM internal
  *
@@ -292,12 +314,12 @@ openpam_configure(pam_handle_t *pamh,
 {
 	int i, ret;
 
-	for (i = 0; i < PAM_NUM_CHAINS; ++i) {
+	for (i = 0; i < PAM_NUM_FACILITIES; ++i) {
 		ret = openpam_load_chain(&pamh->chains[i],
-		    service, _pam_chain_name[i]);
+		    service, _pam_facility_name[i]);
 		if (ret == 0)
 			ret = openpam_load_chain(&pamh->chains[i],
-			    PAM_OTHER, _pam_chain_name[i]);
+			    PAM_OTHER, _pam_facility_name[i]);
 		if (ret < 0) {
 			openpam_clear_chains(pamh->chains);
 			return (PAM_SYSTEM_ERR);

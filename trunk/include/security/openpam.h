@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam.h#22 $
+ * $P4: //depot/projects/openpam/include/security/openpam.h#23 $
  */
 
 #ifndef _SECURITY_OPENPAM_H_INCLUDED
@@ -126,6 +126,7 @@ pam_vprompt(pam_handle_t *_pamh,
 #ifdef FOPEN_MAX
 char *
 openpam_readline(FILE *_f,
+	int *_lineno,
 	size_t *_lenp);
 #endif
 
