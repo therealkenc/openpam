@@ -146,7 +146,7 @@ sub gensummary() {
     while (@funcs) {
         print ".Nm " . shift(@funcs) . (@funcs ? " ,\n" : "\n");
     }
-    print ".Nd Pluggable Authentication Modules
+    print ".Nd Pluggable Authentication Modules Library
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
@@ -157,7 +157,6 @@ sub gensummary() {
         print ".Fn $func $FUNCTIONS{$func}->[1]\n";
     }
     print ".Sh DESCRIPTION
-Foo
 .Sh RETURN VALUES
 .Sh SEE ALSO
 ";
