@@ -67,13 +67,14 @@
 
 extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
 
-typedef int (*pam_func_t)(pam_handle_t *, int);
+typedef int (*pam_func_t)(pam_handle_t *, int, int, const char **);
 
 typedef struct pam_chain pam_chain_t;
 struct pam_chain {
 	int		 flag;
 	char		*modpath;
-	/* XXX options */
+	int		 optc;
+	char	       **optv;
 	pam_chain_t	*next;
 	void		*dlh;
 	pam_func_t	 primitive[PAM_NUM_PRIMITIVES];
@@ -91,10 +92,10 @@ struct pam_data {
 
 struct pam_handle {
 	char		*service;
-	int		 dispatching;
 
 	/* chains */
 	pam_chain_t	*chains[PAM_NUM_CHAINS];
+	pam_chain_t	*current;
 
 	/* items and data */
 	void		*item[PAM_NUM_ITEMS];
@@ -111,7 +112,7 @@ struct pam_handle {
 int		openpam_dispatch(pam_handle_t *, int, int);
 int		openpam_findenv(pam_handle_t *, const char *, size_t);
 int		openpam_add_module(pam_handle_t *, int, int,
-				   const char *, const char *);
+				   const char *, int, const char **);
 void		openpam_clear_chains(pam_handle_t *);
 
 #endif

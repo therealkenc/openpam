@@ -89,6 +89,7 @@ pam_start(const char *service,
 #define PAM_CONF_STYLE	0
 #define PAM_D_STYLE	1
 #define MAX_LINE_LEN	1024
+#define MAX_OPTIONS	256
 
 static int
 _pam_read_policy_file(pam_handle_t *pamh,
@@ -97,7 +98,8 @@ _pam_read_policy_file(pam_handle_t *pamh,
 	int style)
 {
 	char buf[MAX_LINE_LEN], *p, *q;
-	int ch, chain, flag, line, n, r;
+	const char *optv[MAX_OPTIONS + 1];
+	int ch, chain, flag, line, optc, n, r;
 	size_t len;
 	FILE *f;
 
@@ -206,18 +208,28 @@ _pam_read_policy_file(pam_handle_t *pamh,
 			goto syntax_error;
 
 		/* get options */
-		if (*q != '\0') {
-			*q++ = 0;
+		for (optc = 0; *q != '\0' && optc < MAX_OPTIONS; ++optc) {
+			*q++ = '\0';
 			while (isspace(*q))
 				++q;
+			optv[optc] = q;
+			while (*q != '\0' && !isspace(*q))
+				++q;
+		}
+		optv[optc] = NULL;
+		if (*q != '\0') {
+			*q = '\0';
+			openpam_log(PAM_LOG_ERROR,
+			    "%s: too many options on line %d",
+			    filename, line);
 		}
 
 		/*
 		 * Finally, add the module at the end of the
 		 * appropriate chain and bump the counter.
 		 */
-		if ((r = openpam_add_module(pamh, chain, flag, p, q)) !=
-		    PAM_SUCCESS)
+		r = openpam_add_module(pamh, chain, flag, p, optc, optv);
+		if (r != PAM_SUCCESS)
 			return (-r);
 		++n;
 		continue;
