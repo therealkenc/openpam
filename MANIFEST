@@ -1,5 +1,5 @@
 #
-# $P4: //depot/projects/openpam/MANIFEST#14 $
+# $P4: //depot/projects/openpam/MANIFEST#15 $
 #
 CREDITS
 HISTORY
@@ -78,6 +78,7 @@ lib/openpam_impl.h
 lib/openpam_load.c
 lib/openpam_log.c
 lib/openpam_nullconv.c
+lib/openpam_readline.c
 lib/openpam_restore_cred.c
 lib/openpam_set_option.c
 lib/openpam_static.c

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam.h#21 $
+ * $P4: //depot/projects/openpam/include/security/openpam.h#22 $
  */
 
 #ifndef _SECURITY_OPENPAM_H_INCLUDED
@@ -117,6 +117,17 @@ pam_vprompt(pam_handle_t *_pamh,
 	char **_resp,
 	const char *_fmt,
 	va_list _ap);
+
+/*
+ * Read cooked lines.
+ * Checking for FOPEN_MAX is a fairly reliable way to detect the presence
+ * of <stdio.h>
+ */
+#ifdef FOPEN_MAX
+char *
+openpam_readline(FILE *_f,
+	size_t *_lenp);
+#endif
 
 /*
  * Log levels

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_load.c#16 $
+ * $P4: //depot/projects/openpam/lib/openpam_load.c#17 $
  */
 
 #include <dlfcn.h>
@@ -67,7 +67,7 @@ static pam_module_t *modules;
  * found modules to speed up the process.
  */
 
-static pam_module_t *
+pam_module_t *
 openpam_load_module(const char *path)
 {
 	pam_module_t *module;
@@ -158,48 +158,6 @@ openpam_destroy_chain(pam_chain_t *chain)
 	FREE(chain->optv);
 	openpam_release_module(chain->module);
 	FREE(chain);
-}
-
-/*
- * Add a module to a chain.
- */
-
-int
-openpam_add_module(pam_chain_t *policy[],
-	int chain,
-	int flag,
-	const char *modpath,
-	int optc,
-	const char *optv[])
-{
-	pam_chain_t *new, *iterator;
-
-	if ((new = calloc(1, sizeof *new)) == NULL)
-		goto buf_err;
-	if ((new->optv = malloc(sizeof(char *) * (optc + 1))) == NULL)
-		goto buf_err;
-	while (optc--)
-		if ((new->optv[new->optc++] = strdup(*optv++)) == NULL)
-			goto buf_err;
-	new->optv[new->optc] = NULL;
-	new->flag = flag;
-	if ((new->module = openpam_load_module(modpath)) == NULL) {
-		openpam_destroy_chain(new);
-		return (PAM_OPEN_ERR);
-	}
-	if ((iterator = policy[chain]) != NULL) {
-		while (iterator->next != NULL)
-			iterator = iterator->next;
-		iterator->next = new;
-	} else {
-		policy[chain] = new;
-	}
-	return (PAM_SUCCESS);
-
- buf_err:
-	openpam_log(PAM_LOG_ERROR, "%m");
-	openpam_destroy_chain(new);
-	return (PAM_BUF_ERR);
 }
 
 
