@@ -41,6 +41,10 @@
 #include <security/pam_constants.h>
 #include <security/openpam.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * XSSO 4.2.2, 6
  */
@@ -136,5 +140,9 @@ pam_sm_set_mapped_username(pam_handle_t *_pamh,
 	const char **_argv);
 
 #endif /* 0 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

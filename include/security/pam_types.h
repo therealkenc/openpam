@@ -37,6 +37,10 @@
 #ifndef _PAM_TYPES_H_INCLUDED
 #define _PAM_TYPES_H_INCLUDED
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * XSSO 5.1.1
  */
@@ -64,5 +68,9 @@ struct pam_conv {
  */
 struct pam_handle;
 typedef struct pam_handle pam_handle_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
