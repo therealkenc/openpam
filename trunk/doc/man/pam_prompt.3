@@ -38,13 +38,13 @@
 .Os
 .Sh NAME
 .Nm pam_prompt
-.Nd prompt the user for information
+.Nd call the conversation function
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
 .Ft int
-.Fn pam_prompt "pam_handle_t *pamh" "char **resp" "int echo" "const char *fmt" "..."
+.Fn pam_prompt "pam_handle_t *pamh" "int style" "char **resp" "const char *fmt" "..."
 .Sh DESCRIPTION
 The
 .Nm
