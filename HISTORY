@@ -6,7 +6,7 @@ OpenPAM Citronella						2002-06-30
  - ENHANCE: Define struct pam_repository and PAM_REPOSITORY (from
    Solaris 9).
 
- - ENHANCE: Flesh out the pam(3) man page.  
+ - ENHANCE: Flesh out the pam(3) man page.
 
  - ENHANCE: Add an openpam(3) page with cross-references to all the
    documented OpenPAM API extensions.
@@ -183,4 +183,4 @@ OpenPAM	Calamite						2002-02-09
 
 First (beta) release.
 ============================================================================
-$P4: //depot/projects/openpam/HISTORY#14 $
+$P4: //depot/projects/openpam/HISTORY#15 $
