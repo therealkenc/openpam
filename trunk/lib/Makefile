@@ -31,7 +31,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/lib/Makefile#18 $
+# $P4: //depot/projects/openpam/lib/Makefile#19 $
 #
 
 LIB		 = pam
@@ -40,6 +40,11 @@ WARNS		?= 4
 NO_WERROR	 = yes
 CFLAGS		+= -I${.CURDIR}/../include
 CFLAGS		+= -DLIB_MAJ=${SHLIB_MAJOR}
+
+OSNAME		!= uname -s
+.if ${OSNAME} == "Linux"
+LDADD		+= -ldl
+.endif
 
 SRCS		 =
 SRCS		+= openpam_borrow_cred.c
