@@ -89,6 +89,8 @@ openpam_dispatch(pam_handle_t *pamh,
 
 	/* execute */
 	for (err = fail = 0; chain != NULL; chain = chain->next) {
+		openpam_log(PAM_LOG_DEBUG, "calling %s() in %s",
+		    _pam_sm_func_name[primitive], chain->module->path);
 		if (chain->module->func[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
 			    chain->module->path, _pam_sm_func_name[primitive]);
@@ -151,11 +153,12 @@ static void
 _openpam_check_error_code(int primitive, int r)
 {
 	/* common error codes */
-	if (r == PAM_SERVICE_ERR ||
-	    r == PAM_BUF_ERR ||
+	if (r == PAM_SUCCESS ||
+	    r == PAM_SERVICE_ERR ||
 	    r == PAM_BUF_ERR ||
 	    r == PAM_CONV_ERR ||
-	    r == PAM_PERM_DENIED)
+	    r == PAM_PERM_DENIED ||
+	    r == PAM_ABORT)
 		return;
 
 	/* specific error codes */
