@@ -53,20 +53,26 @@ pam_get_authtok(pam_handle_t *pamh,
 	const char *prompt)
 {
 	char *p, *resp;
-	int r;
+	int r, style;
 
 	if (pamh == NULL || authtok == NULL)
 		return (PAM_SYSTEM_ERR);
 
-	r = pam_get_item(pamh, PAM_AUTHTOK, (const void **)authtok);
-	if (r == PAM_SUCCESS && *authtok != NULL)
-		return (PAM_SUCCESS);
+	if (openpam_get_option(pamh, "try_first_pass") ||
+	    openpam_get_option(pamh, "use_first_pass")) {
+		r = pam_get_item(pamh, PAM_AUTHTOK, (const void **)authtok);
+		if (r == PAM_SUCCESS && *authtok != NULL)
+			return (PAM_SUCCESS);
+		else if (openpam_get_option(pamh, "use_first_pass"))
+			return (r == PAM_SUCCESS ? PAM_AUTH_ERR : r);
+	}
 	if (pam_get_item(pamh, PAM_AUTHTOK_PROMPT,
 	    (const void **)&p) != PAM_SUCCESS || p == NULL)
 		if (prompt == NULL)
 			prompt = "Password:";
-	r = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &resp,
-	    "%s", p ? p : prompt);
+	style = openpam_get_option(pamh, "echo_pass") ?
+	    PAM_PROMPT_ECHO_ON : PAM_PROMPT_ECHO_OFF;
+	r = pam_prompt(pamh, style, &resp, "%s", p ? p : prompt);
 	if (r != PAM_SUCCESS)
 		return (r);
 	*authtok = resp;
