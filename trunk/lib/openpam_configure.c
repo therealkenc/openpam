@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2002 Networks Associates Technology, Inc.
+ * Copyright (c) 2001-2003 Networks Associates Technology, Inc.
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_configure.c#7 $
+ * $P4: //depot/projects/openpam/lib/openpam_configure.c#8 $
  */
 
 #include <ctype.h>
@@ -44,169 +44,191 @@
 
 #include "openpam_impl.h"
 
-#define PAM_CONF_STYLE	0
-#define PAM_D_STYLE	1
-#define MAX_LINE_LEN	1024
-#define MAX_OPTIONS	256
+static int openpam_load_chain(pam_chain_t **, const char *, const char *);
 
+/*
+ * Matches a word against the first one in a string.
+ * Returns non-zero if they match.
+ */
 static int
-openpam_read_policy_file(pam_chain_t *policy[],
-	const char *service,
-	const char *filename,
-	int style)
+match_word(const char *str, const char *word)
 {
-	char buf[MAX_LINE_LEN], *p, *q;
-	const char *optv[MAX_OPTIONS + 1];
-	int ch, chain, flag, line, optc, n, r;
-	size_t len;
+
+	while (*str && *str == *word)
+		++str, ++word;
+	return (*str == ' ' && *word == '\0');
+}
+
+/*
+ * Return a pointer to the next word (or the final NUL) in a string.
+ */
+static const char *
+next_word(const char *str)
+{
+
+	/* skip current word */
+	while (*str && !isspace(*str))
+		++str;
+	/* skip whitespace */
+	while (isspace(*str))
+		++str;
+	return (str);
+}
+
+/*
+ * Return a malloc()ed copy of the first word in a string.
+ */
+static char *
+dup_word(const char *str)
+{
+	const char *end;
+	char *word;
+
+	for (end = str; *end && !isspace(*end); ++end)
+		/* nothing */ ;
+	if (asprintf(&word, "%.*s", (int)(end - str), str) < 0)
+		return (NULL);
+	return (word);
+}
+
+typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
+
+/*
+ * Extracts a given chain from a policy file.
+ */
+static int
+openpam_read_chain(pam_chain_t **chain,
+	const char *service,
+	const char *facility,
+	const char *filename,
+	openpam_style_t style)
+{
+	pam_chain_t *this, **next;
+	const char *p, *q;
+	int count, i, ret;
+	char *line, *name;
 	FILE *f;
 
-	n = 0;
-
 	if ((f = fopen(filename, "r")) == NULL) {
-		openpam_log(errno == ENOENT ? PAM_LOG_DEBUG : PAM_LOG_NOTICE,
+		openpam_log(errno == ENOENT ? PAM_LOG_NOTICE : PAM_LOG_ERROR,
 		    "%s: %m", filename);
 		return (0);
 	}
-	openpam_log(PAM_LOG_DEBUG, "looking for '%s' in %s",
-	    service, filename);
+	next = chain;
+	this = *next = NULL;
+	count = 0;
+	while ((line = openpam_readline(f, NULL)) != NULL) {
+		p = line;
 
-	for (line = 1; fgets(buf, MAX_LINE_LEN, f) != NULL; ++line) {
-		if ((len = strlen(buf)) == 0)
-			continue;
-
-		/* check for overflow */
-		if (buf[--len] != '\n' && !feof(f)) {
-			openpam_log(PAM_LOG_ERROR, "%s: line %d too long",
-			    filename, line);
-			openpam_log(PAM_LOG_ERROR, "%s: ignoring line %d",
-			    filename, line);
-			while ((ch = fgetc(f)) != EOF)
-				if (ch == '\n')
-					break;
-			continue;
-		}
-
-		/* strip comments and trailing whitespace */
-		if ((p = strchr(buf, '#')) != NULL)
-			len = p - buf ? p - buf - 1 : p - buf;
-		while (len > 0 && isspace(buf[len - 1]))
-			--len;
-		if (len == 0)
-			continue;
-		buf[len] = '\0';
-		p = q = buf;
-
-		/* check service name */
-		if (style == PAM_CONF_STYLE) {
-			for (q = p = buf; *q != '\0' && !isspace(*q); ++q)
-				/* nothing */;
-			if (*q == '\0')
-				goto syntax_error;
-			*q++ = '\0';
-			if (strcmp(p, service) != 0)
+		/* match service name */
+		if (style == pam_conf_style) {
+			if (!match_word(p, service)) {
+				FREE(line);
 				continue;
-			openpam_log(PAM_LOG_DEBUG, "%s: line %d matches '%s'",
-			    filename, line, service);
+			}
+			p = next_word(p);
 		}
 
+		/* match facility name */
+		if (!match_word(p, facility)) {
+			FREE(line);
+			continue;
+		}
+		p = next_word(p);
 
-		/* get module type */
-		for (p = q; isspace(*p); ++p)
-			/* nothing */;
-		for (q = p; *q != '\0' && !isspace(*q); ++q)
-			/* nothing */;
-		if (q == p || *q == '\0')
-			goto syntax_error;
-		*q++ = '\0';
-		if (strcmp(p, "auth") == 0) {
-			chain = PAM_AUTH;
-		} else if (strcmp(p, "account") == 0) {
-			chain = PAM_ACCOUNT;
-		} else if (strcmp(p, "session") == 0) {
-			chain = PAM_SESSION;
-		} else if (strcmp(p, "password") == 0) {
-			chain = PAM_PASSWORD;
-		} else {
-			openpam_log(PAM_LOG_ERROR,
-			    "%s: invalid module type on line %d: '%s'",
-			    filename, line, p);
+		/* include other chain */
+		if (match_word(p, "include")) {
+			p = next_word(p);
+			if (*next_word(p) != '\0')
+				openpam_log(PAM_LOG_NOTICE,
+				    "%s: garbage at end of 'include' line",
+				    filename);
+			if ((name = dup_word(p)) == NULL)
+				goto syserr;
+			ret = openpam_load_chain(next, name, facility);
+			FREE(name);
+			while (*next != NULL) {
+				next = &(*next)->next;
+				++count;
+			}
+			FREE(line);
+			if (ret < 0)
+				goto fail;
 			continue;
 		}
 
-		/* get control flag */
-		for (p = q; isspace(*p); ++p)
-			/* nothing */;
-		for (q = p; *q != '\0' && !isspace(*q); ++q)
-			/* nothing */;
-		if (q == p || *q == '\0')
-			goto syntax_error;
-		*q++ = '\0';
-		if (strcmp(p, "required") == 0) {
-			flag = PAM_REQUIRED;
-		} else if (strcmp(p, "requisite") == 0) {
-			flag = PAM_REQUISITE;
-		} else if (strcmp(p, "sufficient") == 0) {
-			flag = PAM_SUFFICIENT;
-		} else if (strcmp(p, "optional") == 0) {
-			flag = PAM_OPTIONAL;
-		} else if (strcmp(p, "binding") == 0) {
-			flag = PAM_BINDING;
+		/* allocate new entry */
+		if ((this = calloc(1, sizeof *this)) == NULL)
+			goto syserr;
+
+		/* control flag */
+		if (match_word(p, "required")) {
+			this->flag = PAM_REQUIRED;
+		} else if (match_word(p, "requisite")) {
+			this->flag = PAM_REQUISITE;
+		} else if (match_word(p, "sufficient")) {
+			this->flag = PAM_SUFFICIENT;
+		} else if (match_word(p, "optional")) {
+			this->flag = PAM_OPTIONAL;
+		} else if (match_word(p, "binding")) {
+			this->flag = PAM_BINDING;
 		} else {
+			q = next_word(p);
 			openpam_log(PAM_LOG_ERROR,
-			    "%s: invalid control flag on line %d: '%s'",
-			    filename, line, p);
-			continue;
+			    "%s: invalid control flag '%.*s'",
+			    filename, (int)(q - p), p);
+			goto fail;
 		}
 
-		/* get module name */
-		for (p = q; isspace(*p); ++p)
-			/* nothing */;
-		for (q = p; *q != '\0' && !isspace(*q); ++q)
-			/* nothing */;
-		if (q == p)
-			goto syntax_error;
-
-		/* get options */
-		for (optc = 0; *q != '\0' && optc < MAX_OPTIONS; ++optc) {
-			*q++ = '\0';
-			while (isspace(*q))
-				++q;
-			optv[optc] = q;
-			while (*q != '\0' && !isspace(*q))
-				++q;
-		}
-		optv[optc] = NULL;
-		if (*q != '\0') {
-			*q = '\0';
+		/* module name */
+		p = next_word(p);
+		q = next_word(p);
+		if (*p == '\0') {
 			openpam_log(PAM_LOG_ERROR,
-			    "%s: too many options on line %d",
-			    filename, line);
+			    "%s: missing module name", filename);
+			goto fail;
+		}
+		if ((name = dup_word(p)) == NULL)
+			goto syserr;
+		this->module = openpam_load_module(name);
+		FREE(name);
+		if (this->module == NULL)
+			goto fail;
+
+		/* module options */
+		while (*q != '\0') {
+			++this->optc;
+			q = next_word(q);
+		}
+		this->optv = calloc(this->optc + 1, sizeof(char *));
+		if (this->optv == NULL)
+			goto syserr;
+		for (i = 0; i < this->optc; ++i) {
+			p = next_word(p);
+			if ((this->optv[i] = dup_word(p)) == NULL)
+				goto syserr;
 		}
 
-		/*
-		 * Finally, add the module at the end of the
-		 * appropriate chain and bump the counter.
-		 */
-		r = openpam_add_module(policy, chain, flag, p, optc, optv);
-		if (r != PAM_SUCCESS)
-			return (-r);
-		++n;
-		continue;
- syntax_error:
-		openpam_log(PAM_LOG_ERROR, "%s: syntax error on line %d",
-		    filename, line);
-		openpam_log(PAM_LOG_DEBUG, "%s: line %d: [%s]",
-		    filename, line, q);
-		openpam_log(PAM_LOG_ERROR, "%s: ignoring line %d",
-		    filename, line);
+		/* hook it up */
+		*next = this;
+		next = &this->next;
+		this = NULL;
+	        ++count;
+
+		/* next please... */
+		FREE(line);
 	}
-
-	if (ferror(f))
-		openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
-
+	if (!feof(f))
+		goto syserr;
 	fclose(f);
-	return (n);
+	return (count);
+ syserr:
+	openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
+ fail:
+	FREE(this);
+	FREE(line);
+	fclose(f);
+	return (-1);
 }
 
 static const char *openpam_policy_path[] = {
@@ -217,9 +239,14 @@ static const char *openpam_policy_path[] = {
 	NULL
 };
 
+/*
+ * Locates the policy file for a given service and reads the given chain
+ * from it.
+ */
 static int
-openpam_load_policy(pam_chain_t *policy[],
-	const char *service)
+openpam_load_chain(pam_chain_t **chain,
+	const char *service,
+	const char *facility)
 {
 	const char **path;
 	char *filename;
@@ -229,26 +256,29 @@ openpam_load_policy(pam_chain_t *policy[],
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		len = strlen(*path);
 		if ((*path)[len - 1] == '/') {
-			filename = malloc(len + strlen(service) + 1);
-			if (filename == NULL) {
-				openpam_log(PAM_LOG_ERROR, "malloc(): %m");
+			if (asprintf(&filename, "%s%s", *path, service) < 0) {
+				openpam_log(PAM_LOG_ERROR, "asprintf(): %m");
 				return (-PAM_BUF_ERR);
 			}
-			strcpy(filename, *path);
-			strcat(filename, service);
-			r = openpam_read_policy_file(policy,
-			    service, filename, PAM_D_STYLE);
+			r = openpam_read_chain(chain, service, facility,
+			    filename, pam_d_style);
 			FREE(filename);
 		} else {
-			r = openpam_read_policy_file(policy,
-			    service, *path, PAM_CONF_STYLE);
+			r = openpam_read_chain(chain, service, facility,
+			    *path, pam_conf_style);
 		}
 		if (r != 0)
 			return (r);
 	}
-
 	return (0);
 }
+
+const char *_pam_chain_name[PAM_NUM_CHAINS] = {
+	[PAM_AUTH] = "auth",
+	[PAM_ACCOUNT] = "account",
+	[PAM_SESSION] = "session",
+	[PAM_PASSWORD] = "password"
+};
 
 /*
  * OpenPAM internal
@@ -260,34 +290,20 @@ int
 openpam_configure(pam_handle_t *pamh,
 	const char *service)
 {
-	pam_chain_t *other[PAM_NUM_CHAINS] = { 0 };
-	int i, n, r;
+	int i, ret;
 
-	/* try own configuration first */
-	r = openpam_load_policy(pamh->chains, service);
-	if (r < 0)
-		return (-r);
-	for (i = n = 0; i < PAM_NUM_CHAINS; ++i) {
-		if (pamh->chains[i] != NULL)
-			++n;
-	}
-	if (n == PAM_NUM_CHAINS)
-		return (PAM_SUCCESS);
-
-	/* fill in the blanks with "other" */
-	openpam_load_policy(other, PAM_OTHER);
-	if (r < 0)
-		return (-r);
-	for (i = n = 0; i < PAM_NUM_CHAINS; ++i) {
-		if (pamh->chains[i] == NULL) {
-			pamh->chains[i] = other[i];
-			other[i] = NULL;
+	for (i = 0; i < PAM_NUM_CHAINS; ++i) {
+		ret = openpam_load_chain(&pamh->chains[i],
+		    service, _pam_chain_name[i]);
+		if (ret == 0)
+			ret = openpam_load_chain(&pamh->chains[i],
+			    PAM_OTHER, _pam_chain_name[i]);
+		if (ret < 0) {
+			openpam_clear_chains(pamh->chains);
+			return (PAM_SYSTEM_ERR);
 		}
-		if (pamh->chains[i] != NULL)
-			++n;
 	}
-	openpam_clear_chains(other);
-	return (n > 0 ? PAM_SUCCESS : PAM_SYSTEM_ERR);
+	return (PAM_SUCCESS);
 }
 
 /*
@@ -295,5 +311,4 @@ openpam_configure(pam_handle_t *pamh,
  *
  * Error codes:
  *	PAM_SYSTEM_ERR
- *	PAM_BUF_ERR
  */
