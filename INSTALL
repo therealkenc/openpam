@@ -7,8 +7,9 @@
   See the release notes for a list of platforms OpenPAM has been
   tested on.
 
-  You will need GNU Make and the GNU C compiler to build OpenPAM.  On
-  some platforms, you may have to install these separately.
+  You will need the GNU autotools, GNU make and the GNU compiler suite
+  to build OpenPAM.  On some platforms, you may have to install these
+  separately.
 
 2. CONFIGURATION
 
@@ -26,22 +27,26 @@
     --with-pam-unix
 	Builds the sample PAM module.
 
+  For more information about configuration options, use the --help
+  option.
+
   A typical invocation might look like this:
 
   # ./configure --with-pam-su --with-pam-unix
 
 3. COMPILATION
 
-  To compile OpenPAM, simply run "make" in the top-level OpenPAM
-  directory:
+  To compile OpenPAM, simply run "make" (or "gmake" on platforms where
+  "make" is not GNU make) in the top-level OpenPAM directory:
 
   # make
 
 4. INSTALLATION
 
-  To install OpenPAM, simply run "make install" in the top-level
-  OpenPAM directory:
+  To install OpenPAM, simply run "make install" (or "gmake install" on
+  platforms where "make" is not GNU make) in the top-level OpenPAM
+  directory:
 
   # make install
 
-$P4: //depot/projects/openpam/INSTALL#3 $
+$P4: //depot/projects/openpam/INSTALL#4 $
