@@ -119,6 +119,7 @@ openpam_dispatch(pam_handle_t *pamh,
 			if (chain->flag == PAM_SUFFICIENT &&
 			    primitive != PAM_SM_SETCRED)
 				break;
+			continue;
 		}
 
 		_openpam_check_error_code(primitive, r);
@@ -131,6 +132,7 @@ openpam_dispatch(pam_handle_t *pamh,
 		if (err == 0)
 			err = r;
 		if (chain->flag == PAM_REQUIRED && !fail) {
+			openpam_log(PAM_LOG_DEBUG, "required module failed");
 			fail = 1;
 			err = r;
 		}
@@ -140,12 +142,16 @@ openpam_dispatch(pam_handle_t *pamh,
 		 * immediately.
 		 */
 		if (chain->flag == PAM_REQUISITE) {
+			openpam_log(PAM_LOG_DEBUG, "requisite module failed");
 			fail = 1;
 			break;
 		}
 	}
 
-	return (fail ? err : PAM_SUCCESS);
+	if (!fail)
+		err = PAM_SUCCESS;
+	openpam_log(PAM_LOG_DEBUG, "returning: %s", pam_strerror(pamh, err));
+	return (err);
 }
 
 #if !defined(OPENPAM_RELAX_CHECKS)
