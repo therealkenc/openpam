@@ -43,6 +43,8 @@
 
 #include "openpam_impl.h"
 
+#if defined(openpam_log)
+
 /*
  * Log a message through syslog(3)
  */
@@ -79,3 +81,37 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 	va_end(ap);
 }
 
+#else
+
+/*
+ * If openpam_log isn't defined as a macro, we're on a platform that
+ * doesn't support varadic macros (or it does but we aren't aware of
+ * it).  Do the next best thing.
+ */
+
+void
+openpam_log(int level, const char *fmt, ...)
+{
+	va_list ap;
+	int priority;
+
+	switch (level) {
+	case PAM_LOG_DEBUG:
+		priority = LOG_DEBUG;
+		break;
+	case PAM_LOG_VERBOSE:
+		priority = LOG_INFO;
+		break;
+	case PAM_LOG_NOTICE:
+		priority = LOG_NOTICE;
+		break;
+	case PAM_LOG_ERROR:
+		priority = LOG_ERR;
+		break;
+	}
+	va_start(ap, fmt);
+	vsyslog(priority, fmt, ap);
+	va_end(ap);
+}
+
+#endif
