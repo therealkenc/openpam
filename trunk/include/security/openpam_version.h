@@ -31,14 +31,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam_version.h#1 $
+ * $P4: //depot/projects/openpam/include/security/openpam_version.h#2 $
  */
 
 #ifndef _OPENPAM_VERSION_H_INCLUDED
 #define _OPENPAM_VERSION_H_INCLUDED
 
 #define _OPENPAM
-#define _OPENPAM_VERSION	20020408
-#define _OPENPAM_RELEASE	"Cinchona"
+#define _OPENPAM_VERSION	20020414
+#define _OPENPAM_RELEASE	"Cineraria"
 
 #endif
