@@ -45,6 +45,7 @@ CFLAGS		+= -I${.CURDIR}/../include
 SRCS		 =
 SRCS		+= openpam_dispatch.c
 SRCS		+= openpam_log.c
+SRCS		+= openpam_ttyconv.c
 SRCS		+= pam_acct_mgmt.c
 SRCS		+= pam_authenticate.c
 SRCS		+= pam_chauthtok.c

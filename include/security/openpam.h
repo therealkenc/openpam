@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2001 Networks Associates Technologies, Inc.
+ * Copyright (c) 2002 Networks Associates Technologies, Inc.
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -34,80 +34,32 @@
  * $Id$
  */
 
-#ifndef _OPENPAM_H_INCLUDED
-#define _OPENPAM_H_INCLUDED
-
-#include <security/openpam.h>
+#ifndef _SECURITY_OPENPAM_H_INCLUDED
+#define _SECURITY_OPENPAM_H_INCLUDED
 
 /*
- * Control flags
+ * Log levels
  */
-#define PAM_REQUIRED		1
-#define	PAM_REQUISITE		2
-#define PAM_SUFFICIENT		3
-#define	PAM_OPTIONAL		4
-#define PAM_NUM_CONTROLFLAGS	5
+enum {
+	PAM_LOG_DEBUG,
+	PAM_LOG_VERBOSE,
+	PAM_LOG_NOTICE,
+	PAM_LOG_ERROR,
+};
 
 /*
- * Chains
+ * Log to syslog
  */
-#define PAM_AUTH		0
-#define PAM_ACCOUNT		1
-#define PAM_SESSION		2
-#define PAM_PASSWORD		3
-#define PAM_NUM_CHAINS		4
+void openpam_log(int _level,
+	const char *_fmt,
+	...);
 
-#define PAM_ACCT_MGMT		0
-#define PAM_AUTHENTICATE	1
-#define PAM_CHAUTHTOK		2
-#define PAM_CLOSE_SESSION	3
-#define PAM_OPEN_SESSION	4
-#define PAM_SETCRED		5
-#define PAM_NUM_PRIMITIVES	6
-
-extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
-
-typedef int (*pam_func_t)(pam_handle_t *, int);
-
-typedef struct pam_chain pam_chain_t;
-struct pam_chain {
-	int		 flag;
-	char		*modpath;
-	/* XXX options */
-	pam_chain_t	*next;
-	void		*dlh;
-	pam_func_t	 primitive[PAM_NUM_PRIMITIVES];
-};
-
-#define PAM_NUM_ITEMS	       10
-
-typedef struct pam_data pam_data_t;
-struct pam_data {
-	char		*name;
-	void		*data;
-	void		(*cleanup)(pam_handle_t *, void *, int);
-	pam_data_t	*next;
-};
-
-struct pam_handle {
-	char		*service;
-	
-	/* chains */
-	pam_chain_t	*chains[PAM_NUM_CHAINS];
-
-	/* items and data */
-	void		*item[PAM_NUM_ITEMS];
-	pam_data_t	*module_data;
-
-	/* environment list */
-	char	       **env;
-	int		 env_count;
-	int		 env_size;
-};
-
-#define PAM_OTHER	"other"
-
-int		openpam_dispatch(pam_handle_t *, int, int);
-int		openpam_findenv(pam_handle_t *, const char *, size_t);
+/*
+ * Generic conversation function
+ */
+int openpam_ttyconv(int _n,
+	const struct pam_message **_msg,
+	struct pam_response **_resp,
+	void *_data);
 
 #endif
