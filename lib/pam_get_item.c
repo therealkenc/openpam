@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_get_item.c#12 $
+ * $P4: //depot/projects/openpam/lib/pam_get_item.c#13 $
  */
 
 #include <sys/param.h>
@@ -67,6 +67,7 @@ pam_get_item(pam_handle_t *pamh,
 	case PAM_USER_PROMPT:
 	case PAM_AUTHTOK_PROMPT:
 	case PAM_OLDAUTHTOK_PROMPT:
+	case PAM_REPOSITORY:
 		*item = pamh->item[item_type];
 		return (PAM_SUCCESS);
 	default:
