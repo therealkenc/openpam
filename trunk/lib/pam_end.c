@@ -50,13 +50,28 @@
 
 int
 pam_end(pam_handle_t *pamh,
-	int status __unused)
+	int status)
 {
 	pam_chain_t *module;
+	pam_data_t *dp;
 	int i;
 
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
+
+	/* clear module data */
+	while ((dp = pamh->module_data) != NULL) {
+		if (dp->cleanup)
+			(dp->cleanup)(pamh, dp->data, status);
+		pamh->module_data = dp->next;
+		free(dp->name);
+		free(dp);
+	}
+
+	/* clear environment */
+	while (pamh->env_count)
+		free(pamh->env[--pamh->env_count]);
+	free(pamh->env);
 
 	/* clear chains */
 	for (i = 0; i < PAM_NUM_CHAINS; ++i) {
@@ -72,7 +87,7 @@ pam_end(pam_handle_t *pamh,
 
 	/* clear items */
 	for (i = 0; i < PAM_NUM_ITEMS; ++i)
-		free(pamh->item[i]);
+		pam_set_item(pamh, i, NULL);
 
 	free(pamh);
 
