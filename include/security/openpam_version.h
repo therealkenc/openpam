@@ -31,14 +31,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam_version.h#5 $
+ * $P4: //depot/projects/openpam/include/security/openpam_version.h#6 $
  */
 
 #ifndef _OPENPAM_VERSION_H_INCLUDED
 #define _OPENPAM_VERSION_H_INCLUDED
 
 #define _OPENPAM
-#define _OPENPAM_VERSION	20020524
-#define _OPENPAM_RELEASE	"Cinquefoil"
+#define _OPENPAM_VERSION	20020630
+#define _OPENPAM_RELEASE	"Citronella"
 
 #endif
