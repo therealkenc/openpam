@@ -40,6 +40,7 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+
 /*
  * XSSO 4.2.1
  * XSSO 6 page 45
@@ -56,13 +57,19 @@ pam_getenvlist(pam_handle_t *pamh)
 	if (pamh == NULL)
 		return (NULL);
 
-	if ((envlist = malloc(sizeof(char *) * (pamh->env_count + 1))) == NULL)
+	envlist = malloc(sizeof(char *) * (pamh->env_count + 1));
+	if (envlist == NULL) {
+		openpam_log(PAM_LOG_ERROR, "%s",
+			pam_strerror(pamh, PAM_BUF_ERR));
 		return (NULL);
+	}
 	for (i = 0; i < pamh->env_count; ++i) {
 		if ((envlist[i] = strdup(pamh->env[i])) == NULL) {
 			while (i)
 				free(envlist[--i]);
 			free(envlist);
+			openpam_log(PAM_LOG_ERROR, "%s",
+				pam_strerror(pamh, PAM_BUF_ERR));
 			return (NULL);
 		}
 	}
