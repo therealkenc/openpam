@@ -74,7 +74,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 	va_start(ap, fmt);
 	for (len = strlen(fmt); len > 0 && isspace(fmt[len]); len--)
 		/* nothing */;
-	if ((format = malloc(strlen(func) + len + 8)) != NULL) {
+	if ((format = malloc(strlen(func) + len + 16)) != NULL) {
 		sprintf(format, "in %s(): %.*s\n", func, len, fmt);
 		vsyslog(priority, format, ap);
 #ifdef DEBUG
