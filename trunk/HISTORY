@@ -19,7 +19,6 @@ OpenPAM Citronella						2002-06-30
  - ENHANCE: Added sample pam_unix module.
 
  - BUGFIX: Various documentation nits.
-
 ============================================================================
 OpenPAM Cinquefoil						2002-05-24
 
@@ -184,4 +183,4 @@ OpenPAM	Calamite						2002-02-09
 
 First (beta) release.
 ============================================================================
-$P4: //depot/projects/openpam/HISTORY#13 $
+$P4: //depot/projects/openpam/HISTORY#14 $
