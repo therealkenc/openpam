@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/pam_types.h#6 $
+ * $P4: //depot/projects/openpam/include/security/pam_types.h#7 $
  */
 
 #ifndef _PAM_TYPES_H_INCLUDED
@@ -68,6 +68,15 @@ struct pam_conv {
  */
 struct pam_handle;
 typedef struct pam_handle pam_handle_t;
+
+/*
+ * Solaris 9
+ */
+typedef struct pam_repository {
+	char	*type;
+	void	*scope;
+	size_t	scope_len;
+} pam_repository_t;
 
 #ifdef __cplusplus
 }
