@@ -31,26 +31,18 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id$
+ * $FreeBSD$
  */
 
 #include <sys/param.h>
 
-#include <security/pam_appl.h>
+#include <security/pam_modules.h>
 
-#include "openpam_impl.h"
+PAM_SM_DUMMY(authenticate);
+PAM_SM_DUMMY(setcred);
+PAM_SM_DUMMY(acct_mgmt);
+PAM_SM_DUMMY(open_session);
+PAM_SM_DUMMY(close_session);
+PAM_SM_DUMMY(chauthtok);
 
-/*
- * XSSO 4.2.1
- * XSSO 6 page 57
- *
- * Modify / delete user credentials for an authentication service
- */
-
-int
-pam_setcred(pam_handle_t *pamh,
-	int flags)
-{
-
-	return (openpam_dispatch(pamh, PAM_SM_SETCRED, flags));
-}
+PAM_MODULE_ENTRY("pam_deny");

@@ -42,6 +42,10 @@
 
 #include "openpam_impl.h"
 
+#ifdef OPENPAM_STATIC_MODULES
+SET_DECLARE(_openpam_modules, pam_module_t);
+#endif
+
 const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_sm_acct_mgmt",
 	"pam_sm_authenticate",
@@ -51,17 +55,121 @@ const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_sm_setcred"
 };
 
-static void
-openpam_destroy_module(pam_chain_t *module)
+static pam_module_t *modules;
+
+/*
+ * Load a dynamic module, or locate a static one.  Keep a list of
+ * previously found modules to speed up the process.
+ */
+
+static pam_module_t *
+openpam_load_module(const char *path)
 {
-	if (module->dlh != NULL)
-		dlclose(module->dlh);
-	while (module->optc--)
-		free(module->optv[module->optc]);
-	free(module->optv);
-	free(module->modpath);
+	pam_module_t *module;
+	void *dlh;
+
+	/* check cache first */
+	for (module = modules; module != NULL; module = module->next)
+		if (strcmp(module->path, path) == 0)
+			goto found;
+
+	/* nope; try to load */
+	if ((dlh = dlopen(path, RTLD_NOW)) == NULL) {
+		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
+	} else {
+		if ((module = calloc(1, sizeof *module)) == NULL)
+			goto buf_err;
+		if ((module->path = strdup(path)) == NULL)
+			goto buf_err;
+		module->dlh = dlh;
+	}
+	openpam_log(PAM_LOG_DEBUG, "%s dynamic %s",
+	    (module == NULL) ? "no" : "using", path);
+
+#ifdef OPENPAM_STATIC_MODULES
+	/* look for a static module */
+	if (module == NULL && strchr(path, '/') == NULL) {
+		pam_module_t **modp;
+		
+		SET_FOREACH(modp, _openpam_modules) {
+			if (strcmp((*modp)->path, path) == 0) {
+				module = *modp;
+				break;
+			}
+		}
+		openpam_log(PAM_LOG_DEBUG, "%s static %s",
+		    (module == NULL) ? "no" : "using", path);
+	}
+#endif
+	if (module == NULL)
+		return (NULL);
+	module->next = modules;
+	module->prev = NULL;
+	modules = module;
+ found:
+	++module->refcount;
+	return (module);
+ buf_err:
+	openpam_log(PAM_LOG_ERROR, "malloc(): %m");
+	dlclose(dlh);
+	free(module);
+	return (NULL);
+}
+
+
+/*
+ * Release a module.
+ * XXX highly thread-unsafe
+ */
+
+static void
+openpam_release_module(pam_module_t *module)
+{
+	if (module == NULL)
+		return;
+	--module->refcount;
+	if (module->refcount > 0)
+		/* still in use */
+		return;
+	if (module->refcount < 0) {
+		openpam_log(PAM_LOG_ERROR, "module %s has negative refcount",
+		    module->path);
+		module->refcount = 0;
+	}
+	if (module->dlh == NULL)
+		/* static module */
+		return;
+	dlclose(module->dlh);
+	if (module->prev != NULL)
+		module->prev->next = module->next;
+	if (module->next != NULL)
+		module->next->prev = module->prev;
 	free(module);
 }
+
+
+/*
+ * Destroy a chain, freeing all its links and releasing the modules
+ * they point to.
+ */
+
+static void
+openpam_destroy_chain(pam_chain_t *chain)
+{
+	if (chain == NULL)
+		return;
+	openpam_destroy_chain(chain->next);
+	chain->next = NULL;
+	while (chain->optc--)
+		free(chain->optv[chain->optc]);
+	free(chain->optv);
+	openpam_release_module(chain->module);
+	free(chain);
+}
+
+/*
+ * Add a module to a chain.
+ */
 
 int
 openpam_add_module(pam_handle_t *pamh,
@@ -71,57 +179,36 @@ openpam_add_module(pam_handle_t *pamh,
 	int optc,
 	const char *optv[])
 {
-	pam_chain_t *module, *iterator;
-	int i;
+	pam_chain_t *new, *iterator;
 
-	/* fill in configuration data */
-	if ((module = calloc(1, sizeof(*module))) == NULL)
+	if ((new = calloc(1, sizeof(*new))) == NULL)
 		goto buf_err;
-	if ((module->modpath = strdup(modpath)) == NULL)
-		goto buf_err;
-	if ((module->optv = malloc(sizeof(char *) * (optc + 1))) == NULL)
+	if ((new->optv = malloc(sizeof(char *) * (optc + 1))) == NULL)
 		goto buf_err;
 	while (optc--)
-		if ((module->optv[module->optc++] = strdup(*optv++)) == NULL)
+		if ((new->optv[new->optc++] = strdup(*optv++)) == NULL)
 			goto buf_err;
-	module->optv[module->optc] = NULL;
-	module->flag = flag;
-	module->next = NULL;
-
-	/* load module and resolve symbols */
-	/*
-	 * Each module is dlopen()'d once for evey time it occurs in
-	 * any chain.  While the linker is smart enough to not load
-	 * the same module more than once, it does waste space in the
-	 * form of linker handles and pam_func structs.
-	 *
-	 * TODO: implement a central module cache and replace the
-	 * array of pam_func structs in struct pam_chain with pointers
-	 * to the appropriate entry in the module cache.
-	 */
-	if ((module->dlh = dlopen(modpath, RTLD_NOW)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
-		openpam_destroy_module(module);
+	new->optv[new->optc] = NULL;
+	new->flag = flag;
+	if ((new->module = openpam_load_module(modpath)) == NULL) {
+		openpam_destroy_chain(new);
 		return (PAM_OPEN_ERR);
 	}
-	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
-		module->primitive[i] =
-		    dlsym(module->dlh, _pam_sm_func_name[i]);
-
 	if ((iterator = pamh->chains[chain]) != NULL) {
 		while (iterator->next != NULL)
 			iterator = iterator->next;
-		iterator->next = module;
+		iterator->next = new;
 	} else {
-		pamh->chains[chain] = module;
+		pamh->chains[chain] = new;
 	}
 	return (PAM_SUCCESS);
 
  buf_err:
 	openpam_log(PAM_LOG_ERROR, "%m");
-	openpam_destroy_module(module);
+	openpam_destroy_chain(new);
 	return (PAM_BUF_ERR);
 }
+
 
 /*
  * Clear the chains and release the modules
@@ -130,14 +217,8 @@ openpam_add_module(pam_handle_t *pamh,
 void
 openpam_clear_chains(pam_handle_t *pamh)
 {
-	pam_chain_t *module;
 	int i;
 
-	for (i = 0; i < PAM_NUM_CHAINS; ++i) {
-		while (pamh->chains[i] != NULL) {
-			module = pamh->chains[i];
-			pamh->chains[i] = module->next;
-			openpam_destroy_module(module);
-		}
-	}
+	for (i = 0; i < PAM_NUM_CHAINS; ++i)
+		openpam_destroy_chain(pamh->chains[i]);
 }

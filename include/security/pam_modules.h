@@ -39,42 +39,43 @@
 
 #include <security/pam_types.h>
 #include <security/pam_constants.h>
+#include <security/openpam.h>
 
 /*
  * XSSO 4.2.2, 6
  */
 
-int
+PAM_EXTERN int
 pam_sm_acct_mgmt(pam_handle_t *_pamh,
 	int _flags,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_authenticate(pam_handle_t *_pamh,
 	int _flags,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_chauthtok(pam_handle_t *_pamh,
 	int _flags,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_close_session(pam_handle_t *_pamh,
 	int _flags,
 	int _args,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_open_session(pam_handle_t *_pamh,
 	int _flags,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_setcred(pam_handle_t *_pamh,
 	int _flags,
 	int _argc,
@@ -84,7 +85,7 @@ pam_sm_setcred(pam_handle_t *_pamh,
  * Single Sign-On extensions
  */
 #if 0
-int
+PAM_EXTERN int
 pam_sm_authenticate_secondary(pam_handle_t *_pamh,
 	char *_target_username,
 	char *_target_module_type,
@@ -95,7 +96,7 @@ pam_sm_authenticate_secondary(pam_handle_t *_pamh,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_get_mapped_authtok(pam_handle_t *_pamh,
 	char *_target_module_username,
 	char *_target_module_type,
@@ -105,7 +106,7 @@ pam_sm_get_mapped_authtok(pam_handle_t *_pamh,
 	int _argc,
 	char *_argv);
 
-int
+PAM_EXTERN int
 pam_sm_get_mapped_username(pam_handle_t *_pamh,
 	char *_src_username,
 	char *_src_module_type,
@@ -116,7 +117,7 @@ pam_sm_get_mapped_username(pam_handle_t *_pamh,
 	int _argc,
 	const char **_argv);
 
-int
+PAM_EXTERN int
 pam_sm_set_mapped_authtok(pam_handle_t *_pamh,
 	char *_target_module_username,
 	size_t _target_authtok_len,
@@ -126,7 +127,7 @@ pam_sm_set_mapped_authtok(pam_handle_t *_pamh,
 	int _argc,
 	const char *_argv);
 
-int
+PAM_EXTERN int
 pam_sm_set_mapped_username(pam_handle_t *_pamh,
 	char *_target_module_username,
 	char *_target_module_type,

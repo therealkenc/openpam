@@ -55,7 +55,7 @@ openpam_dispatch(pam_handle_t *pamh,
 	int primitive,
 	int flags)
 {
-	pam_chain_t *module;
+	pam_chain_t *chain;
 	int err, fail, r;
 
 	if (pamh == NULL)
@@ -69,41 +69,41 @@ openpam_dispatch(pam_handle_t *pamh,
 
 	/* pick a chain */
 	switch (primitive) {
-	case PAM_AUTHENTICATE:
-	case PAM_SETCRED:
-		module = pamh->chains[PAM_AUTH];
+	case PAM_SM_AUTHENTICATE:
+	case PAM_SM_SETCRED:
+		chain = pamh->chains[PAM_AUTH];
 		break;
-	case PAM_ACCT_MGMT:
-		module = pamh->chains[PAM_ACCOUNT];
+	case PAM_SM_ACCT_MGMT:
+		chain = pamh->chains[PAM_ACCOUNT];
 		break;
-	case PAM_OPEN_SESSION:
-	case PAM_CLOSE_SESSION:
-		module = pamh->chains[PAM_SESSION];
+	case PAM_SM_OPEN_SESSION:
+	case PAM_SM_CLOSE_SESSION:
+		chain = pamh->chains[PAM_SESSION];
 		break;
-	case PAM_CHAUTHTOK:
-		module = pamh->chains[PAM_PASSWORD];
+	case PAM_SM_CHAUTHTOK:
+		chain = pamh->chains[PAM_PASSWORD];
 		break;
 	default:
 		return (PAM_SYSTEM_ERR);
 	}
 
 	/* fail if the chain is empty */
-	if (module == NULL)
+	if (chain == NULL)
 		return (PAM_SYSTEM_ERR);
 
 	/* execute */
-	for (err = fail = 0; module != NULL; module = module->next) {
-		if (module->primitive[primitive] == NULL) {
+	for (err = fail = 0; chain != NULL; chain = chain->next) {
+		if (chain->module->func[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
-			    module->modpath, _pam_sm_func_name[primitive]);
+			    chain->module->path, _pam_sm_func_name[primitive]);
 			r = PAM_SYMBOL_ERR;
 		} else {
-			pamh->current = module;
-			r = (module->primitive[primitive])(pamh, flags,
-			    module->optc, (const char **)module->optv);
+			pamh->current = chain;
+			r = (chain->module->func[primitive])(pamh, flags,
+			    chain->optc, (const char **)chain->optv);
 			pamh->current = NULL;
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
-			    module->modpath, _pam_sm_func_name[primitive],
+			    chain->module->path, _pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
 		}
 
@@ -118,8 +118,8 @@ openpam_dispatch(pam_handle_t *pamh,
 			 * the chain here if a required module has
 			 * previously failed.  I'm not sure why.
 			 */
-			if (module->flag == PAM_SUFFICIENT &&
-			    primitive != PAM_SETCRED)
+			if (chain->flag == PAM_SUFFICIENT &&
+			    primitive != PAM_SM_SETCRED)
 				break;
 		}
 
@@ -132,7 +132,7 @@ openpam_dispatch(pam_handle_t *pamh,
 		 */
 		if (err == 0)
 			err = r;
-		if (module->flag == PAM_REQUIRED && !fail) {
+		if (chain->flag == PAM_REQUIRED && !fail) {
 			fail = 1;
 			err = r;
 		}
@@ -141,7 +141,7 @@ openpam_dispatch(pam_handle_t *pamh,
 		 * If a requisite module fails, terminate the chain
 		 * immediately.
 		 */
-		if (module->flag == PAM_REQUISITE) {
+		if (chain->flag == PAM_REQUISITE) {
 			fail = 1;
 			break;
 		}
@@ -164,7 +164,7 @@ _openpam_check_error_code(int primitive, int r)
 
 	/* specific error codes */
 	switch (primitive) {
-	case PAM_AUTHENTICATE:
+	case PAM_SM_AUTHENTICATE:
 		if (r == PAM_AUTH_ERR ||
 		    r == PAM_CRED_INSUFFICIENT ||
 		    r == PAM_AUTHINFO_UNAVAIL ||
@@ -172,26 +172,26 @@ _openpam_check_error_code(int primitive, int r)
 		    r == PAM_MAXTRIES)
 			return;
 		break;
-	case PAM_SETCRED:
+	case PAM_SM_SETCRED:
 		if (r == PAM_CRED_UNAVAIL ||
 		    r == PAM_CRED_EXPIRED ||
 		    r == PAM_USER_UNKNOWN ||
 		    r == PAM_CRED_ERR)
 			return;
 		break;
-	case PAM_ACCT_MGMT:
+	case PAM_SM_ACCT_MGMT:
 		if (r == PAM_USER_UNKNOWN ||
 		    r == PAM_AUTH_ERR ||
 		    r == PAM_NEW_AUTHTOK_REQD ||
 		    r == PAM_ACCT_EXPIRED)
 			return;
 		break;
-	case PAM_OPEN_SESSION:
-	case PAM_CLOSE_SESSION:
+	case PAM_SM_OPEN_SESSION:
+	case PAM_SM_CLOSE_SESSION:
 		if (r == PAM_SESSION_ERR)
 			return;
 		break;
-	case PAM_CHAUTHTOK:
+	case PAM_SM_CHAUTHTOK:
 		if (r == PAM_PERM_DENIED ||
 		    r == PAM_AUTHTOK_ERR ||
 		    r == PAM_AUTHTOK_RECOVERY_ERR ||

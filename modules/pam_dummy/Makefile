@@ -34,9 +34,9 @@
 # $Id$
 #
 
-SUBDIR		 =
-SUBDIR		+= pam_deny
-SUBDIR		+= pam_dummy
-SUBDIR		+= pam_permit
+LIB		 = pam_dummy
+SHLIB_NAME	 = pam_dummy.so
+SRCS		 = pam_dummy.c
+CFLAGS		+= -I${.CURDIR}/../../include
 
-.include <bsd.subdir.mk>
+.include <bsd.lib.mk>

@@ -52,5 +52,5 @@ pam_acct_mgmt(pam_handle_t *pamh,
 	int flags)
 {
 
-	return (openpam_dispatch(pamh, PAM_ACCT_MGMT, flags));
+	return (openpam_dispatch(pamh, PAM_SM_ACCT_MGMT, flags));
 }

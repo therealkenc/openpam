@@ -52,5 +52,5 @@ pam_open_session(pam_handle_t *pamh,
 	int flags)
 {
 
-	return (openpam_dispatch(pamh, PAM_OPEN_SESSION, flags));
+	return (openpam_dispatch(pamh, PAM_SM_OPEN_SESSION, flags));
 }

@@ -52,5 +52,5 @@ pam_chauthtok(pam_handle_t *pamh,
 	int flags)
 {
 
-	return (openpam_dispatch(pamh, PAM_CHAUTHTOK, flags));
+	return (openpam_dispatch(pamh, PAM_SM_CHAUTHTOK, flags));
 }

@@ -52,5 +52,5 @@ pam_close_session(pam_handle_t *pamh,
 	int flags)
 {
 
-	return (openpam_dispatch(pamh, PAM_CLOSE_SESSION, flags));
+	return (openpam_dispatch(pamh, PAM_SM_CLOSE_SESSION, flags));
 }

@@ -55,20 +55,95 @@ void _openpam_log(int _level,
 	const char *_fmt,
 	...);
 
-#ifdef __GNUC__
+#if defined(__STDC__) && (__STDC_VERSION__ > 199901L)
+#define openpam_log(lvl, fmt, ...) \
+	_openpam_log((lvl), __func__, fmt, __VA_ARGS__)
+#elif defined(__GNUC__)
 #define openpam_log(lvl, fmt...) \
 	_openpam_log((lvl), __func__, ##fmt)
 #else
-#define openpam_log(lvl, fmt, ...) \
-	_openpam_log((lvl), __func__, fmt, __VA_ARGS__)
+extern openpam_log(int _level, const char *_format, ...);
 #endif
 
 /*
  * Generic conversation function
  */
+struct pam_message;
+struct pam_response;
 int openpam_ttyconv(int _n,
 	const struct pam_message **_msg,
 	struct pam_response **_resp,
 	void *_data);
+
+/*
+ * PAM primitives
+ */
+enum {
+	PAM_SM_AUTHENTICATE,
+	PAM_SM_SETCRED,
+	PAM_SM_ACCT_MGMT,
+	PAM_SM_OPEN_SESSION,
+	PAM_SM_CLOSE_SESSION,
+	PAM_SM_CHAUTHTOK,
+	/* keep this last */
+	PAM_NUM_PRIMITIVES
+};
+
+/*
+ * Dummy service module function
+ */
+#define PAM_SM_DUMMY(type)						\
+PAM_EXTERN int								\
+pam_sm_##type(pam_handle_t *pamh, int flags,				\
+    int argc, const char *argv[])					\
+{									\
+	return (PAM_IGNORE);						\
+}
+
+/*
+ * PAM service module functions match this typedef
+ */
+struct pam_handle;
+typedef int (*pam_func_t)(struct pam_handle *, int, int, const char **);
+
+/*
+ * A struct that describes a module.
+ */
+typedef struct pam_module pam_module_t;
+struct pam_module {
+	const char	*path;
+	pam_func_t	 func[PAM_NUM_PRIMITIVES];
+	void		*dlh;
+	int		 refcount;
+	pam_module_t	*prev;
+	pam_module_t	*next;
+};
+
+/*
+ * Infrastructure for static modules using GCC linker sets.
+ * You are not expected to understand this.
+ */
+#if defined(__GNUC__) && !defined(__PIC__)
+#if defined(__FreeBSD__)
+#define PAM_SOEXT ".so"
+#else
+#error Static linking is not supported on your platform
+#endif
+/* gcc, static linking */
+#include <sys/cdefs.h>
+#include <linker_set.h>
+#define OPENPAM_STATIC_MODULES
+#define PAM_EXTERN static
+#define PAM_MODULE_ENTRY(name)						\
+static struct pam_module _pam_module = { name PAM_SOEXT, {		\
+    pam_sm_authenticate, pam_sm_setcred, pam_sm_acct_mgmt,		\
+    pam_sm_open_session, pam_sm_close_session, pam_sm_chauthtok },	\
+    NULL, 0, NULL, NULL };						\
+DATA_SET(_openpam_modules, _pam_module)
+#else
+/* normal case */
+#define PAM_EXTERN
+#define PAM_MODULE_ENTRY(name)
+#endif
 
 #endif
