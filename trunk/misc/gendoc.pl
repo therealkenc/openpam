@@ -146,7 +146,7 @@ sub gensummary() {
     }
     print ".Nd Pluggable Authentication Modules
 .Sh LIBRARY
-.Lb libfetch
+.Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
 ";
