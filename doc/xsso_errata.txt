@@ -1,4 +1,4 @@
-$P4: //depot/projects/openpam/doc/xsso_errata.txt#5 $
+$P4: //depot/projects/openpam/doc/xsso_errata.txt#6 $
 
 Errata in XSSO, chapter 5:
 
@@ -14,6 +14,9 @@ p. 32:	"PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
 	sections should be "PAM_NEW_AUTHTOK_REQD".
 
 p. 32:	pam_acct_mgmt() must be allowed to return PAM_AUTH_ERR.
+
+p. 34:  "PAM_AUTH_ERR" is misspelled as "PAM_AUTH_ERROR" in the
+        second-last line of the DESCRIPTION section.
 
 p. 46:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
 	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
