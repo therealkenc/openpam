@@ -47,6 +47,7 @@ SRCS		+= openpam_dispatch.c
 SRCS		+= openpam_findenv.c
 SRCS		+= openpam_load.c
 SRCS		+= openpam_log.c
+SRCS		+= openpam_static.c
 SRCS		+= openpam_ttyconv.c
 SRCS		+= pam_acct_mgmt.c
 SRCS		+= pam_authenticate.c

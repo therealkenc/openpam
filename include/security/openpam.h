@@ -196,7 +196,7 @@ static struct pam_module _pam_module = { name PAM_SOEXT, {		\
     pam_sm_authenticate, pam_sm_setcred, pam_sm_acct_mgmt,		\
     pam_sm_open_session, pam_sm_close_session, pam_sm_chauthtok },	\
     NULL, 0, NULL, NULL };						\
-DATA_SET(_openpam_modules, _pam_module)
+DATA_SET(_openpam_static_modules, _pam_module)
 #else
 /* normal case */
 #define PAM_EXTERN
