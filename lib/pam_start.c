@@ -65,7 +65,7 @@ pam_start(const char *service,
 	struct pam_handle *ph;
 	int r;
 
-	if ((ph = calloc(1, sizeof *ph)) == NULL)
+	if ((ph = calloc(1, sizeof(*ph))) == NULL)
 		return (PAM_BUF_ERR);
 	if ((r = pam_set_item(ph, PAM_SERVICE, service)) != PAM_SUCCESS)
 		goto fail;
@@ -110,7 +110,7 @@ _pam_add_module(pam_handle_t *pamh,
 	int i;
 
 	/* fill in configuration data */
-	if ((module = malloc(sizeof *module)) == NULL) {
+	if ((module = malloc(sizeof(*module))) == NULL) {
 		openpam_log(PAM_LOG_ERROR, "malloc(): %m");
 		return (PAM_BUF_ERR);
 	}

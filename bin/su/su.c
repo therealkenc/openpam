@@ -92,7 +92,7 @@ main(int argc, char *argv[])
 	pam_start("su", argc ? *argv : "root", &pamc, &pamh);
 
 	/* set some items */
-	gethostname(hostname, sizeof hostname);
+	gethostname(hostname, sizeof(hostname));
 	check("pam_set_item", pam_set_item(pamh, PAM_RHOST, hostname));
 	user = getlogin();
 	check("pam_set_item", pam_set_item(pamh, PAM_RUSER, user));

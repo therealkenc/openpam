@@ -64,7 +64,7 @@ openpam_ttyconv(int n,
 	data = data;
 	if (n <= 0 || n > PAM_MAX_NUM_MSG)
 		return (PAM_CONV_ERR);
-	if ((*resp = calloc(n, sizeof **resp)) == NULL)
+	if ((*resp = calloc(n, sizeof(**resp))) == NULL)
 		return (PAM_BUF_ERR);
 	fd = fileno(stdin);
 	for (i = 0; i < n; ++i) {
@@ -91,7 +91,7 @@ openpam_ttyconv(int n,
 			}
 			fputs(msg[i]->msg, stderr);
 			buf[0] = '\0';
-			fgets(buf, sizeof buf, stdin);
+			fgets(buf, sizeof(buf), stdin);
 			if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
 				tattr.c_lflag = lflag;
 				(void)tcsetattr(fd, TCSANOW, &tattr);
