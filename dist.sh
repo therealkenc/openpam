@@ -1,11 +1,13 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/dist.sh#10 $
+# $P4: //depot/projects/openpam/dist.sh#11 $
 #
 
 set -e
 
-release=$(date '+%Y%m%d')
+srcdir=$(dirname $(realpath $0))
+release=$(perl -ne '/^#define\s+_OPENPAM_VERSION\s+(\d+)/ && print $1' \
+    $srcdir/include/security/openpam_version.h)
 distname="openpam-${release}"
 tarball="${distname}.tar.gz"
 
@@ -18,13 +20,9 @@ grep '^[A-Za-z].*[^/]$' MANIFEST | while read file; do
     echo "Adding ${file}"
     install -c -m 0644 "${file}" "${distname}/${file}" || exit 1
 done
-for file in autogen.sh configure depcomp install-sh ltconfig ltmain.sh ; do
+for file in autogen.sh configure depcomp install-sh ltmain.sh ; do
     echo "Adjusting permissions for ${file}"
     chmod a+x "${distname}/${file}"
-done
-(cd "${distname}" && grep -rl YYYYMMDD *) | while read file ; do
-    echo "Datestamping ${file}"
-    perl -p -i -e "s/YYYYMMDD/${release}/g" "${distname}/${file}"
 done
 find "${distname}" | sort -r | xargs touch -t "${release}0000"
 tar zcf "${tarball}" "${distname}"
