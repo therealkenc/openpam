@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#22 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#23 $
 #
 
 use strict;
@@ -141,7 +141,7 @@ sub parse_source($) {
 
     $func = $fn;
     $func =~ s,^(?:.*/)?([^/]+)\.c$,$1,;
-    if ($source !~ m,\n \* ([\S ]+)\n \*/\n\n([\S ]+)\n_?$func\((.*?)\)\n\{,s) {
+    if ($source !~ m,\n \* ([\S ]+)\n \*/\n\n([\S ]+)\n$func\((.*?)\)\n\{,s) {
 	warn("$fn: can't find $func\n");
 	return undef;
     }
