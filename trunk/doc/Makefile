@@ -35,9 +35,6 @@
 #
 
 SUBDIR		 =
-SUBDIR		+= modules
-SUBDIR		+= lib
-SUBDIR		+= bin
-SUBDIR		+= doc
+SUBDIR		+= man
 
 .include <bsd.subdir.mk>
