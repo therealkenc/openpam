@@ -32,13 +32,14 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#26 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#27 $
 #
 
 use strict;
+use locale;
 use Fcntl;
 use Getopt::Std;
-use POSIX qw(strftime);
+use POSIX qw(locale_h strftime);
 use vars qw($COPYRIGHT $TODAY %FUNCTIONS %PAMERR);
 
 $COPYRIGHT = ".\\\"-
@@ -552,6 +553,7 @@ MAIN:{
 
     usage()
 	unless (@ARGV && getopts("op", \%opts));
+    setlocale(LC_ALL, "en_US.ISO8859-1");
     $TODAY = strftime("%B %e, %Y", localtime(time()));
     $TODAY =~ s,\s+, ,g;
     if ($opts{'o'} || $opts{'p'}) {
