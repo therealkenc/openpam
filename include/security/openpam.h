@@ -38,6 +38,59 @@
 #define _SECURITY_OPENPAM_H_INCLUDED
 
 /*
+ * Annoying but necessary header pollution
+ */
+#include <stdarg.h>
+
+/*
+ * API extensions
+ */
+int
+pam_error(pam_handle_t *_pamh,
+	const char *_fmt,
+	...);
+
+int
+pam_get_authtok(pam_handle_t *_pamh,
+	const char **_authtok,
+	const char *_prompt);
+
+int
+pam_info(pam_handle_t *_pamh,
+	const char *_fmt,
+	...);
+
+int
+pam_prompt(pam_handle_t *_pamh,
+	int _style,
+	char **_resp,
+	const char *_fmt,
+	...);
+
+int
+pam_setenv(pam_handle_t *_pamh,
+	const char *_name,
+	const char *_value,
+	int _overwrite);
+
+int
+pam_vinfo(pam_handle_t *_pamh,
+	const char *_fmt,
+	va_list _ap);
+
+int
+pam_verror(pam_handle_t *_pamh,
+	const char *_fmt,
+	va_list _ap);
+
+int
+pam_vprompt(pam_handle_t *_pamh,
+	int _style,
+	char **_resp,
+	const char *_fmt,
+	va_list _ap);
+
+/*
  * Log levels
  */
 enum {

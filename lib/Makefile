@@ -70,6 +70,9 @@ SRCS		+= pam_setcred.c
 SRCS		+= pam_setenv.c
 SRCS		+= pam_start.c
 SRCS		+= pam_strerror.c
+SRCS		+= pam_verror.c
+SRCS		+= pam_vinfo.c
+SRCS		+= pam_vprompt.c
 
 .if 0
 SRCS		+= pam_authenticate_secondary.c

@@ -37,6 +37,7 @@
 #include <sys/param.h>
 
 #include <security/pam_appl.h>
+#include <security/openpam.h>
 
 #include "openpam_impl.h"
 
@@ -65,7 +66,8 @@ pam_get_authtok(pam_handle_t *pamh,
 		    (const void **)&p) != PAM_SUCCESS || p == NULL)
 			prompt = "Password:";
 	}
-	r = pam_prompt(pamh, &resp, 0, "%s", prompt ? prompt : p);
+	r = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &resp,
+	    "%s", prompt ? prompt : p);
 	if (r != PAM_SUCCESS)
 		return (r);
 	*authtok = resp;

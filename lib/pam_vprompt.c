@@ -34,43 +34,41 @@
  * $Id$
  */
 
-#include <sys/param.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
-#include "openpam_impl.h"
-
 /*
- * XSSO 4.2.1
- * XSSO 6 page 52
+ * OpenPAM extension
  *
- * Retrieve user name
+ * Call the conversation function
  */
 
 int
-pam_get_user(pam_handle_t *pamh,
-	const char **user,
-	const char *prompt)
+pam_vprompt(pam_handle_t *pamh,
+	int style,
+	char **resp,
+	const char *fmt,
+	va_list ap)
 {
-	char *p, *resp;
+	char msgbuf[PAM_MAX_MSG_SIZE];
+	struct pam_message msg;
+	const struct pam_message *msgp;
+	struct pam_response *rsp;
+	struct pam_conv conv;
 	int r;
 
-	if (pamh == NULL || user == NULL)
-		return (PAM_SYSTEM_ERR);
-
-	r = pam_get_item(pamh, PAM_USER, (const void **)user);
-	if (r == PAM_SUCCESS)
-		return (PAM_SUCCESS);
-	if (prompt == NULL) {
-		if (pam_get_item(pamh, PAM_USER_PROMPT,
-		    (const void **)&p) != PAM_SUCCESS || p == NULL)
-			prompt = "Login: ";
-	}
-	r = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &resp,
-	    "%s", prompt ? prompt : p);
-	if (r != PAM_SUCCESS)
+	if ((r = pam_get_item(pamh, PAM_CONV, (void *)&conv)) != PAM_SUCCESS)
 		return (r);
-	*user = resp;
-	return (pam_set_item(pamh, PAM_USER, *user));
+	vsnprintf(msgbuf, PAM_MAX_MSG_SIZE, fmt, ap);
+	msg.msg_style = style;
+	msg.msg = msgbuf;
+	msgp = &msg;
+	r = (conv.conv)(1, &msgp, &rsp, conv.appdata_ptr);
+	*resp = rsp == NULL ? NULL : rsp->resp;
+	free(rsp);
+	return (r);
 }
