@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_impl.h#23 $
+ * $P4: //depot/projects/openpam/lib/openpam_impl.h#24 $
  */
 
 #ifndef _OPENPAM_IMPL_H_INCLUDED
@@ -124,7 +124,7 @@ pam_module_t   *openpam_static(const char *);
 #endif
 pam_module_t   *openpam_dynamic(const char *);
 
-#define	FREE(p) do { free((p)); (p) = NULL; } while (0);
+#define	FREE(p) do { free((p)); (p) = NULL; } while (0)
 
 #ifdef DEBUG
 #define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
@@ -133,16 +133,16 @@ pam_module_t   *openpam_dynamic(const char *);
 		openpam_log(PAM_LOG_DEBUG, "entering: %s", _pam_item_name[i]); \
 	else \
 		openpam_log(PAM_LOG_DEBUG, "entering: %d", (i)); \
-} while (0);
+} while (0)
 #define ENTERN(n) do { \
 	openpam_log(PAM_LOG_DEBUG, "entering: %d", (n)); \
-} while (0);
+} while (0)
 #define ENTERS(s) do { \
 	if ((s) == NULL) \
 		openpam_log(PAM_LOG_DEBUG, "entering: NULL"); \
 	else \
 		openpam_log(PAM_LOG_DEBUG, "entering: '%s'", (s)); \
-} while (0);
+} while (0)
 #define	RETURNV() openpam_log(PAM_LOG_DEBUG, "returning")
 #define RETURNC(c) do { \
 	if ((c) >= 0 && (c) < PAM_NUM_ERRORS) \
