@@ -35,8 +35,7 @@
 #
 
 SUBDIR		 =
-SUBDIR		+= modules
-SUBDIR		+= lib
-SUBDIR		+= bin
+SUBDIR		+= pam_deny
+SUBDIR		+= pam_permit
 
 .include <bsd.subdir.mk>
