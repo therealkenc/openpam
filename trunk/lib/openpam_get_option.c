@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_get_option.c#7 $
+ * $P4: //depot/projects/openpam/lib/openpam_get_option.c#8 $
  */
 
 #include <sys/param.h>
@@ -72,10 +72,6 @@ openpam_get_option(pam_handle_t *pamh,
 	}
 	RETURNS(NULL);
 }
-
-/*
- * NOLIST
- */
 
 /**
  * The =openpam_get_option function returns the value of the specified

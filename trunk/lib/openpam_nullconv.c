@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_nullconv.c#4 $
+ * $P4: //depot/projects/openpam/lib/openpam_nullconv.c#5 $
  */
 
 #include <sys/types.h>
@@ -62,8 +62,6 @@ openpam_nullconv(int n,
 }
 
 /*
- * NOLIST
- *
  * Error codes:
  *
  *	PAM_CONV_ERR
