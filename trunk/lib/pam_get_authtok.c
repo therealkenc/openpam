@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#14 $
+ * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#15 $
  */
 
 #include <sys/param.h>
@@ -45,6 +45,7 @@
 
 const char authtok_prompt[] = "Password:";
 const char oldauthtok_prompt[] = "Old Password:";
+const char newauthtok_prompt[] = "New Password:";
 
 /*
  * OpenPAM extension
@@ -58,22 +59,30 @@ pam_get_authtok(pam_handle_t *pamh,
 	const char **authtok,
 	const char *prompt)
 {
+	const void *oldauthtok;
 	const char *default_prompt;
-	char *resp;
-	int pitem, r, style;
+	char *resp, *resp2;
+	int pitem, r, style, twice;
 
 	if (pamh == NULL || authtok == NULL)
 		return (PAM_SYSTEM_ERR);
 
 	*authtok = NULL;
+	twice = 0;
 	switch (item) {
 	case PAM_AUTHTOK:
 		pitem = PAM_AUTHTOK_PROMPT;
 		default_prompt = authtok_prompt;
+		r = pam_get_item(pamh, PAM_OLDAUTHTOK, &oldauthtok);
+		if (r == PAM_SUCCESS && oldauthtok != NULL) {
+			default_prompt = newauthtok_prompt;
+			twice = 1;
+		}
 		break;
 	case PAM_OLDAUTHTOK:
 		pitem = PAM_OLDAUTHTOK_PROMPT;
 		default_prompt = oldauthtok_prompt;
+		twice = 0;
 		break;
 	default:
 		return (PAM_SYMBOL_ERR);
@@ -97,6 +106,20 @@ pam_get_authtok(pam_handle_t *pamh,
 	r = pam_prompt(pamh, style, &resp, "%s", prompt);
 	if (r != PAM_SUCCESS)
 		return (r);
+	if (twice) {
+		r = pam_prompt(pamh, style, &resp2, "Retype %s", prompt);
+		if (r != PAM_SUCCESS) {
+			free(resp);
+			return (r);
+		}
+		if (strcmp(resp, resp2) != 0) {
+			free(resp);
+			resp = NULL;
+		}
+		free(resp2);
+	}
+	if (resp == NULL)
+		return (PAM_TRY_AGAIN);
 	r = pam_set_item(pamh, pitem, resp);
 	free(resp);
 	if (r != PAM_SUCCESS)
@@ -111,6 +134,7 @@ pam_get_authtok(pam_handle_t *pamh,
  *	=pam_prompt
  *	=pam_set_item
  *	!PAM_SYMBOL_ERR
+ *	PAM_TRY_AGAIN
  */
 
 /**
@@ -132,6 +156,11 @@ pam_get_authtok(pam_handle_t *pamh,
  * If it is =NULL, the =PAM_AUTHTOK_PROMPT or =PAM_OLDAUTHTOK_PROMPT item,
  * as appropriate, will be used.  If that item is also =NULL, a hardcoded
  * default prompt will be used.
+ *
+ * If =item is set to =PAM_AUTHTOK and there is a non-null =PAM_OLDAUTHTOK
+ * item, =pam_get_authtok will ask the user to confirm the new token by
+ * retyping it.  If there is a mismatch, =pam_get_authtok will return
+ * =PAM_TRY_AGAIN.
  *
  * >pam_get_item
  * >pam_get_user
