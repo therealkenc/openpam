@@ -1,5 +1,5 @@
 #
-# $P4: //depot/projects/openpam/MANIFEST#19 $
+# $P4: //depot/projects/openpam/MANIFEST#20 $
 #
 CREDITS
 HISTORY
@@ -19,11 +19,8 @@ configure
 configure.ac
 depcomp
 install-sh
-ltconfig
 ltmain.sh
 missing
-mkinstalldirs
-stamp-h.in
 bin/
 bin/Makefile.am
 bin/Makefile.in
@@ -41,6 +38,7 @@ doc/man/openpam.3
 doc/man/openpam.man
 doc/man/openpam_borrow_cred.3
 doc/man/openpam_free_data.3
+doc/man/openpam_free_envlist.3
 doc/man/openpam_get_option.3
 doc/man/openpam_log.3
 doc/man/openpam_nullconv.3
@@ -103,6 +101,7 @@ lib/openpam_dispatch.c
 lib/openpam_dynamic.c
 lib/openpam_findenv.c
 lib/openpam_free_data.c
+lib/openpam_free_envlist.c
 lib/openpam_get_option.c
 lib/openpam_impl.h
 lib/openpam_load.c
