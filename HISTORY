@@ -16,7 +16,7 @@ OpenPAM	Centaury						2002-03-14
 
  - ENHANCE: Suppress debugging logs, unless compiled with -DDEBUG.
 ============================================================================
-OpenPAM Celandine 2002-03-05
+OpenPAM Celandine						2002-03-05
 
  - BUGFIX: PAM_TRY_AGAIN is a valid return value for pam_chauthtok().
 
@@ -83,4 +83,4 @@ OpenPAM	Calamite						2002-02-09
 
 First (beta) release.
 ============================================================================
-$P4: //depot/projects/openpam/HISTORY#6 $
+$P4: //depot/projects/openpam/HISTORY#7 $
