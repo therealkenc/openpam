@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#23 $
+ * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#24 $
  */
 
 #include <sys/param.h>
@@ -112,10 +112,8 @@ pam_get_authtok(pam_handle_t *pamh,
 			FREE(resp);
 			RETURNC(r);
 		}
-		if (strcmp(resp, resp2) != 0) {
+		if (strcmp(resp, resp2) != 0)
 			FREE(resp);
-			resp = NULL;
-		}
 		FREE(resp2);
 	}
 	if (resp == NULL)
