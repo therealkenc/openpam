@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/pam_constants.h#15 $
+ * $P4: //depot/projects/openpam/include/security/pam_constants.h#16 $
  */
 
 #ifndef _PAM_CONSTANTS_H_INCLUDED
