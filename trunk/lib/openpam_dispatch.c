@@ -87,16 +87,12 @@ openpam_dispatch(pam_handle_t *pamh,
 		return (PAM_SYSTEM_ERR);
 	}
 
-	/* fail if the chain is empty */
-	if (chain == NULL)
-		return (PAM_SYSTEM_ERR);
-
 	/* execute */
 	for (err = fail = 0; chain != NULL; chain = chain->next) {
 		if (chain->module->func[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
 			    chain->module->path, _pam_sm_func_name[primitive]);
-			r = PAM_SYMBOL_ERR;
+			continue;
 		} else {
 			pamh->current = chain;
 			r = (chain->module->func[primitive])(pamh, flags,
