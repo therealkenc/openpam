@@ -34,10 +34,32 @@
 # $Id$
 #
 
-SUBDIR		 =
-SUBDIR		+= modules
-SUBDIR		+= lib
-SUBDIR		+= bin
-SUBDIR		+= doc
+MAN		 =
+MAN		+= pam.3
+MAN		+= pam_acct_mgmt.3
+MAN		+= pam_authenticate.3
+MAN		+= pam_chauthtok.3
+MAN		+= pam_close_session.3
+MAN		+= pam_end.3
+MAN		+= pam_error.3
+MAN		+= pam_get_authtok.3
+MAN		+= pam_get_data.3
+MAN		+= pam_get_item.3
+MAN		+= pam_get_user.3
+MAN		+= pam_getenv.3
+MAN		+= pam_getenvlist.3
+MAN		+= pam_info.3
+MAN		+= pam_open_session.3
+MAN		+= pam_prompt.3
+MAN		+= pam_putenv.3
+MAN		+= pam_set_data.3
+MAN		+= pam_set_item.3
+MAN		+= pam_setcred.3
+MAN		+= pam_setenv.3
+MAN		+= pam_start.3
+MAN		+= pam_strerror.3
+MAN		+= pam_verror.3
+MAN		+= pam_vinfo.3
+MAN		+= pam_vprompt.3
 
-.include <bsd.subdir.mk>
+.include <bsd.prog.mk>
