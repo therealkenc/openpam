@@ -14,6 +14,7 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Andrew Morgan <morgan@transmeta.com>
 	Brian Fundakowski Feldman <green@freebsd.org>
 	Darren J. Moffat <Darren.Moffat@sun.com>
+	Dmitry V. Levin <ldv@altlinux.org>
 	Eric Melville <eric@freebsd.org>
 	Gary Winiger <Gary.Winiger@sun.com>
 	Joe Marcus Clarke <marcus@marcuscom.com>
@@ -26,4 +27,4 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Solar Designer <solar@openwall.com>
 	Takanori Saneto <sanewo@ba2.so-net.ne.jp>
 
-$P4: //depot/projects/openpam/CREDITS#7 $
+$P4: //depot/projects/openpam/CREDITS#8 $
