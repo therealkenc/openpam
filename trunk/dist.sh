@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/dist.sh#9 $
+# $P4: //depot/projects/openpam/dist.sh#10 $
 #
 
 set -e
@@ -10,11 +10,11 @@ distname="openpam-${release}"
 tarball="${distname}.tar.gz"
 
 install -d -m 0755 "${distname}"
-grep '^[a-z].*/$' MANIFEST | while read dir; do
+grep '^[A-Za-z].*/$' MANIFEST | while read dir; do
     echo "Creating ${dir}"
     install -d -m 0755 "${distname}/${dir}" || exit 1
 done
-grep '^[a-z].*[^/]$' MANIFEST | while read file; do
+grep '^[A-Za-z].*[^/]$' MANIFEST | while read file; do
     echo "Adding ${file}"
     install -c -m 0644 "${file}" "${distname}/${file}" || exit 1
 done
