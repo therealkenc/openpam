@@ -73,6 +73,8 @@ pam_getenvlist(pam_handle_t *pamh)
 			return (NULL);
 		}
 	}
+	envlist[i] = NULL;
+	openpam_log(PAM_LOG_DEBUG, "returning %d variables\n", pamh->env_count);
 	return (envlist);
 }
 
