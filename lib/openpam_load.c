@@ -225,3 +225,7 @@ openpam_clear_chains(pam_handle_t *pamh)
 	for (i = 0; i < PAM_NUM_CHAINS; ++i)
 		openpam_destroy_chain(pamh->chains[i]);
 }
+
+/*
+ * NOPARSE
+ */

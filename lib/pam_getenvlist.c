@@ -75,3 +75,28 @@ pam_getenvlist(pam_handle_t *pamh)
 	}
 	return (envlist);
 }
+
+/**
+ * The =pam_getenvlist function returns a copy of the given PAM context's
+ * environment list as a pointer to an array of strings.
+ * The last element in the array is =NULL.
+ * The pointer is suitable for assignment to {Va environ}.
+ *
+ * The array and the strings it lists are allocated using =malloc, and
+ * should be released using =free after use:
+ *
+ *     char **envlist, **env;
+ *     
+ *     envlist = environ;
+ *     environ = pam_getenvlist(pamh);
+ *     \/\* do something nifty \*\/
+ *     for (env = environ; *env != NULL; env++)
+ *         free(*env);
+ *     free(environ);
+ *     environ = envlist;
+ *
+ * >environ 7
+ * >pam_getenv
+ * >pam_putenv
+ * >pam_setenv
+ */
