@@ -184,7 +184,7 @@ openpam_add_module(pam_handle_t *pamh,
 {
 	pam_chain_t *new, *iterator;
 
-	if ((new = calloc(1, sizeof(*new))) == NULL)
+	if ((new = calloc(1, sizeof *new)) == NULL)
 		goto buf_err;
 	if ((new->optv = malloc(sizeof(char *) * (optc + 1))) == NULL)
 		goto buf_err;

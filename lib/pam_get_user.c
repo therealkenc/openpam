@@ -49,25 +49,26 @@
 
 int
 pam_get_user(pam_handle_t *pamh,
-	char **user,
+	const char **user,
 	const char *prompt)
 {
-	char *p;
+	char *p, *resp;
 	int r;
 
 	if (pamh == NULL || user == NULL)
 		return (PAM_SYSTEM_ERR);
 
-	r = pam_get_item(pamh, PAM_USER, (void **)user);
+	r = pam_get_item(pamh, PAM_USER, (const void **)user);
 	if (r == PAM_SUCCESS)
 		return (PAM_SUCCESS);
 	if (prompt == NULL) {
-		if (pam_get_item(pamh, PAM_USER_PROMPT, (void **)&p) !=
-		    PAM_SUCCESS || p == NULL)
+		if (pam_get_item(pamh, PAM_USER_PROMPT,
+		    (const void **)&p) != PAM_SUCCESS || p == NULL)
 			prompt = "Login: ";
 	}
-	r = pam_prompt(pamh, user, 0, "%s", prompt ? prompt : p);
+	r = pam_prompt(pamh, &resp, 0, "%s", prompt ? prompt : p);
 	if (r != PAM_SUCCESS)
 		return (r);
+	*user = resp;
 	return (pam_set_item(pamh, PAM_USER, *user));
 }

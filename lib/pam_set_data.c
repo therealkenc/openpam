@@ -71,7 +71,7 @@ pam_set_data(pam_handle_t *pamh,
 		}
 	}
 
-	if ((dp = malloc(sizeof(*dp))) == NULL)
+	if ((dp = malloc(sizeof *dp)) == NULL)
 		return (PAM_BUF_ERR);
 	if ((dp->name = strdup(module_data_name)) == NULL) {
 		free(data);
