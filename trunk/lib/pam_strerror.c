@@ -117,7 +117,7 @@ pam_strerror(pam_handle_t *pamh,
 	case PAM_DOMAIN_UNKNOWN:
 		return ("unknown authentication domain");
 	default:
-		snprintf(unknown, sizeof unknown, "#%d", error_number);
+		snprintf(unknown, sizeof(unknown), "#%d", error_number);
 		return (unknown);
 	}
 }
