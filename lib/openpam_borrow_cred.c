@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#12 $
+ * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#13 $
  */
 
 #include <sys/param.h>
@@ -109,10 +109,10 @@ openpam_borrow_cred(pam_handle_t *pamh,
 
 /**
  * The =openpam_borrow_cred function saves the current credentials and
- * switches to those of the user specified by its =pwd argument.  The
- * affected credentials are the effective UID, the effective GID, and the
- * group access list.  The original credentials can be restored using
- * =openpam_restore_cred.
+ * switches to those of the user specified by its =pwd argument.
+ * The affected credentials are the effective UID, the effective GID, and
+ * the group access list.
+ * The original credentials can be restored using =openpam_restore_cred.
  *
  * >setegid 2
  * >seteuid 2
