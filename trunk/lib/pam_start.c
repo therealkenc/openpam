@@ -137,8 +137,7 @@ _pam_add_module(pam_handle_t *pamh,
 	 * details of the module cache and linker API from this file.
 	 */
 	if ((module->dlh = dlopen(modpath, RTLD_NOW)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "%s: dlopen(): %s",
-		    modpath, dlerror());
+		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
 		free(module->modpath);
 		free(module);
 		return (PAM_OPEN_ERR);
