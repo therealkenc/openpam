@@ -72,7 +72,8 @@ pam_set_item(pam_handle_t *pamh,
 	case PAM_RUSER:
 	case PAM_USER_PROMPT:
 	case PAM_AUTHTOK_PROMPT:
-		size = strlen(*slot) + 1;
+		if (*slot != NULL)
+			size = strlen(*slot) + 1;
 		if (item != NULL)
 			tmp = strdup(item);
 		break;
