@@ -62,11 +62,10 @@ openpam_dispatch(pam_handle_t *pamh,
 		return (PAM_SYSTEM_ERR);
 
 	/* prevent recursion */
-	if (pamh->dispatching) {
+	if (pamh->current != NULL) {
 		openpam_log(PAM_LOG_ERROR, "indirect recursion");
-		return (PAM_SYSTEM_ERR);
+		return (PAM_ABORT);
 	}
-	pamh->dispatching = 1;
 
 	/* pick a chain */
 	switch (primitive) {
@@ -85,7 +84,6 @@ openpam_dispatch(pam_handle_t *pamh,
 		module = pamh->chains[PAM_PASSWORD];
 		break;
 	default:
-		pamh->dispatching = 0;
 		return (PAM_SYSTEM_ERR);
 	}
 
@@ -98,10 +96,12 @@ openpam_dispatch(pam_handle_t *pamh,
 		if (module->primitive[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
 			    module->modpath, _pam_sm_func_name[primitive]);
-			pamh->dispatching = 0;
 			r = PAM_SYMBOL_ERR;
 		} else {
-			r = (module->primitive[primitive])(pamh, flags);
+			pamh->current = module;
+			r = (module->primitive[primitive])(pamh, flags,
+			    module->optc, (const char **)module->optv);
+			pamh->current = NULL;
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
 			    module->modpath, _pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
@@ -147,7 +147,6 @@ openpam_dispatch(pam_handle_t *pamh,
 		}
 	}
 
-	pamh->dispatching = 0;
 	return (fail ? err : PAM_SUCCESS);
 }
 

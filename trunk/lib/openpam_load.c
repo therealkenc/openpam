@@ -51,26 +51,40 @@ const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_sm_setcred"
 };
 
+static void
+openpam_destroy_module(pam_chain_t *module)
+{
+	if (module->dlh != NULL)
+		dlclose(module->dlh);
+	while (module->optc--)
+		free(module->optv[module->optc]);
+	free(module->optv);
+	free(module->modpath);
+	free(module);
+}
+
 int
 openpam_add_module(pam_handle_t *pamh,
 	int chain,
 	int flag,
 	const char *modpath,
-	const char *options /* XXX */ __unused)
+	int optc,
+	const char *optv[])
 {
 	pam_chain_t *module, *iterator;
 	int i;
 
 	/* fill in configuration data */
-	if ((module = malloc(sizeof(*module))) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "malloc(): %m");
-		return (PAM_BUF_ERR);
-	}
-	if ((module->modpath = strdup(modpath)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "strdup(): %m");
-		free(module);
-		return (PAM_BUF_ERR);
-	}
+	if ((module = calloc(1, sizeof(*module))) == NULL)
+		goto buf_err;
+	if ((module->modpath = strdup(modpath)) == NULL)
+		goto buf_err;
+	if ((module->optv = malloc(sizeof(char *) * (optc + 1))) == NULL)
+		goto buf_err;
+	while (optc--)
+		if ((module->optv[module->optc++] = strdup(*optv++)) == NULL)
+			goto buf_err;
+	module->optv[module->optc] = NULL;
 	module->flag = flag;
 	module->next = NULL;
 
@@ -87,8 +101,7 @@ openpam_add_module(pam_handle_t *pamh,
 	 */
 	if ((module->dlh = dlopen(modpath, RTLD_NOW)) == NULL) {
 		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
-		free(module->modpath);
-		free(module);
+		openpam_destroy_module(module);
 		return (PAM_OPEN_ERR);
 	}
 	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
@@ -103,6 +116,11 @@ openpam_add_module(pam_handle_t *pamh,
 		pamh->chains[chain] = module;
 	}
 	return (PAM_SUCCESS);
+
+ buf_err:
+	openpam_log(PAM_LOG_ERROR, "%m");
+	openpam_destroy_module(module);
+	return (PAM_BUF_ERR);
 }
 
 /*
@@ -119,10 +137,7 @@ openpam_clear_chains(pam_handle_t *pamh)
 		while (pamh->chains[i] != NULL) {
 			module = pamh->chains[i];
 			pamh->chains[i] = module->next;
-			/* XXX free options */
-			dlclose(module->dlh);
-			free(module->modpath);
-			free(module);
+			openpam_destroy_module(module);
 		}
 	}
 }
