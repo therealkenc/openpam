@@ -34,8 +34,8 @@
  * $Id$
  */
 
-#ifndef _OPENPAM_H_INCLUDED
-#define _OPENPAM_H_INCLUDED
+#ifndef _OPENPAM_IMPL_H_INCLUDED
+#define _OPENPAM_IMPL_H_INCLUDED
 
 #include <security/openpam.h>
 

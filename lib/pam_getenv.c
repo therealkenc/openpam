@@ -39,7 +39,7 @@
 
 #include <security/pam_appl.h>
 
-#include "openpam.h"
+#include "openpam_impl.h"
 
 /*
  * XSSO 4.2.1
