@@ -53,7 +53,7 @@ pam_getenv(pam_handle_t *pamh,
 	const char *name)
 {
 	int i;
-	
+
 	if (pamh == NULL)
 		return (NULL);
 

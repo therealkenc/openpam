@@ -54,7 +54,7 @@ pam_strerror(pam_handle_t *pamh,
 	static char unknown[16];
 
 	pamh = pamh;
-	
+
 	switch (error_number) {
 	case PAM_SUCCESS:
 		return ("success");

@@ -53,7 +53,7 @@ pam_get_user(pam_handle_t *pamh,
 	const char *prompt)
 {
 	int r;
-	
+
 	if (pamh == NULL || user == NULL)
 		return (PAM_SYSTEM_ERR);
 

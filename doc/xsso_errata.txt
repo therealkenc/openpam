@@ -2,12 +2,12 @@ $Id$
 
 Errata in XSSO, chapter 5:
 
-p. 25:  the first member of struct pam_response is named "resp", not
+p. 25:	the first member of struct pam_response is named "resp", not
 	"response".
 
 Errata in XSSO, chapter 6:
 
-p. 32:  "PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
+p. 32:	"PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
 	sections should be "PAM_NEW_AUTHTOK_REQD".
 
 p. 32:	pam_acct_mgmt() must be allowed to return PAM_AUTH_ERR.
@@ -18,7 +18,7 @@ p. 46:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
 p. 60:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
 	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
 
-p. 62:  the target_authtok_len argument to pam_set_mapped_authtok() is
+p. 62:	the target_authtok_len argument to pam_set_mapped_authtok() is
 	of type size_t, not a size_t *.
 
 p. 52:	PAM_CONV_ERR is listed out of order and with the explanatory
@@ -52,7 +52,7 @@ p. 85:	the names of several arguments to pam_sm_set_mapped_username()
 
 p. 89:	the user argument to pam_start() is of type const char *.
 
-p. 89:  the correct definition for struct pam_conv is as follows:
+p. 89:	the correct definition for struct pam_conv is as follows:
 
 	struct pam_conv {
 		int	(*conv)(int, struct pam_message **,
@@ -60,7 +60,7 @@ p. 89:  the correct definition for struct pam_conv is as follows:
 		void	*appdata_ptr;
 	};
 
-p. 90:  the correct definition for struct pam_response is as follows:
+p. 90:	the correct definition for struct pam_response is as follows:
 
 	struct pam_response {
 		char	*resp;

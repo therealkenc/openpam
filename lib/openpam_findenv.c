@@ -50,7 +50,7 @@ openpam_findenv(pam_handle_t *pamh,
 	size_t len)
 {
 	int i;
-	
+
 	if (pamh == NULL)
 		return (-1);
 

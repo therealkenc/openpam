@@ -52,91 +52,93 @@ static struct pam_conv pamc;
 static void
 usage(void)
 {
-        fprintf(stderr, "Usage: su [login [args]]\n");
-        exit(1);
+
+	fprintf(stderr, "Usage: su [login [args]]\n");
+	exit(1);
 }
 
 static int
 check(const char *func, int pam_err)
 {
-        if (pam_err == PAM_SUCCESS || pam_err == PAM_NEW_AUTHTOK_REQD)
-                return pam_err;
-        openlog("su", LOG_CONS, LOG_AUTH);
-        syslog(LOG_ERR, "%s(): %s", func, pam_strerror(pamh, pam_err));
-        errx(1, "Sorry.");
+
+	if (pam_err == PAM_SUCCESS || pam_err == PAM_NEW_AUTHTOK_REQD)
+		return pam_err;
+	openlog("su", LOG_CONS, LOG_AUTH);
+	syslog(LOG_ERR, "%s(): %s", func, pam_strerror(pamh, pam_err));
+	errx(1, "Sorry.");
 }
 
 int
 main(int argc, char *argv[])
 {
-        char hostname[MAXHOSTNAMELEN];
-        const char *user, *tty;
+	char hostname[MAXHOSTNAMELEN];
+	const char *user, *tty;
 	struct passwd *pwd;
-        int o, status;
-        pid_t pid;
+	int o, status;
+	pid_t pid;
 
-        while ((o = getopt(argc, argv, "h")) != -1)
-                switch (o) {
-                case 'h':
-                default:
-                        usage();
-                }
+	while ((o = getopt(argc, argv, "h")) != -1)
+		switch (o) {
+		case 'h':
+		default:
+			usage();
+		}
 
-        argc -= optind;
-        argv += optind;
+	argc -= optind;
+	argv += optind;
 
-        /* initialize PAM */
-        pamc.conv = &openpam_ttyconv;
+	/* initialize PAM */
+	pamc.conv = &openpam_ttyconv;
 	pam_start("su", argc ? *argv : "root", &pamc, &pamh);
 
-        /* set some items */
-        gethostname(hostname, sizeof hostname);
-        check("pam_set_item", pam_set_item(pamh, PAM_RHOST, hostname));
-        user = getlogin();
-        check("pam_set_item", pam_set_item(pamh, PAM_RUSER, user));
-        tty = ttyname(STDERR_FILENO);
-        check("pam_set_item", pam_set_item(pamh, PAM_TTY, tty));
+	/* set some items */
+	gethostname(hostname, sizeof hostname);
+	check("pam_set_item", pam_set_item(pamh, PAM_RHOST, hostname));
+	user = getlogin();
+	check("pam_set_item", pam_set_item(pamh, PAM_RUSER, user));
+	tty = ttyname(STDERR_FILENO);
+	check("pam_set_item", pam_set_item(pamh, PAM_TTY, tty));
 
-        /* authenticate the applicant */
-        check("pam_authenticate", pam_authenticate(pamh, 0));
-        if (check("pam_acct_mgmt", pam_acct_mgmt(pamh, 0)) ==
-            PAM_NEW_AUTHTOK_REQD)
-                check("pam_chauthtok",
-                    pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK));
-        
-        /* establish the requested credentials */
-        check("pam_setcred", pam_setcred(pamh, PAM_ESTABLISH_CRED));
-        
-        /* authentication succeeded; open a session */
-        check("pam_open_session", pam_open_session(pamh, 0));
+	/* authenticate the applicant */
+	check("pam_authenticate", pam_authenticate(pamh, 0));
+	if (check("pam_acct_mgmt", pam_acct_mgmt(pamh, 0)) ==
+	    PAM_NEW_AUTHTOK_REQD)
+		check("pam_chauthtok",
+		    pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK));
+
+	/* establish the requested credentials */
+	check("pam_setcred", pam_setcred(pamh, PAM_ESTABLISH_CRED));
+
+	/* authentication succeeded; open a session */
+	check("pam_open_session", pam_open_session(pamh, 0));
 
 	if (initgroups(pwd->pw_name, pwd->pw_gid) == -1)
 		err(1, "initgroups()");
 	if (setuid(pwd->pw_uid) == -1)
 		err(1, "setuid()");
-	
+
 	/* XXX export environment variables */
-	
-        switch ((pid = fork())) {
-        case -1:
-                err(1, "fork()");
-        case 0:
-                /* child: start a shell */
-                *argv = pwd->pw_shell;
-                execvp(*argv, argv);
-                err(1, "execvp()");
-        default:
-                /* parent: wait for child to exit */
-                waitpid(pid, &status, 0);
-                if (WIFEXITED(status))
-                        status = WEXITSTATUS(status);
-                else
-                        status = 1;
-        }
 
-        /* close the session and release PAM resources */
-        check("pam_close_session", pam_close_session(pamh, 0));
-        check("pam_end", pam_end(pamh, 0));
+	switch ((pid = fork())) {
+	case -1:
+		err(1, "fork()");
+	case 0:
+		/* child: start a shell */
+		*argv = pwd->pw_shell;
+		execvp(*argv, argv);
+		err(1, "execvp()");
+	default:
+		/* parent: wait for child to exit */
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
+		else
+			status = 1;
+	}
 
-        exit(status);
+	/* close the session and release PAM resources */
+	check("pam_close_session", pam_close_session(pamh, 0));
+	check("pam_end", pam_end(pamh, 0));
+
+	exit(status);
 }
