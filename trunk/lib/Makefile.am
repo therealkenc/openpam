@@ -11,6 +11,7 @@ libpam_la_SOURCES = \
 	openpam_dynamic.c \
 	openpam_findenv.c \
 	openpam_free_data.c \
+	openpam_free_envlist.c \
 	openpam_get_option.c \
 	openpam_load.c \
 	openpam_log.c \
