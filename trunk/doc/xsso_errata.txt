@@ -1,0 +1,64 @@
+$Id$
+
+Errata in XSSO, chapter 5:
+
+p. 25:  the first member of struct pam_response is named "resp", not
+	"response".
+
+Errata in XSSO, chapter 6:
+
+p. 32:  "PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
+	sections should be "PAM_NEW_AUTHTOK_REQD".
+
+p. 32:	pam_acct_mgmt() must be allowed to return PAM_AUTH_ERR.
+
+p. 46:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
+	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
+
+p. 60:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
+	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
+
+p. 62:  the target_authtok_len argument to pam_set_mapped_authtok() is
+	of type size_t, not a size_t *.
+
+p. 59:	the last argument pam_set_data() should be written void
+	(*cleanup)(...), not void *(cleanup)(...).
+
+p. 66:	the first occurrence of "pam_acct_mgmt" in the NAME section
+	should be "pam_sm_acct_mgmt".
+
+p. 66:	pam_sm_acct_mgmt() must be allowed to return PAM_AUTH_ERR.
+
+p. 70:	"pam_authenticate_secondary" in the SYNOPSIS section should be
+	"pam_sm_authenticate_secondary".
+	pam_sm_authenticate_secondary() takes argc and argv arguments
+	like the rest of the pam_sm_*() functions.
+
+p. 72:	the flags argument to pam_sm_chauthtok() is of type int, not
+	const int.
+
+p. 77:	the names of several arguments to pam_sm_get_mapped_authtok()
+	are missing the initial "t" in "target".
+
+p. 83:	the target_authtok_len argument to pam_sm_set_mapped_authtok()
+	is of type size_t, not a size_t *.
+
+p. 85:	the names of several arguments to pam_sm_set_mapped_username()
+	are missing the initial "t" in "target".
+
+p. 89:	the user argument to pam_start() is of type const char *.
+
+p. 89:  the correct definition for struct pam_conv is as follows:
+
+	struct pam_conv {
+		int	(*conv)(int, struct pam_message **,
+		    struct pam_response **, void *);
+		void	*appdata_ptr;
+	};
+
+p. 90:  the correct definition for struct pam_response is as follows:
+
+	struct pam_response {
+		char	*resp;
+		int	 resp_retcode;
+	};
