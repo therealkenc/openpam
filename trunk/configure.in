@@ -1,4 +1,4 @@
-dnl $P4: //depot/projects/openpam/configure.in#2 $
+dnl $P4: //depot/projects/openpam/configure.in#3 $
 
 AC_PREREQ(2.53)
 AC_INIT([OpenPAM],[YYYYMMDD],[des@freebsd.org])
@@ -6,6 +6,7 @@ AC_CONFIG_SRCDIR([lib/pam_start.c])
 AM_CONFIG_HEADER([config.h])
 
 AC_CANONICAL_SYSTEM
+AC_C_VOLATILE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
@@ -63,9 +64,11 @@ AC_MSG_RESULT($with_pam_unix)
 AM_CONDITIONAL(WITH_PAM_SU, test "x$with_pam_su" = "xyes")
 AM_CONDITIONAL(WITH_PAM_UNIX, test "x$with_pam_unix" = "xyes")
 
+AC_PROG_INSTALL
+
 AC_CHECK_HEADERS(crypt.h)
 
-AC_PROG_INSTALL
+AC_CHECK_FUNCS(fpurge)
 
 DL_LIBS=
 AC_CHECK_LIB(dl, dlopen, DL_LIBS=-ldl)

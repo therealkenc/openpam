@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam.h#24 $
+ * $P4: //depot/projects/openpam/include/security/openpam.h#25 $
  */
 
 #ifndef _SECURITY_OPENPAM_H_INCLUDED
@@ -177,6 +177,8 @@ int openpam_ttyconv(int _n,
 	const struct pam_message **_msg,
 	struct pam_response **_resp,
 	void *_data);
+
+extern int openpam_ttyconv_timeout;
 
 /*
  * Null conversation function
