@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_putenv.c#10 $
+ * $P4: //depot/projects/openpam/lib/pam_putenv.c#11 $
  */
 
 #include <stdlib.h>
@@ -64,7 +64,7 @@ pam_putenv(pam_handle_t *pamh,
 		RETURNC(PAM_SYSTEM_ERR);
 
 	/* see if the variable is already in the environment */
-	if ((i = openpam_findenv(pamh, namevalue, p - namevalue)) != -1) {
+	if ((i = openpam_findenv(pamh, namevalue, p - namevalue)) >= 0) {
 		if ((p = strdup(namevalue)) == NULL)
 			RETURNC(PAM_BUF_ERR);
 		FREE(pamh->env[i]);
