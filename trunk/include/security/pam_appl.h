@@ -125,10 +125,32 @@ pam_strerror(pam_handle_t *_pamh,
  * OpenPAM extensions
  */
 int
+pam_error(pam_handle_t *_pamh,
+	const char *_fmt,
+	...);
+
+int
+pam_get_authtok(pam_handle_t *_pamh,
+	char **_authtok,
+	const char *_prompt);
+
+int
+pam_info(pam_handle_t *_pamh,
+	const char *_fmt,
+	...);
+
+int
+pam_prompt(pam_handle_t *pamh,
+        char **resp,
+	int echo,
+	const char *fmt,
+	...);
+
+int
 pam_setenv(pam_handle_t *_pamh,
 	const char *_name,
 	const char *_value,
-        int overwrite);
+	int overwrite);
 
 /*
  * Single Sign-On extensions
