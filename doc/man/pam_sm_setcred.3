@@ -34,39 +34,56 @@
 .\" $Id$
 .\"
 .Dd February 18, 2002
-.Dt PAM_END 3
+.Dt PAM_SM_SETCRED 3
 .Os
 .Sh NAME
-.Nm pam_end
-.Nd terminate the PAM transaction
+.Nm pam_sm_setcred
+.Nd service module implementation for pam_setcred
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
+.In security/pam_modules.h
 .Ft int
-.Fn pam_end "pam_handle_t *pamh" "int status"
+.Fn pam_sm_setcred "pam_handle_t *pamh" "int flags" "int argc" "const char **argv"
 .Sh DESCRIPTION
 The
 .Nm
-function terminates a PAM transaction and destroys the
-corresponding PAM context, releasing all resources allocated to it.
-.Pp
-The
-.Va status
-argument should be set to the error code returned by the
-last API call before the call to
-.Nm
-.
+function is the service module's implementation of
+the
+.Xr pam_setcred 3
+API function.
 .Sh RETURN VALUES
 The
 .Nm
 function returns one of the following values:
 .Bl -tag -width 18n
+.It Bq Er PAM_ABORT
+General failure.
+.It Bq Er PAM_BUF_ERR
+Memory buffer error.
+.It Bq Er PAM_CONV_ERR
+Conversation failure.
+.It Bq Er PAM_CRED_ERR
+Failed to set user credentials.
+.It Bq Er PAM_CRED_EXPIRED
+User credentials have expired.
+.It Bq Er PAM_CRED_UNAVAIL
+Failed to retrieve user credentials.
+.It Bq Er PAM_IGNORE
+Ignore this module.
+.It Bq Er PAM_PERM_DENIED
+Permission denied.
+.It Bq Er PAM_SERVICE_ERR
+Error in service module.
 .It Bq Er PAM_SYSTEM_ERR
 System error.
+.It Bq Er PAM_USER_UNKNOWN
+Unknown user.
 .El
 .Sh SEE ALSO
 .Xr pam 3 ,
+.Xr pam_setcred 3 ,
 .Xr pam_strerror 3
 .Sh STANDARDS
 .Rs
