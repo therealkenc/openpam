@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_free_envlist.c#1 $
+ * $P4: //depot/projects/openpam/lib/openpam_free_envlist.c#2 $
  */
 
 #include <stdlib.h>
@@ -49,8 +49,8 @@ openpam_free_envlist(char **envlist)
 	if (envlist == NULL)
 		RETURNV();
 	for (env = envlist; *env != NULL; ++env)
-		free(*env);
-	free(envlist);
+		FREE(*env);
+	FREE(envlist);
 	RETURNV();
 }
 
