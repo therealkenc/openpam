@@ -105,7 +105,7 @@ prompt_echo_off(const char *msg)
 	tcflag_t lflag;
 	char *ret;
 	int fd;
-	
+
 	fd = fileno(stdin);
 	if (tcgetattr(fd, &tattr) != 0) {
 		openpam_log(PAM_LOG_ERROR, "tcgetattr(): %m");
