@@ -31,12 +31,10 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/lib/Makefile#16 $
+# $P4: //depot/projects/openpam/lib/Makefile#17 $
 #
 
 LIB		 = pam
-SHLIB_MAJOR	 = 2
-SHLIB_MINOR	 = 0
 
 WARNS		?= 4
 NO_WERROR	 = yes
