@@ -57,7 +57,7 @@ pam_set_data(pam_handle_t *pamh,
 		int pam_end_status))
 {
 	pam_data_t *dp;
-	
+
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 
@@ -70,7 +70,7 @@ pam_set_data(pam_handle_t *pamh,
 			return (PAM_SUCCESS);
 		}
 	}
-	
+
 	if ((dp = malloc(sizeof *dp)) == NULL)
 		return (PAM_BUF_ERR);
 	if ((dp->name = strdup(module_data_name)) == NULL) {

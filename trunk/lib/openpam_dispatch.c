@@ -57,7 +57,7 @@ openpam_dispatch(pam_handle_t *pamh,
 {
 	pam_chain_t *module;
 	int err, fail, r;
-	
+
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 
@@ -147,7 +147,7 @@ _openpam_check_error_code(int primitive, int r)
 	    r == PAM_CONV_ERR ||
 	    r == PAM_PERM_DENIED)
 		return;
-	
+
 	/* specific error codes */
 	switch (primitive) {
 	case PAM_AUTHENTICATE:
@@ -186,7 +186,7 @@ _openpam_check_error_code(int primitive, int r)
 			return;
 		break;
 	}
-	
+
 	openpam_log(PAM_LOG_ERROR, "%s(): unexpected return value %d",
 	    _pam_sm_func_name[primitive], r);
 }

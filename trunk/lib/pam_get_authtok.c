@@ -52,7 +52,7 @@ pam_get_authtok(pam_handle_t *pamh,
 	const char *prompt)
 {
 	int r;
-	
+
 	if (pamh == NULL || authtok == NULL)
 		return (PAM_SYSTEM_ERR);
 

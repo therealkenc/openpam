@@ -54,7 +54,7 @@ pam_get_item(pam_handle_t *pamh,
 {
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
-	
+
 	switch (item_type) {
 	case PAM_SERVICE:
 	case PAM_USER:

@@ -73,8 +73,8 @@ pam_end(pam_handle_t *pamh,
 	/* clear items */
 	for (i = 0; i < PAM_NUM_ITEMS; ++i)
 		free(pamh->item[i]);
-	
+
 	free(pamh);
-	
+
 	return (PAM_SUCCESS);
 }

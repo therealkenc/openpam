@@ -79,11 +79,11 @@ pam_start(const char *service,
 		r = _pam_configure_service(ph, PAM_OTHER);
 	if (r != PAM_SUCCESS)
 		goto fail;
-	
+
 	*pamh = ph;
 	openpam_log(PAM_LOG_DEBUG, "pam_start(\"%s\") succeeded", service);
 	return (PAM_SUCCESS);
-	
+
  fail:
 	pam_end(ph, r);
 	return (r);
@@ -101,10 +101,10 @@ const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 
 static int
 _pam_add_module(pam_handle_t *pamh,
-        int chain,
-        int flag,
-        const char *modpath,
-        const char *options /* XXX */ __unused)
+	int chain,
+	int flag,
+	const char *modpath,
+	const char *options /* XXX */ __unused)
 {
 	pam_chain_t *module, *iterator;
 	int i;
@@ -145,7 +145,7 @@ _pam_add_module(pam_handle_t *pamh,
 	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
 		module->primitive[i] =
 		    dlsym(module->dlh, _pam_sm_func_name[i]);
-	
+
 	if ((iterator = pamh->chains[chain]) != NULL) {
 		while (iterator->next != NULL)
 			iterator = iterator->next;
@@ -157,7 +157,7 @@ _pam_add_module(pam_handle_t *pamh,
 }
 
 #define PAM_CONF_STYLE	0
-#define	PAM_D_STYLE	1
+#define PAM_D_STYLE	1
 #define MAX_LINE_LEN	1024
 
 static int
@@ -180,7 +180,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 	}
 	openpam_log(PAM_LOG_DEBUG, "looking for '%s' in %s",
 	    service, filename);
-	
+
 	for (line = 1; fgets(buf, MAX_LINE_LEN, f) != NULL; ++line) {
 		if ((len = strlen(buf)) == 0)
 			continue;
@@ -206,7 +206,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 			continue;
 		buf[len] = '\0';
 		p = q = buf;
-		
+
 		/* check service name */
 		if (style == PAM_CONF_STYLE) {
 			for (q = p = buf; *q != '\0' && !isspace(*q); ++q)
@@ -220,7 +220,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 			    filename, line, service);
 		}
 
-		
+
 		/* get module type */
 		for (p = q; isspace(*p); ++p)
 			/* nothing */;
@@ -266,7 +266,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 			    filename, line, p);
 			continue;
 		}
-		
+
 		/* get module name */
 		for (p = q; isspace(*p); ++p)
 			/* nothing */;
@@ -274,7 +274,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 			/* nothing */;
 		if (q == p)
 			goto syntax_error;
-		
+
 		/* get options */
 		if (*q != '\0') {
 			*q++ = 0;
@@ -283,8 +283,8 @@ _pam_read_policy_file(pam_handle_t *pamh,
 		}
 
 		/*
- 		 * Finally, add the module at the end of the
- 		 * appropriate chain and bump the counter.
+		 * Finally, add the module at the end of the
+		 * appropriate chain and bump the counter.
 		 */
 		if ((r = _pam_add_module(pamh, chain, flag, p, q)) !=
 		    PAM_SUCCESS)
@@ -302,7 +302,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 
 	if (ferror(f))
 		openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
-	
+
 	fclose(f);
 	return (n);
 }
@@ -313,10 +313,10 @@ static const char *_pam_policy_path[] = {
 	"/usr/local/etc/pam.d/",
 	NULL
 };
-	
+
 static int
 _pam_configure_service(pam_handle_t *pamh,
-        const char *service)
+	const char *service)
 {
 	const char **path;
 	char *filename;
@@ -345,6 +345,6 @@ _pam_configure_service(pam_handle_t *pamh,
 		if (r > 0)
 			return (PAM_SUCCESS);
 	}
-	
+
 	return (PAM_SYSTEM_ERR);
 }

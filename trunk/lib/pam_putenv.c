@@ -54,7 +54,7 @@ pam_putenv(pam_handle_t *pamh,
 {
 	char **env, *p;
 	int i;
-	
+
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 

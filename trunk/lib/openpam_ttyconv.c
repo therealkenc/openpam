@@ -51,28 +51,28 @@
 
 int
 openpam_ttyconv(int n,
-         const struct pam_message **msg,
-         struct pam_response **resp,
-         void *data)
+	 const struct pam_message **msg,
+	 struct pam_response **resp,
+	 void *data)
 {
-        char buf[PAM_MAX_RESP_SIZE];
-        struct termios tattr;
-        tcflag_t lflag;
-        int fd, err, i;
-        size_t len;
+	char buf[PAM_MAX_RESP_SIZE];
+	struct termios tattr;
+	tcflag_t lflag;
+	int fd, err, i;
+	size_t len;
 
-        data = data;
-        if (n <= 0 || n > PAM_MAX_NUM_MSG)
-                return (PAM_CONV_ERR);
-        if ((*resp = calloc(n, sizeof **resp)) == NULL)
-                return (PAM_BUF_ERR);
-        fd = fileno(stdin);
-        for (i = 0; i < n; ++i) {
-                resp[i]->resp_retcode = 0;
-                resp[i]->resp = NULL;
-                switch (msg[i]->msg_style) {
-                case PAM_PROMPT_ECHO_OFF:
-                case PAM_PROMPT_ECHO_ON:
+	data = data;
+	if (n <= 0 || n > PAM_MAX_NUM_MSG)
+		return (PAM_CONV_ERR);
+	if ((*resp = calloc(n, sizeof **resp)) == NULL)
+		return (PAM_BUF_ERR);
+	fd = fileno(stdin);
+	for (i = 0; i < n; ++i) {
+		resp[i]->resp_retcode = 0;
+		resp[i]->resp = NULL;
+		switch (msg[i]->msg_style) {
+		case PAM_PROMPT_ECHO_OFF:
+		case PAM_PROMPT_ECHO_ON:
 			if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
 				if (tcgetattr(fd, &tattr) != 0) {
 					openpam_log(PAM_LOG_ERROR,
@@ -88,44 +88,44 @@ openpam_ttyconv(int n,
 					err = PAM_CONV_ERR;
 					goto fail;
 				}
-                        }
-                        fputs(msg[i]->msg, stderr);
-                        buf[0] = '\0';
-                        fgets(buf, sizeof buf, stdin);
-                        if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
-                                tattr.c_lflag = lflag;
-                                (void)tcsetattr(fd, TCSANOW, &tattr);
-                                fputs("\n", stderr);
-                        }
-                        if (ferror(stdin)) {
-                                err = PAM_CONV_ERR;
-                                goto fail;
-                        }
-                        for (len = strlen(buf); len > 0; --len)
-                                if (!isspace(buf[len - 1]))
-                                        break;
-                        buf[len] = '\0';
-                        if ((resp[i]->resp = strdup(buf)) == NULL) {
-                                err = PAM_BUF_ERR;
-                                goto fail;
-                        }
-                        break;
-                case PAM_ERROR_MSG:
-                        fputs(msg[i]->msg, stderr);
-                        break;
-                case PAM_TEXT_INFO:
-                        fputs(msg[i]->msg, stdout);
-                        break;
-                default:
-                        err = PAM_BUF_ERR;
-                        goto fail;
-                }
-        }
-        return (PAM_SUCCESS);
+			}
+			fputs(msg[i]->msg, stderr);
+			buf[0] = '\0';
+			fgets(buf, sizeof buf, stdin);
+			if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
+				tattr.c_lflag = lflag;
+				(void)tcsetattr(fd, TCSANOW, &tattr);
+				fputs("\n", stderr);
+			}
+			if (ferror(stdin)) {
+				err = PAM_CONV_ERR;
+				goto fail;
+			}
+			for (len = strlen(buf); len > 0; --len)
+				if (!isspace(buf[len - 1]))
+					break;
+			buf[len] = '\0';
+			if ((resp[i]->resp = strdup(buf)) == NULL) {
+				err = PAM_BUF_ERR;
+				goto fail;
+			}
+			break;
+		case PAM_ERROR_MSG:
+			fputs(msg[i]->msg, stderr);
+			break;
+		case PAM_TEXT_INFO:
+			fputs(msg[i]->msg, stdout);
+			break;
+		default:
+			err = PAM_BUF_ERR;
+			goto fail;
+		}
+	}
+	return (PAM_SUCCESS);
  fail:
 	while (i)
 		free(resp[--i]);
-        free(*resp);
-        *resp = NULL;
-        return (err);
+	free(*resp);
+	*resp = NULL;
+	return (err);
 }

@@ -43,9 +43,9 @@
  * Control flags
  */
 #define PAM_REQUIRED		1
-#define	PAM_REQUISITE		2
+#define PAM_REQUISITE		2
 #define PAM_SUFFICIENT		3
-#define	PAM_OPTIONAL		4
+#define PAM_OPTIONAL		4
 #define PAM_NUM_CONTROLFLAGS	5
 
 /*
@@ -91,7 +91,7 @@ struct pam_data {
 
 struct pam_handle {
 	char		*service;
-	
+
 	/* chains */
 	pam_chain_t	*chains[PAM_NUM_CHAINS];
 

@@ -48,7 +48,7 @@
 
 int
 pam_prompt(pam_handle_t *pamh,
-        char **resp,
+	char **resp,
 	int echo,
 	const char *fmt,
 	...)

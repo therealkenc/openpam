@@ -53,7 +53,7 @@ pam_get_data(pam_handle_t *pamh,
 	void **data)
 {
 	pam_data_t *dp;
-	
+
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 
@@ -62,6 +62,6 @@ pam_get_data(pam_handle_t *pamh,
 			*data = dp->data;
 			return (PAM_SUCCESS);
 		}
-	
+
 	return (PAM_NO_MODULE_DATA);
 }
