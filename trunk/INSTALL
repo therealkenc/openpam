@@ -4,22 +4,44 @@
 
 1. REQUIREMENTS
 
-  This release of OpenPAM is targeted at FreeBSD-CURRENT, and has not
-  been tested on other platforms.  It should, however, build with
-  little or no trouble other BSDs such as BSDI, Darwin, NetBSD or
-  OpenBSD, and should not prove much of a challenge to port to other
-  platforms, except for the static linking support.
+  See the release notes for a list of platforms OpenPAM has been
+  tested on.
+
+  You will need GNU Make and the GNU C compiler to build OpenPAM.  On
+  some platforms, you may have to install these separately.
 
 2. CONFIGURATION
 
-  No configuration is necessary or possible at this time.
+  Use the "configure" shell script to configure OpenPAM for your
+  system.  Options include:
+
+    --with-modules-dir=DIR
+	Indicates the directory where PAM modules will be installed.
+	This option should not be used if you intend to install PAM
+	modules in the system library directory.
+
+    --with-pam-su
+	Builds the sample PAM application.
+
+    --with-pam-unix
+	Builds the sample PAM module.
+
+  A typical invocation might look like this:
+
+  # ./configure --with-pam-su --with-pam-unix
 
 3. COMPILATION
 
-  Change into the top-level OpenPAM directory and run 'make'.
+  To compile OpenPAM, simply run "make" in the top-level OpenPAM
+  directory:
+
+  # make
 
 4. INSTALLATION
- 
-  Change into the top-level OpenPAM directory and run 'make install'.
 
-$P4: //depot/projects/openpam/INSTALL#2 $
+  To install OpenPAM, simply run "make install" in the top-level
+  OpenPAM directory:
+
+  # make install
+
+$P4: //depot/projects/openpam/INSTALL#3 $
