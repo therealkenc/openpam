@@ -51,8 +51,11 @@ int
 pam_authenticate(pam_handle_t *pamh,
 	int flags)
 {
+	int pam_err;
 
-	return (openpam_dispatch(pamh, PAM_SM_AUTHENTICATE, flags));
+	pam_err = openpam_dispatch(pamh, PAM_SM_AUTHENTICATE, flags);
+	pam_set_item(pamh, PAM_AUTHTOK, NULL);
+	return (pam_err);
 }
 
 /*
