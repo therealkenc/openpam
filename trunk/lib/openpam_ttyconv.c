@@ -46,7 +46,9 @@
 #include <security/openpam.h>
 
 /*
- * Simple tty-based conversation function.
+ * OpenPAM extension
+ *
+ * Simple tty-based conversation function
  */
 
 int
@@ -129,3 +131,13 @@ openpam_ttyconv(int n,
 	*resp = NULL;
 	return (err);
 }
+
+/*
+ * NOLIST
+ *
+ * Error codes:
+ *
+ *	PAM_SYSTEM_ERR
+ *	PAM_BUF_ERR
+ *	PAM_CONV_ERR
+ */

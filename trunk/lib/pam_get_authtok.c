@@ -73,3 +73,12 @@ pam_get_authtok(pam_handle_t *pamh,
 	*authtok = resp;
 	return (pam_set_item(pamh, PAM_AUTHTOK, *authtok));
 }
+
+/*
+ * Error codes:
+ *
+ *	=pam_get_item
+ *	=pam_prompt
+ *	=pam_set_item
+ *	!PAM_SYMBOL_ERR
+ */

@@ -34,28 +34,48 @@
  * $Id$
  */
 
+#include <sys/param.h>
+
 #include <security/pam_appl.h>
+#include <security/pam_modules.h>
 
 /*
- * XSSO 4.2.1
- * XSSO 6 page 50
+ * XSSO 4.2.2
+ * XSSO 6 page 66
  *
- * Get valid matched identity in new domain
+ * Service module implementation for pam_acct_mgmt
  */
 
 int
-pam_get_mapped_username(pam_handle_t *pamh,
-	const char *src_username,
-	const char *src_module_type,
-	const char *src_authn_domain,
-	const char *target_module_type,
-	const char *target_authn_domain,
-	char **target_module_username)
+pam_sm_acct_mgmt(pam_handle_t *pamh,
+	int flags,
+	int argc,
+	const char **argv)
 {
 
 	return (PAM_SYSTEM_ERR);
 }
 
 /*
- * NODOC
+ * NOLIST
+ *
+ * Error codes:
+ *
+ *	PAM_SERVICE_ERR
+ *	PAM_SYSTEM_ERR
+ *	PAM_BUF_ERR
+ *	PAM_CONV_ERR
+ *	PAM_PERM_DENIED
+ *	PAM_IGNORE
+ *	PAM_ABORT
+ *
+ *	PAM_USER_UNKNOWN
+ *	PAM_AUTH_ERR
+ *	PAM_NEW_AUTHTOK_REQD
+ *	PAM_ACCT_EXPIRED
+ */
+
+/**
+ * The =pam_sm_acct_mgmt function is the service module's implementation
+ * of the =pam_acct_mgmt API function.
  */

@@ -34,28 +34,45 @@
  * $Id$
  */
 
+#include <sys/param.h>
+
 #include <security/pam_appl.h>
+#include <security/pam_modules.h>
 
 /*
- * XSSO 4.2.1
- * XSSO 6 page 50
+ * XSSO 4.2.2
+ * XSSO 6 page 75
  *
- * Get valid matched identity in new domain
+ * Service module implementation for pam_close_session
  */
 
 int
-pam_get_mapped_username(pam_handle_t *pamh,
-	const char *src_username,
-	const char *src_module_type,
-	const char *src_authn_domain,
-	const char *target_module_type,
-	const char *target_authn_domain,
-	char **target_module_username)
+pam_sm_close_session(pam_handle_t *pamh,
+	int flags,
+	int args,
+	const char **argv)
 {
 
 	return (PAM_SYSTEM_ERR);
 }
 
 /*
- * NODOC
+ * NOLIST
+ *
+ * Error codes:
+ *
+ *	PAM_SERVICE_ERR
+ *	PAM_SYSTEM_ERR
+ *	PAM_BUF_ERR
+ *	PAM_CONV_ERR
+ *	PAM_PERM_DENIED
+ *	PAM_IGNORE
+ *	PAM_ABORT
+ *
+ *	PAM_SESSION_ERR
+ */
+
+/**
+ * The =pam_sm_close_session function is the service module's
+ * implementation of the =pam_close_session API function.
  */

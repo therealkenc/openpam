@@ -34,23 +34,27 @@
  * $Id$
  */
 
+#include <sys/param.h>
+
 #include <security/pam_appl.h>
+#include <security/pam_modules.h>
 
 /*
- * XSSO 4.2.1
- * XSSO 6 page 50
+ * XSSO 4.2.2
+ * XSSO 6 page 83
  *
- * Get valid matched identity in new domain
+ * Service module implementation for pam_set_mapped_authtok
  */
 
 int
-pam_get_mapped_username(pam_handle_t *pamh,
-	const char *src_username,
-	const char *src_module_type,
-	const char *src_authn_domain,
-	const char *target_module_type,
-	const char *target_authn_domain,
-	char **target_module_username)
+pam_sm_set_mapped_authtok(pam_handle_t *pamh,
+	char *target_module_username,
+	size_t target_authtok_len,
+	unsigned char *target_module_authtok,
+	char *target_module_type,
+	char *target_authn_domain,
+	int argc,
+	const char *argv)
 {
 
 	return (PAM_SYSTEM_ERR);
