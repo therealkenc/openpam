@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_impl.h#26 $
+ * $P4: //depot/projects/openpam/lib/openpam_impl.h#27 $
  */
 
 #ifndef _OPENPAM_IMPL_H_INCLUDED
@@ -49,21 +49,26 @@ extern int _openpam_debug;
 /*
  * Control flags
  */
-#define PAM_BINDING		0
-#define PAM_REQUIRED		1
-#define PAM_REQUISITE		2
-#define PAM_SUFFICIENT		3
-#define PAM_OPTIONAL		4
-#define PAM_NUM_CONTROL_FLAGS	5
+typedef enum {
+	PAM_BINDING,
+	PAM_REQUIRED,
+	PAM_REQUISITE,
+	PAM_SUFFICIENT,
+	PAM_OPTIONAL,
+	PAM_NUM_CONTROL_FLAGS
+} pam_control_t;
 
 /*
  * Facilities
  */
-#define PAM_AUTH		0
-#define PAM_ACCOUNT		1
-#define PAM_SESSION		2
-#define PAM_PASSWORD		3
-#define PAM_NUM_FACILITIES	4
+typedef enum {
+	PAM_FACILITY_ANY = -1,
+	PAM_AUTH = 0,
+	PAM_ACCOUNT,
+	PAM_SESSION,
+	PAM_PASSWORD,
+	PAM_NUM_FACILITIES
+} pam_facility_t;
 
 typedef struct pam_chain pam_chain_t;
 struct pam_chain {
