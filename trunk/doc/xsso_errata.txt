@@ -1,4 +1,4 @@
-$P4: //depot/projects/openpam/doc/xsso_errata.txt#8 $
+$P4: //depot/projects/openpam/doc/xsso_errata.txt#9 $
 
 Errata in XSSO, chapter 5:
 
@@ -16,7 +16,7 @@ p. 32:	"PAM_NEW_AUTHTOKEN_REQD" in the DESCRIPTION and RETURN VALUE
 p. 32:	pam_acct_mgmt() must be allowed to return PAM_AUTH_ERR.
 
 p. 34:  "PAM_AUTH_ERR" is misspelled as "PAM_AUTH_ERROR" in the
-        second-last line of the DESCRIPTION section.
+        second-to-last line of the DESCRIPTION section.
 
 p. 40:	in the second paragraph of the DESCRIPTION section, the phrase
         "In this case the, [...]" should be "In this case, the [...]".
@@ -24,18 +24,18 @@ p. 40:	in the second paragraph of the DESCRIPTION section, the phrase
 p. 46:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
 	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
 
-p. 60:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
-	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
-
-p. 62:	the target_authtok_len argument to pam_set_mapped_authtok() is
-	of type size_t, not a size_t *.
-
 p. 52:	PAM_CONV_ERR is listed out of order and with the explanatory
 	text "Conversation failure" instead of "Conversation error".
 	It is listed correctly on the next page.
 
 p. 59:	the last argument pam_set_data() should be written void
 	(*cleanup)(...), not void *(cleanup)(...).
+
+p. 60:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
+	should be "PAM_AUTHTOK" and "PAM_OLDAUTHTOK", respectively.
+
+p. 62:	the target_authtok_len argument to pam_set_mapped_authtok() is
+	of type size_t, not a size_t *.
 
 p. 66:	the first occurrence of "pam_acct_mgmt" in the NAME section
 	should be "pam_sm_acct_mgmt".
