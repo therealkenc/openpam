@@ -122,7 +122,7 @@ The
 function and this manual page were developed for the FreeBSD Project
 by ThinkSec AS and NAI Labs, the Security Research Division of Network
 Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
-.Pq .Dq CBOSS ,
+.Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
 ";
 
@@ -160,7 +160,7 @@ Foo
 .Sh SEE ALSO
 ";
     foreach my $func (sort(keys(%FUNCTIONS))) {
-        print ".Xr $func 4 ,\n";
+        print ".Xr $func 3 ,\n";
     }
     print ".Xr pam.conf 5
 .Sh STANDARDS
@@ -173,7 +173,7 @@ The OpenPAM library and this manual page were developed for the
 FreeBSD Project by ThinkSec AS and NAI Labs, the Security Research
 Division of Network Associates, Inc.  under DARPA/SPAWAR contract
 N66001-01-C-8035
-.Pq .Dq CBOSS ,
+.Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
 "
 }
