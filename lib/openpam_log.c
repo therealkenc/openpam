@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_log.c#19 $
+ * $P4: //depot/projects/openpam/lib/openpam_log.c#20 $
  */
 
 #include <ctype.h>
@@ -129,7 +129,3 @@ openpam_log(int level, const char *fmt, ...)
 }
 
 #endif
-
-/*
- * NOLIST
- */

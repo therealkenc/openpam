@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#20 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#21 $
 #
 
 use strict;
@@ -274,10 +274,6 @@ sub parse_source($) {
     };
     if ($source =~ m/^ \* NODOC\s*$/m) {
 	$FUNCTIONS{$func}->{'nodoc'} = 1;
-	$FUNCTIONS{$func}->{'nolist'} = 1;
-    }
-    if ($source =~ m/^ \* NOLIST\s*$/m) {
-	$FUNCTIONS{$func}->{'nolist'} = 1;
     }
     if ($source !~ m/^ \* XSSO \d/m) {
 	$FUNCTIONS{$func}->{'openpam'} = 1;

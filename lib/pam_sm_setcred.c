@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_sm_setcred.c#5 $
+ * $P4: //depot/projects/openpam/lib/pam_sm_setcred.c#6 $
  */
 
 #include <sys/param.h>
@@ -59,8 +59,6 @@ pam_sm_setcred(pam_handle_t *pamh,
 
 
 /*
- * NOLIST
- *
  * Error codes:
  *
  *	PAM_SERVICE_ERR
