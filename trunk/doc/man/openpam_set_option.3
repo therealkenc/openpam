@@ -34,62 +34,39 @@
 .\" $Id$
 .\"
 .Dd February 22, 2002
-.Dt PAM_SM_ACCT_MGMT 3
+.Dt OPENPAM_SET_OPTION 3
 .Os
 .Sh NAME
-.Nm pam_sm_acct_mgmt
-.Nd service module implementation for pam_acct_mgmt
+.Nm openpam_set_option
+.Nd sets the value of a module option
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
-.In security/pam_modules.h
 .Ft int
-.Fn pam_sm_acct_mgmt "pam_handle_t *pamh" "int flags" "int argc" "const char **argv"
+.Fn openpam_set_option "pam_handle_t *pamh" "const char *option" "const char *value"
 .Sh DESCRIPTION
 The
 .Nm
-function is the service module's implementation
-of the
-.Xr pam_acct_mgmt 3
-API function.
+function sets the specified option in the
+context of the currently executing service module.
 .Sh RETURN VALUES
 The
 .Nm
 function returns one of the following values:
 .Bl -tag -width 18n
-.It Bq Er PAM_ABORT
-General failure.
-.It Bq Er PAM_ACCT_EXPIRED
-User accound has expired.
-.It Bq Er PAM_AUTH_ERR
-Authentication error.
 .It Bq Er PAM_BUF_ERR
 Memory buffer error.
-.It Bq Er PAM_CONV_ERR
-Conversation failure.
-.It Bq Er PAM_IGNORE
-Ignore this module.
-.It Bq Er PAM_NEW_AUTHTOK_REQD
-New authentication token required.
-.It Bq Er PAM_PERM_DENIED
-Permission denied.
-.It Bq Er PAM_SERVICE_ERR
-Error in service module.
 .It Bq Er PAM_SYSTEM_ERR
 System error.
-.It Bq Er PAM_USER_UNKNOWN
-Unknown user.
 .El
 .Sh SEE ALSO
 .Xr pam 3 ,
-.Xr pam_acct_mgmt 3 ,
 .Xr pam_strerror 3
 .Sh STANDARDS
-.Rs
-.%T "X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules"
-.%D "June 1997"
-.Re
+The
+.Nm
+function is an OpenPAM extension.
 .Sh AUTHORS
 The
 .Nm
