@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_load.c#15 $
+ * $P4: //depot/projects/openpam/lib/openpam_load.c#16 $
  */
 
 #include <dlfcn.h>
@@ -136,8 +136,8 @@ openpam_release_module(pam_module_t *module)
 	if (module == modules)
 		modules = module->next;
 	openpam_log(PAM_LOG_DEBUG, "releasing %s", module->path);
-	free(module->path);
-	free(module);
+	FREE(module->path);
+	FREE(module);
 }
 
 
@@ -154,10 +154,10 @@ openpam_destroy_chain(pam_chain_t *chain)
 	openpam_destroy_chain(chain->next);
 	chain->next = NULL;
 	while (chain->optc--)
-		free(chain->optv[chain->optc]);
-	free(chain->optv);
+		FREE(chain->optv[chain->optc]);
+	FREE(chain->optv);
 	openpam_release_module(chain->module);
-	free(chain);
+	FREE(chain);
 }
 
 /*

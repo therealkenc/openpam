@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_configure.c#6 $
+ * $P4: //depot/projects/openpam/lib/openpam_configure.c#7 $
  */
 
 #include <ctype.h>
@@ -238,7 +238,7 @@ openpam_load_policy(pam_chain_t *policy[],
 			strcat(filename, service);
 			r = openpam_read_policy_file(policy,
 			    service, filename, PAM_D_STYLE);
-			free(filename);
+			FREE(filename);
 		} else {
 			r = openpam_read_policy_file(policy,
 			    service, *path, PAM_CONF_STYLE);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#6 $
+ * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#7 $
  */
 
 #include <sys/param.h>
@@ -77,13 +77,13 @@ openpam_borrow_cred(pam_handle_t *pamh,
 	scred->egid = getegid();
 	r = getgroups(NGROUPS_MAX, scred->groups);
 	if (r == -1) {
-		free(scred);
+		FREE(scred);
 		RETURNC(PAM_SYSTEM_ERR);
 	}
 	scred->ngroups = r;
 	r = pam_set_data(pamh, PAM_SAVED_CRED, scred, &openpam_free_data);
 	if (r != PAM_SUCCESS) {
-		free(scred);
+		FREE(scred);
 		RETURNC(r);
 	}
 	if (geteuid() == pwd->pw_uid)

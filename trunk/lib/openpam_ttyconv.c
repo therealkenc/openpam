@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#17 $
+ * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#18 $
  */
 
 #include <sys/types.h>
@@ -179,8 +179,8 @@ openpam_ttyconv(int n,
 	RETURNC(PAM_SUCCESS);
  fail:
 	while (i)
-		free(resp[--i]);
-	free(*resp);
+		FREE(resp[--i]);
+	FREE(*resp);
 	*resp = NULL;
 	RETURNC(PAM_CONV_ERR);
 }
@@ -199,7 +199,7 @@ openpam_ttyconv(int n,
  * of most text-based interactive programs.
  *
  * The =openpam_ttyconv function allows the application to specify a
- * timeout for user input by setting the global variable
+ * timeout for user input by setting the global integer variable
  * :openpam_ttyconv_timeout to the length of the timeout in seconds.
  *
  * >openpam_nullconv

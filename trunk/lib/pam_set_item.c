@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_set_item.c#19 $
+ * $P4: //depot/projects/openpam/lib/pam_set_item.c#20 $
  */
 
 #include <sys/param.h>
@@ -90,7 +90,7 @@ pam_set_item(pam_handle_t *pamh,
 	}
 	if (*slot != NULL) {
 		memset(*slot, 0xd0, osize);
-		free(*slot);
+		FREE(*slot);
 	}
 	if (item != NULL) {
 		if ((tmp = malloc(nsize)) == NULL)
