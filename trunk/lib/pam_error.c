@@ -39,6 +39,7 @@
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
+#include <security/openpam.h>
 
 /*
  * OpenPAM extension
@@ -51,23 +52,13 @@ pam_error(pam_handle_t *pamh,
 	const char *fmt,
 	...)
 {
-	char msgbuf[PAM_MAX_MSG_SIZE];
-	struct pam_message msg;
-	const struct pam_message *msgp;
-	struct pam_response *rsp;
-	struct pam_conv conv;
 	va_list ap;
+	char *rsp;
 	int r;
 
-	if ((r = pam_get_item(pamh, PAM_CONV, (void *)&conv)) != PAM_SUCCESS)
-		return (r);
 	va_start(ap, fmt);
-	vsnprintf(msgbuf, PAM_MAX_MSG_SIZE, fmt, ap);
+	r = pam_vprompt(pamh, PAM_ERROR_MSG, &rsp, fmt, ap);
 	va_end(ap);
-	msg.msg_style = PAM_ERROR_MSG;
-	msg.msg = msgbuf;
-	msgp = &msg;
-	r = (conv.conv)(1, &msgp, &rsp, conv.appdata_ptr);
 	free(rsp); /* ignore response */
 	return (r);
 }

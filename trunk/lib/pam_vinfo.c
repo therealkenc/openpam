@@ -34,43 +34,27 @@
  * $Id$
  */
 
-#include <sys/param.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
-#include "openpam_impl.h"
-
 /*
- * XSSO 4.2.1
- * XSSO 6 page 52
+ * OpenPAM extension
  *
- * Retrieve user name
+ * Display an information message
  */
 
 int
-pam_get_user(pam_handle_t *pamh,
-	const char **user,
-	const char *prompt)
+pam_vinfo(pam_handle_t *pamh,
+	const char *fmt,
+        va_list ap)
 {
-	char *p, *resp;
+	char *rsp;
 	int r;
 
-	if (pamh == NULL || user == NULL)
-		return (PAM_SYSTEM_ERR);
-
-	r = pam_get_item(pamh, PAM_USER, (const void **)user);
-	if (r == PAM_SUCCESS)
-		return (PAM_SUCCESS);
-	if (prompt == NULL) {
-		if (pam_get_item(pamh, PAM_USER_PROMPT,
-		    (const void **)&p) != PAM_SUCCESS || p == NULL)
-			prompt = "Login: ";
-	}
-	r = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &resp,
-	    "%s", prompt ? prompt : p);
-	if (r != PAM_SUCCESS)
-		return (r);
-	*user = resp;
-	return (pam_set_item(pamh, PAM_USER, *user));
+	r = pam_vprompt(pamh, PAM_TEXT_INFO, &rsp, fmt, ap);
+	free(rsp); /* ignore response */
+	return (r);
 }

@@ -35,42 +35,28 @@
  */
 
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <security/pam_appl.h>
+#include <security/openpam.h>
 
 /*
  * OpenPAM extension
  *
- * Prompt the user for information
+ * Call the conversation function
  */
 
 int
 pam_prompt(pam_handle_t *pamh,
+	int style,
 	char **resp,
-	int echo,
 	const char *fmt,
 	...)
 {
-	char msgbuf[PAM_MAX_MSG_SIZE];
-	struct pam_message msg;
-	const struct pam_message *msgp;
-	struct pam_response *rsp;
-	struct pam_conv conv;
 	va_list ap;
 	int r;
 
-	if ((r = pam_get_item(pamh, PAM_CONV, (void *)&conv)) != PAM_SUCCESS)
-		return (r);
 	va_start(ap, fmt);
-	vsnprintf(msgbuf, PAM_MAX_MSG_SIZE, fmt, ap);
+	r = pam_vprompt(pamh, style, resp, fmt, ap);
 	va_end(ap);
-	msg.msg_style = echo ? PAM_PROMPT_ECHO_ON : PAM_PROMPT_ECHO_OFF;
-	msg.msg = msgbuf;
-	msgp = &msg;
-	r = (conv.conv)(1, &msgp, &rsp, conv.appdata_ptr);
-	*resp = rsp == NULL ? NULL : rsp->resp;
-	free(rsp);
 	return (r);
 }
