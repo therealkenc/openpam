@@ -40,6 +40,8 @@
 
 #include "openpam_impl.h"
 
+#ifdef OPENPAM_STATIC_MODULES
+
 SET_DECLARE(_openpam_static_modules, pam_module_t);
 
 /*
@@ -59,6 +61,8 @@ openpam_static(const char *path)
 	}
 	return (NULL);
 }
+
+#endif
 
 /*
  * NOPARSE
