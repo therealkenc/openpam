@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_error.c#7 $
+ * $P4: //depot/projects/openpam/lib/pam_error.c#8 $
  */
 
 #include <stdarg.h>
@@ -73,7 +73,7 @@ pam_error(pam_handle_t *pamh,
  */
 
 /**
- * The =pam_info function displays an error message through the
+ * The =pam_error function displays an error message through the
  * intermediary of the given PAM context's conversation function.
  *
  * >pam_info
