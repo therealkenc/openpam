@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#10 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#11 $
 #
 
 use strict;
@@ -139,6 +139,7 @@ sub parse_source($) {
     $argnames =~ s/([\|\[\]\(\)\.\*\+\?])/\\$1/g;
     $argnames =~ s/\" \"/|/g;
     $argnames =~ s/^\"(.*)\"$/($1)/;
+    $inliteral = $inlist = 0;
     foreach (split("\n", $source)) {
 	s/\s*$//;
 	if (!defined($man)) {
@@ -185,7 +186,7 @@ sub parse_source($) {
 	    $inlist = 0;
 	} elsif ($inliteral && m/^\S/) {
 	    $man .= ".Ed\n";
-	    $inlist = 0;
+	    $inliteral = 0;
 	} elsif ($inliteral) {
 	    $man .= "$_\n";
 	    next;
