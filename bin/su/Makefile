@@ -34,7 +34,11 @@
 # $Id$
 #
 
-SUBDIR		 =
-SUBDIR		+= su
+PROG		 = su
+WARNS		?= 4
+CFLAGS		+= -I${.CURDIR}/../../include
+DPADD		 = ${.OBJDIR}/../../lib/libpam.so
+LDADD		 = -L${.OBJDIR}/../../lib -R${.OBJDIR}/../../lib -lpam
+NOMAN		 = YES
 
-.include <bsd.subdir.mk>
+.include <bsd.prog.mk>
