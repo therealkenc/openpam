@@ -32,13 +32,50 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#14 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#15 $
 #
 
 use strict;
 use Fcntl;
+use Getopt::Std;
 use POSIX qw(strftime);
 use vars qw($COPYRIGHT $TODAY %FUNCTIONS %PAMERR);
+
+$COPYRIGHT = ".\\\"-
+.\\\" Copyright (c) 2002 Networks Associates Technology, Inc.
+.\\\" All rights reserved.
+.\\\"
+.\\\" This software was developed for the FreeBSD Project by ThinkSec AS and
+.\\\" NAI Labs, the Security Research Division of Network Associates, Inc.
+.\\\" under DARPA/SPAWAR contract N66001-01-C-8035 (\"CBOSS\"), as part of the
+.\\\" DARPA CHATS research program.
+.\\\"
+.\\\" Redistribution and use in source and binary forms, with or without
+.\\\" modification, are permitted provided that the following conditions
+.\\\" are met:
+.\\\" 1. Redistributions of source code must retain the above copyright
+.\\\"    notice, this list of conditions and the following disclaimer.
+.\\\" 2. Redistributions in binary form must reproduce the above copyright
+.\\\"    notice, this list of conditions and the following disclaimer in the
+.\\\"    documentation and/or other materials provided with the distribution.
+.\\\" 3. The name of the author may not be used to endorse or promote
+.\\\"    products derived from this software without specific prior written
+.\\\"    permission.
+.\\\"
+.\\\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\\\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\\\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\\\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\\\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\\\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\\\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\\\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\\\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\\\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\\\" SUCH DAMAGE.
+.\\\"
+.\\\" \$" . "P4" . "\$
+.\\\"";
 
 %PAMERR = (
     PAM_SUCCESS			=> "Success",
@@ -91,7 +128,7 @@ sub parse_source($) {
 
     if ($fn !~ m,\.c$,) {
 	warn("$fn: not C source, ignoring\n");
-	return;
+	return undef;
     }
 
     sysopen(FILE, $fn, O_RDONLY)
@@ -99,19 +136,14 @@ sub parse_source($) {
     $source = join('', <FILE>);
     close(FILE);
 
-    return if ($source =~ m/^ \* NOPARSE\s*$/m);
+    return undef
+	if ($source =~ m/^ \* NOPARSE\s*$/m);
 
-    if (!defined($COPYRIGHT) && $source =~ m,^(/\*-\n.*?)\s*\*/,s) {
-	$COPYRIGHT = $1;
-	$COPYRIGHT =~ s,^.\*,.\\\",gm;
-	$COPYRIGHT =~ s,(\$(?:)P4).*?\$,$1\$,;
-	$COPYRIGHT .= "\n.\\\"";
-    }
     $func = $fn;
     $func =~ s,^(?:.*/)?([^/]+)\.c$,$1,;
     if ($source !~ m,\n \* ([\S ]+)\n \*/\n\n([\S ]+)\n$func\((.*?)\)\n\{,s) {
 	warn("$fn: can't find $func\n");
-	return;
+	return undef;
     }
     ($descr, $type, $args) = ($1, $2, $3);
     $descr =~ s,^([A-Z][a-z]),lc($1),e;
@@ -231,6 +263,7 @@ sub parse_source($) {
     }
 
     $FUNCTIONS{$func} = {
+	'source'	=> $fn,
 	'name'		=> $func,
 	'descr'		=> $descr,
 	'type'		=> $type,
@@ -249,6 +282,8 @@ sub parse_source($) {
     if ($source !~ m/^ \* XSSO \d/m) {
 	$FUNCTIONS{$func}->{'openpam'} = 1;
     }
+    expand_errors($FUNCTIONS{$func});
+    return $FUNCTIONS{$func};
 }
 
 sub expand_errors($);
@@ -256,6 +291,8 @@ sub expand_errors($) {
     my $func = shift;		# Ref to function hash
 
     my %errors;
+    my $ref;
+    my $fn;
 
     if (defined($func->{'recursed'})) {
 	warn("$func->{'name'}(): loop in error spec\n");
@@ -273,11 +310,17 @@ sub expand_errors($) {
 	} elsif (m/^!(PAM_[A-Z_]+)$/) {
 	    # treat negations separately
 	} elsif (m/^=([a-z_]+)$/) {
-	    if (!defined($FUNCTIONS{$1})) {
-		warn("$func->{'name'}(): reference to unknown $1()\n");
+	    $ref = $1;
+	    if (!defined($FUNCTIONS{$ref})) {
+		$fn = $func->{'source'};
+		$fn =~ s/$func->{'name'}/$ref/;
+		parse_source($fn);
+	    }
+	    if (!defined($FUNCTIONS{$ref})) {
+		warn("$func->{'name'}(): reference to unknown $ref()\n");
 		next;
 	    }
-	    foreach (expand_errors($FUNCTIONS{$1})) {
+	    foreach (@{$FUNCTIONS{$ref}->{'errors'}}) {
 		$errors{$_} = 1;
 	    }
 	} else {
@@ -290,7 +333,7 @@ sub expand_errors($) {
 	}
     }
     delete($func->{'recursed'});
-    return (sort(keys(%errors)));
+    $func->{'errors'} = [ sort(keys(%errors)) ];
 }
 
 sub gendoc($) {
@@ -332,7 +375,7 @@ The
 function returns one of the following values:
 .Bl -tag -width 18n
 ";
-	my @errors = expand_errors($func);
+	my @errors = @{$func->{'errors'}};
 	warn("$func->{'name'}(): no error specification\n")
 	    unless(@errors);
 	foreach (@errors) {
@@ -387,33 +430,59 @@ as part of the DARPA CHATS research program.
     }
 }
 
+sub readproto($) {
+    my $fn = shift;		# File name
+
+    local *FILE;
+    my %func;
+
+    sysopen(FILE, $fn, O_RDONLY)
+	or die("$fn: open(): $!\n");
+    while (<FILE>) {
+	if (m/^\.Nm ((?:open)?pam_.*?)\s*$/) {
+	    $func{'Nm'} = $func{'Nm'} || $1;
+	} elsif (m/^\.Ft (\S.*?)\s*$/) {
+	    $func{'Ft'} = $func{'Ft'} || $1;
+	} elsif (m/^\.Fn (\S.*?)\s*$/) {
+	    $func{'Fn'} = $func{'Fn'} || $1;
+	}
+    }
+    close(FILE);
+    if ($func{'Nm'}) {
+	$FUNCTIONS{$func{'Nm'}} = \%func;
+    } else {
+	warn("No function found\n");
+    }
+}
+
 sub gensummary() {
 
+    local *FILE;
     my $func;
 
-    print "$COPYRIGHT
+    sysopen(FILE, "openpam.3", O_RDWR|O_CREAT|O_TRUNC)
+	or die("openpam.3: $!\n");
+
+    print FILE "$COPYRIGHT
 .Dd $TODAY
 .Dt PAM 3
 .Os
 .Sh NAME
 ";
-    my @funcs = sort(keys(%FUNCTIONS));
-    while ($func = shift(@funcs)) {
-	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-	print ".Nm $func". (@funcs ? " ,\n" : "\n");
+    foreach $func (sort(keys(%FUNCTIONS))) {
+	print FILE ".Nm $FUNCTIONS{$func}->{'Nm'}\n";
     }
-    print ".Nd Pluggable Authentication Modules Library
+    print FILE ".Nd Pluggable Authentication Modules Library
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
 ";
     foreach $func (sort(keys(%FUNCTIONS))) {
-	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-	print ".Ft $FUNCTIONS{$func}->{'type'}\n";
-	print ".Fn $func $FUNCTIONS{$func}->{'args'}\n";
+	print FILE ".Ft $FUNCTIONS{$func}->{'Ft'}\n";
+	print FILE ".Fn $FUNCTIONS{$func}->{'Fn'}\n";
     }
-    print ".Sh DESCRIPTION
+    print FILE ".Sh DESCRIPTION
 .Sh RETURN VALUES
 The following return codes are defined in the
 .In security/pam_constants.h
@@ -421,16 +490,15 @@ header:
 .Bl -tag -width 18n
 ";
     foreach (sort(keys(%PAMERR))) {
-	print ".It Bq Er $_\n$PAMERR{$_}.\n";
+	print FILE ".It Bq Er $_\n$PAMERR{$_}.\n";
     }
-    print ".El
+    print FILE ".El
 .Sh SEE ALSO
 ";
     foreach $func (sort(keys(%FUNCTIONS))) {
-	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-	print ".Xr $func 3 ,\n";
+	print FILE ".Xr $func 3 ,\n";
     }
-    print ".Xr pam.conf 5
+    print FILE ".Xr pam.conf 5
 .Sh STANDARDS
 .Rs
 .%T \"X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules\"
@@ -443,17 +511,34 @@ Division of Network Associates, Inc.  under DARPA/SPAWAR contract
 N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
-"
+";
+    close(FILE);
+}
+
+sub usage() {
+
+    print(STDERR "usage: gendoc [-s] source [...]\n");
+    exit(1);
 }
 
 MAIN:{
+    my %opts;
+
+    usage()
+	unless (@ARGV && getopts("s", \%opts));
     $TODAY = strftime("%B %e, %Y", localtime(time()));
     $TODAY =~ s,\s+, ,g;
-    foreach my $fn (@ARGV) {
-	parse_source($fn);
+    if ($opts{'s'}) {
+	foreach my $fn (@ARGV) {
+	    readproto($fn);
+	}
+	gensummary();
+    } else {
+	foreach my $fn (@ARGV) {
+	    my $func = parse_source($fn);
+	    gendoc($func)
+		if (defined($func));
+	}
     }
-    foreach my $func (values(%FUNCTIONS)) {
-	gendoc($func);
-    }
-    gensummary();
+    exit(0);
 }
