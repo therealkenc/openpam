@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2001 Networks Associates Technologies, Inc.
+ * Copyright (c) 2002 Networks Associates Technologies, Inc.
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -31,79 +31,59 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_impl.h#10 $
+ * $P4: //depot/projects/openpam/lib/openpam_dynamic.c#1 $
  */
 
-#ifndef _OPENPAM_IMPL_H_INCLUDED
-#define _OPENPAM_IMPL_H_INCLUDED
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include <security/openpam.h>
+#include <security/pam_appl.h>
 
-extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
+#include "openpam_impl.h"
 
 /*
- * Control flags
+ * OpenPAM internal
+ *
+ * Locate a dynamically linked module
  */
-#define PAM_REQUIRED		1
-#define PAM_REQUISITE		2
-#define PAM_SUFFICIENT		3
-#define PAM_OPTIONAL		4
-#define PAM_NUM_CONTROLFLAGS	5
+
+pam_module_t *
+openpam_dynamic(const char *path)
+{
+	pam_module_t *module;
+	char *vpath;
+	void *dlh;
+	int i;
+
+	if ((module = calloc(1, sizeof *module)) == NULL)
+		goto buf_err;
+
+	/* try versioned module first, then unversioned module */
+	if (asprintf(&vpath, "%s.%d", path, LIB_MAJ) == -1)
+		goto buf_err;
+	if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
+		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
+		*strrchr(vpath, '.') = '\0';
+		if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
+			openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
+			free(module);
+			return (NULL);
+		}
+	}
+	module->path = vpath;
+	module->dlh = dlh;
+	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
+		module->func[i] = dlsym(dlh, _pam_sm_func_name[i]);
+	return (module);
+ buf_err:
+	openpam_log(PAM_LOG_ERROR, "%m");
+	dlclose(dlh);
+	free(module);
+	return (NULL);
+}
 
 /*
- * Chains
+ * NOPARSE
  */
-#define PAM_AUTH		0
-#define PAM_ACCOUNT		1
-#define PAM_SESSION		2
-#define PAM_PASSWORD		3
-#define PAM_NUM_CHAINS		4
-
-typedef struct pam_chain pam_chain_t;
-struct pam_chain {
-	pam_module_t	*module;
-	int		 flag;
-	int		 optc;
-	char	       **optv;
-	pam_chain_t	*next;
-};
-
-typedef struct pam_data pam_data_t;
-struct pam_data {
-	char		*name;
-	void		*data;
-	void		(*cleanup)(pam_handle_t *, void *, int);
-	pam_data_t	*next;
-};
-
-struct pam_handle {
-	char		*service;
-
-	/* chains */
-	pam_chain_t	*chains[PAM_NUM_CHAINS];
-	pam_chain_t	*current;
-
-	/* items and data */
-	void		*item[PAM_NUM_ITEMS];
-	pam_data_t	*module_data;
-
-	/* environment list */
-	char	       **env;
-	int		 env_count;
-	int		 env_size;
-};
-
-#define PAM_OTHER	"other"
-
-int		openpam_dispatch(pam_handle_t *, int, int);
-int		openpam_findenv(pam_handle_t *, const char *, size_t);
-int		openpam_add_module(pam_handle_t *, int, int,
-				   const char *, int, const char **);
-void		openpam_clear_chains(pam_handle_t *);
-
-#ifdef OPENPAM_STATIC_MODULES
-pam_module_t   *openpam_static(const char *);
-#endif
-pam_module_t   *openpam_dynamic(const char *);
-
-#endif
