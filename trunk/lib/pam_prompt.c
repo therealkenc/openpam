@@ -31,8 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_prompt.c#7 $
+ * $P4: //depot/projects/openpam/lib/pam_prompt.c#8 $
  */
+
+#include <sys/types.h>
 
 #include <stdarg.h>
 
