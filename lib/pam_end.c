@@ -34,7 +34,6 @@
  * $Id$
  */
 
-#include <dlfcn.h>
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
@@ -52,7 +51,6 @@ int
 pam_end(pam_handle_t *pamh,
 	int status)
 {
-	pam_chain_t *module;
 	pam_data_t *dp;
 	int i;
 
@@ -74,16 +72,7 @@ pam_end(pam_handle_t *pamh,
 	free(pamh->env);
 
 	/* clear chains */
-	for (i = 0; i < PAM_NUM_CHAINS; ++i) {
-		while (pamh->chains[i] != NULL) {
-			module = pamh->chains[i];
-			pamh->chains[i] = module->next;
-			/* XXX free options */
-			dlclose(module->dlh);
-			free(module->modpath);
-			free(module);
-		}
-	}
+	openpam_clear_chains(pamh);
 
 	/* clear items */
 	for (i = 0; i < PAM_NUM_ITEMS; ++i)

@@ -110,5 +110,8 @@ struct pam_handle {
 
 int		openpam_dispatch(pam_handle_t *, int, int);
 int		openpam_findenv(pam_handle_t *, const char *, size_t);
+int		openpam_add_module(pam_handle_t *, int, int,
+				   const char *, const char *);
+void		openpam_clear_chains(pam_handle_t *);
 
 #endif

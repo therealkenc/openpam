@@ -34,10 +34,7 @@
  * $Id$
  */
 
-#include <sys/param.h>
-
 #include <ctype.h>
-#include <dlfcn.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,73 +84,6 @@ pam_start(const char *service,
  fail:
 	pam_end(ph, r);
 	return (r);
-}
-
-/* XXX move to a different file */
-const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
-	"pam_sm_acct_mgmt",
-	"pam_sm_authenticate",
-	"pam_sm_chauthtok",
-	"pam_sm_close_session",
-	"pam_sm_open_session",
-	"pam_sm_setcred"
-};
-
-static int
-_pam_add_module(pam_handle_t *pamh,
-	int chain,
-	int flag,
-	const char *modpath,
-	const char *options /* XXX */ __unused)
-{
-	pam_chain_t *module, *iterator;
-	int i;
-
-	/* fill in configuration data */
-	if ((module = malloc(sizeof(*module))) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "malloc(): %m");
-		return (PAM_BUF_ERR);
-	}
-	if ((module->modpath = strdup(modpath)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "strdup(): %m");
-		free(module);
-		return (PAM_BUF_ERR);
-	}
-	module->flag = flag;
-	module->next = NULL;
-
-	/* load module and resolve symbols */
-	/*
-	 * Each module is dlopen()'d once for evey time it occurs in
-	 * any chain.  While the linker is smart enough to not load
-	 * the same module more than once, it does waste space in the
-	 * form of linker handles and pam_func structs.
-	 *
-	 * TODO: implement a central module cache and replace the
-	 * array of pam_func structs in struct pam_chain with pointers
-	 * to the appropriate entry in the module cache.
-	 *
-	 * TODO: move this code out into a separate file to hide the
-	 * details of the module cache and linker API from this file.
-	 */
-	if ((module->dlh = dlopen(modpath, RTLD_NOW)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "dlopen(): %s", dlerror());
-		free(module->modpath);
-		free(module);
-		return (PAM_OPEN_ERR);
-	}
-	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
-		module->primitive[i] =
-		    dlsym(module->dlh, _pam_sm_func_name[i]);
-
-	if ((iterator = pamh->chains[chain]) != NULL) {
-		while (iterator->next != NULL)
-			iterator = iterator->next;
-		iterator->next = module;
-	} else {
-		pamh->chains[chain] = module;
-	}
-	return (PAM_SUCCESS);
 }
 
 #define PAM_CONF_STYLE	0
@@ -286,7 +216,7 @@ _pam_read_policy_file(pam_handle_t *pamh,
 		 * Finally, add the module at the end of the
 		 * appropriate chain and bump the counter.
 		 */
-		if ((r = _pam_add_module(pamh, chain, flag, p, q)) !=
+		if ((r = openpam_add_module(pamh, chain, flag, p, q)) !=
 		    PAM_SUCCESS)
 			return (-r);
 		++n;
