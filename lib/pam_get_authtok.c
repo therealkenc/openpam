@@ -31,10 +31,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#13 $
+ * $P4: //depot/projects/openpam/lib/pam_get_authtok.c#14 $
  */
 
 #include <sys/param.h>
+
+#include <stdlib.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
@@ -95,8 +97,11 @@ pam_get_authtok(pam_handle_t *pamh,
 	r = pam_prompt(pamh, style, &resp, "%s", prompt);
 	if (r != PAM_SUCCESS)
 		return (r);
-	*authtok = resp;
-	return (pam_set_item(pamh, item, *authtok));
+	r = pam_set_item(pamh, pitem, resp);
+	free(resp);
+	if (r != PAM_SUCCESS)
+		return (r);
+	return (pam_get_item(pamh, pitem, (const void **)authtok));
 }
 
 /*
@@ -124,9 +129,10 @@ pam_get_authtok(pam_handle_t *pamh,
  *		authentication tokens.
  *
  * The =prompt argument specifies a prompt to use if no token is cached.
- * If =NULL, the =PAM_AUTHTOK_PROMPT or =PAM_OLDAUTHTOK_PROMPT item, as
- * appropriate, will be used.  If that item is also =NULL, a hardcoded
+ * If it is =NULL, the =PAM_AUTHTOK_PROMPT or =PAM_OLDAUTHTOK_PROMPT item,
+ * as appropriate, will be used.  If that item is also =NULL, a hardcoded
  * default prompt will be used.
  *
  * >pam_get_item
+ * >pam_get_user
  */
