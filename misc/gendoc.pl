@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#15 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#16 $
 #
 
 use strict;
@@ -455,51 +455,77 @@ sub readproto($) {
     }
 }
 
-sub gensummary() {
+sub gensummary($) {
+    my $page = shift;		# Which page to produce
 
     local *FILE;
+    my $upage;
     my $func;
+    my %xref;
 
-    sysopen(FILE, "openpam.3", O_RDWR|O_CREAT|O_TRUNC)
-	or die("openpam.3: $!\n");
+    sysopen(FILE, "$page.3", O_RDWR|O_CREAT|O_TRUNC)
+	or die("$page.3: $!\n");
 
+    $upage = uc($page);
     print FILE "$COPYRIGHT
 .Dd $TODAY
-.Dt PAM 3
+.Dt $upage 3
 .Os
 .Sh NAME
 ";
-    foreach $func (sort(keys(%FUNCTIONS))) {
-	print FILE ".Nm $FUNCTIONS{$func}->{'Nm'}\n";
+    my @funcs = sort(keys(%FUNCTIONS));
+    while ($func = shift(@funcs)) {
+	print FILE ".Nm $FUNCTIONS{$func}->{'Nm'}";
+	print FILE " ,"
+		if (@funcs);
+	print FILE "\n";
     }
     print FILE ".Nd Pluggable Authentication Modules Library
 .Sh LIBRARY
 .Lb libpam
-.Sh SYNOPSIS
-.In security/pam_appl.h
-";
+.Sh SYNOPSIS\n";
+    if ($page eq 'pam') {
+	print FILE ".In security/pam_appl.h\n";
+    } else {
+	print FILE ".In security/openpam.h\n";
+    }
     foreach $func (sort(keys(%FUNCTIONS))) {
 	print FILE ".Ft $FUNCTIONS{$func}->{'Ft'}\n";
 	print FILE ".Fn $FUNCTIONS{$func}->{'Fn'}\n";
     }
-    print FILE ".Sh DESCRIPTION
-.Sh RETURN VALUES
-The following return codes are defined in the
-.In security/pam_constants.h
-header:
+    while (<STDIN>) {
+	if (m/^\.Xr (\S+)\s*(\d)\s*$/) {
+	    $xref{$1} = $2;
+        }
+	print FILE $_;
+    }
+
+    if ($page eq 'pam') {
+	print FILE ".Sh RETURN VALUES
+The following return codes are defined by
+.Aq Pa security/pam_constants.h :
 .Bl -tag -width 18n
 ";
-    foreach (sort(keys(%PAMERR))) {
-	print FILE ".It Bq Er $_\n$PAMERR{$_}.\n";
+	foreach (sort(keys(%PAMERR))) {
+	    print FILE ".It Bq Er $_\n$PAMERR{$_}.\n";
+	}
+	print FILE ".El\n";
     }
-    print FILE ".El
-.Sh SEE ALSO
+    print FILE ".Sh SEE ALSO
 ";
-    foreach $func (sort(keys(%FUNCTIONS))) {
-	print FILE ".Xr $func 3 ,\n";
+    print FILE ".Xr openpam 3\n"
+	if ($page eq 'pam');
+    foreach $func (keys(%FUNCTIONS)) {
+        $xref{$func} = 3;
     }
-    print FILE ".Xr pam.conf 5
-.Sh STANDARDS
+    my @refs = sort(keys(%xref));
+    while ($_ = shift(@refs)) {
+	print FILE ".Xr $_ $xref{$_}";
+        print FILE " ,"
+	    if (@refs);
+        print FILE "\n";
+    }
+    print FILE ".Sh STANDARDS
 .Rs
 .%T \"X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules\"
 .%D \"June 1997\"
@@ -525,14 +551,17 @@ MAIN:{
     my %opts;
 
     usage()
-	unless (@ARGV && getopts("s", \%opts));
+	unless (@ARGV && getopts("op", \%opts));
     $TODAY = strftime("%B %e, %Y", localtime(time()));
     $TODAY =~ s,\s+, ,g;
-    if ($opts{'s'}) {
+    if ($opts{'o'} || $opts{'p'}) {
 	foreach my $fn (@ARGV) {
 	    readproto($fn);
 	}
-	gensummary();
+	gensummary('openpam')
+	    if ($opts{'o'});
+	gensummary('pam')
+	    if ($opts{'p'});
     } else {
 	foreach my $fn (@ARGV) {
 	    my $func = parse_source($fn);
