@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#11 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#12 $
 #
 
 use strict;
@@ -212,10 +212,17 @@ sub parse_source($) {
 	$man .= "$_\n";
     }
     if (defined($man)) {
+	if ($inlist) {
+	    $man .= ".El\n";
+	}
+	if ($inliteral) {
+	    $man .= ".Ed\n";
+	}
 	$man =~ s/(\n\.[A-Z][a-z] [\w ]+)\n([\.,:;-]\S*)\s*/$1 $2\n/gs;
 	$man =~ s/\s*$/\n/gm;
 	$man =~ s/\n+/\n/gs;
 	$man =~ s/\0//gs;
+	$man =~ s/\n\n\./\n\./gs;
 	chomp($man);
     } else {
 	$man = "No description available.";
@@ -367,10 +374,12 @@ as part of the DARPA CHATS research program.
 ";
 
     $fn = "$func->{'name'}.3";
-    sysopen(FILE, $fn, O_RDWR|O_CREAT|O_TRUNC)
-	or die("$fn: open(): $!\n");
-    print(FILE $mdoc);
-    close(FILE);
+    if (sysopen(FILE, $fn, O_RDWR|O_CREAT|O_TRUNC)) {
+        print(FILE $mdoc);
+        close(FILE);
+    } else {
+	warn("$fn: open(): $!\n");
+    }
 }
 
 sub gensummary() {
