@@ -38,7 +38,7 @@
 
 #include <security/pam_appl.h>
 
-#include "openpam.h"
+#include "openpam_impl.h"
 
 #if !defined(OPENPAM_RELAX_CHECKS)
 static void _openpam_check_error_code(int, int);

@@ -40,7 +40,7 @@
 
 #include <security/pam_appl.h>
 
-#include "openpam.h"
+#include "openpam_impl.h"
 
 /*
  * Log a message through syslog(3)

@@ -45,7 +45,7 @@
 
 #include <security/pam_appl.h>
 
-#include "openpam.h"
+#include "openpam_impl.h"
 
 static int _pam_configure_service(pam_handle_t *pamh, const char *service);
 
