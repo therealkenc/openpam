@@ -1,4 +1,4 @@
-$Id$
+$P4: //depot/projects/openpam/doc/xsso_errata.txt#5 $
 
 Errata in XSSO, chapter 5:
 
