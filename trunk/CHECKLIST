@@ -4,7 +4,7 @@ Release checklist
 
 0) Find a code name for the release
 
-1) Update include/security/openpam_version.h
+1) Update configure.ac and include/security/openpam_version.h
 
 2) Read through the diffs from the last release, and update the change
    log.
@@ -27,4 +27,4 @@ A) Publish the tarball on SourceForge.
 
 B) Update the website.
 
-$P4: //depot/projects/openpam/CHECKLIST#1 $
+$P4: //depot/projects/openpam/CHECKLIST#2 $
