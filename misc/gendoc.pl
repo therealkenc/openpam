@@ -236,6 +236,9 @@ sub parse_source($) {
     if ($source =~ m/^ \* NOLIST\s*$/m) {
 	$FUNCTIONS{$func}->{'nolist'} = 1;
     }
+    if ($source !~ m/^ \* XSSO \d/m) {
+	$FUNCTIONS{$func}->{'openpam'} = 1;
+    }
 }
 
 sub expand_errors($);
@@ -339,12 +342,20 @@ on failure.
     while (@xref) {
 	$mdoc .= ".Xr " . shift(@xref) . (@xref ? " ,\n" : "\n");
     }
-    $mdoc .= ".Sh STANDARDS
-.Rs
+    $mdoc .= ".Sh STANDARDS\n";
+    if ($func->{'openpam'}) {
+	$mdoc .= "The
+.Nm
+function is an OpenPAM extension.
+";
+    } else {
+	$mdoc .= ".Rs
 .%T \"X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules\"
 .%D \"June 1997\"
 .Re
-.Sh AUTHORS
+";
+    }
+    $mdoc .= ".Sh AUTHORS
 The
 .Nm
 function and this manual page were developed for the FreeBSD Project
@@ -356,7 +367,7 @@ as part of the DARPA CHATS research program.
 
     $fn = "$func->{'name'}.3";
     sysopen(FILE, $fn, O_RDWR|O_CREAT|O_TRUNC)
- 	or die("$fn: open(): $!\n");
+	or die("$fn: open(): $!\n");
     print(FILE $mdoc);
     close(FILE);
 }
@@ -374,7 +385,7 @@ sub gensummary() {
     my @funcs = sort(keys(%FUNCTIONS));
     while ($func = shift(@funcs)) {
 	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-        print ".Nm $func". (@funcs ? " ,\n" : "\n");
+	print ".Nm $func". (@funcs ? " ,\n" : "\n");
     }
     print ".Nd Pluggable Authentication Modules Library
 .Sh LIBRARY
@@ -384,8 +395,8 @@ sub gensummary() {
 ";
     foreach $func (sort(keys(%FUNCTIONS))) {
 	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-        print ".Ft $FUNCTIONS{$func}->{'type'}\n";
-        print ".Fn $func $FUNCTIONS{$func}->{'args'}\n";
+	print ".Ft $FUNCTIONS{$func}->{'type'}\n";
+	print ".Fn $func $FUNCTIONS{$func}->{'args'}\n";
     }
     print ".Sh DESCRIPTION
 .Sh RETURN VALUES
@@ -402,7 +413,7 @@ header:
 ";
     foreach $func (sort(keys(%FUNCTIONS))) {
 	next if (defined($FUNCTIONS{$func}->{'nolist'}));
-        print ".Xr $func 3 ,\n";
+	print ".Xr $func 3 ,\n";
     }
     print ".Xr pam.conf 5
 .Sh STANDARDS
