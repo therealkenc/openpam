@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/dist.sh#8 $
+# $P4: //depot/projects/openpam/dist.sh#9 $
 #
 
 set -e
@@ -9,27 +9,27 @@ release=$(date '+%Y%m%d')
 distname="openpam-${release}"
 tarball="${distname}.tar.gz"
 
-gmake clean || true
-gmake distclean || true
-sh -e autogen.sh
-sh configure --with-pam-su --with-pam-unix
-gmake
 install -d -m 0755 "${distname}"
-grep -v '^#' MANIFEST | while read file; do
-    install -d -m 0755 "${distname}/$(dirname ${file})" || exit 1
+grep '^[a-z].*/$' MANIFEST | while read dir; do
+    echo "Creating ${dir}"
+    install -d -m 0755 "${distname}/${dir}" || exit 1
+done
+grep '^[a-z].*[^/]$' MANIFEST | while read file; do
+    echo "Adding ${file}"
     install -c -m 0644 "${file}" "${distname}/${file}" || exit 1
 done
-for f in autogen.sh configure depcomp install-sh ltconfig ltmain.sh ; do
-    chmod a+x "${distname}/${f}"
+for file in autogen.sh configure depcomp install-sh ltconfig ltmain.sh ; do
+    echo "Adjusting permissions for ${file}"
+    chmod a+x "${distname}/${file}"
 done
-for f in configure configure.in include/security/openpam_version.h ; do
-    perl -p -i -e "s/YYYYMMDD/${release}/g" "${distname}/${f}"
+(cd "${distname}" && grep -rl YYYYMMDD *) | while read file ; do
+    echo "Datestamping ${file}"
+    perl -p -i -e "s/YYYYMMDD/${release}/g" "${distname}/${file}"
 done
-find "${distname}" | xargs touch -t "${release}0000"
+find "${distname}" | sort -r | xargs touch -t "${release}0000"
 tar zcf "${tarball}" "${distname}"
+dd if=/dev/zero of="${tarball}" conv=notrunc bs=4 oseek=1 count=1
 rm -rf "${distname}"
-gmake clean || true
-gmake distclean || true
 
 echo
 md5 "${tarball}"
