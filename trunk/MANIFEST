@@ -1,5 +1,5 @@
 #
-# $P4: //depot/projects/openpam/MANIFEST#11 $
+# $P4: //depot/projects/openpam/MANIFEST#12 $
 #
 CREDITS
 HISTORY
@@ -129,3 +129,5 @@ modules/pam_dummy/Makefile
 modules/pam_dummy/pam_dummy.c
 modules/pam_permit/Makefile
 modules/pam_permit/pam_permit.c
+modules/pam_unix/Makefile
+modules/pam_unix/pam_unix.c
