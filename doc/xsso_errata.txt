@@ -21,6 +21,10 @@ p. 60:	"PAM_AUTHOK" and "PAM_OLDAUTHOK" in the DESCRIPTION section
 p. 62:  the target_authtok_len argument to pam_set_mapped_authtok() is
 	of type size_t, not a size_t *.
 
+p. 52:	PAM_CONV_ERR is listed out of order and with the explanatory
+	text "Conversation failure" instead of "Conversation error".
+	It is listed correctly on the next page.
+
 p. 59:	the last argument pam_set_data() should be written void
 	(*cleanup)(...), not void *(cleanup)(...).
 
@@ -62,3 +66,6 @@ p. 90:  the correct definition for struct pam_response is as follows:
 		char	*resp;
 		int	 resp_retcode;
 	};
+
+p. 90:	the last sentence of the DESCRIPTION section should refer to
+	pam_set_data() rather than pam_set_item().
