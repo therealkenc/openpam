@@ -50,9 +50,18 @@ enum {
 /*
  * Log to syslog
  */
-void openpam_log(int _level,
+void _openpam_log(int _level,
+	const char *_func,
 	const char *_fmt,
 	...);
+
+#ifdef __GNUC__
+#define openpam_log(lvl, fmt...) \
+	_openpam_log((lvl), __func__, ##fmt)
+#else
+#define openpam_log(lvl, fmt, ...) \
+	_openpam_log((lvl), __func__, fmt, __VA_ARGS__)
+#endif
 
 /*
  * Generic conversation function
