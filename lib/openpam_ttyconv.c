@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#20 $
+ * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#21 $
  */
 
 #include <sys/types.h>
@@ -68,6 +68,7 @@ prompt(const char *msg)
 	sigset_t saved_sigset, sigset;
 	unsigned int saved_alarm;
 	size_t len;
+	char *retval;
 
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGINT);
@@ -89,14 +90,18 @@ prompt(const char *msg)
 	sigaction(SIGALRM, &saved_action, NULL);
 	sigprocmask(SIG_SETMASK, &saved_sigset, NULL);
 	alarm(saved_alarm);
-	if (timed_out || ferror(stdin) || feof(stdin))
+	if (timed_out || ferror(stdin) || feof(stdin)) {
+		memset(buf, 0, sizeof(buf));
 		return (NULL);
+	}
 	/* trim trailing whitespace */
 	for (len = strlen(buf); len > 0; --len)
 		if (!isspace(buf[len - 1]))
 			break;
 	buf[len] = '\0';
-	return (strdup(buf));
+	retval = strdup(buf);
+	memset(buf, 0, sizeof(buf));
+	return (retval);
 }
 
 static char *
@@ -179,7 +184,10 @@ openpam_ttyconv(int n,
 	RETURNC(PAM_SUCCESS);
  fail:
 	while (i)
-		FREE(resp[--i]);
+		if (resp[--i]->resp) {
+			memset(resp[i]->resp, 0, strlen(resp[i]->resp));
+			FREE(resp[i]->resp);
+		}
 	FREE(*resp);
 	RETURNC(PAM_CONV_ERR);
 }
