@@ -1,4 +1,4 @@
-$P4: //depot/projects/openpam/doc/xsso_errata.txt#7 $
+$P4: //depot/projects/openpam/doc/xsso_errata.txt#8 $
 
 Errata in XSSO, chapter 5:
 
@@ -49,6 +49,9 @@ p. 70:	"pam_authenticate_secondary" in the SYNOPSIS section should be
 
 p. 72:	the flags argument to pam_sm_chauthtok() is of type int, not
 	const int.
+
+p. 73:	"aging" is misspelled as "again" in the description of
+	PAM_AUTHTOK_DISABLE_AGING in the "RETURN VALUE" section.
 
 p. 77:	the names of several arguments to pam_sm_get_mapped_authtok()
 	are missing the initial "t" in "target".
