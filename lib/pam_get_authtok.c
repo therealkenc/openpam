@@ -61,13 +61,12 @@ pam_get_authtok(pam_handle_t *pamh,
 	r = pam_get_item(pamh, PAM_AUTHTOK, (const void **)authtok);
 	if (r == PAM_SUCCESS && *authtok != NULL)
 		return (PAM_SUCCESS);
-	if (prompt == NULL) {
-		if (pam_get_item(pamh, PAM_AUTHTOK_PROMPT,
-		    (const void **)&p) != PAM_SUCCESS || p == NULL)
+	if (pam_get_item(pamh, PAM_AUTHTOK_PROMPT,
+	    (const void **)&p) != PAM_SUCCESS || p == NULL)
+		if (prompt == NULL)
 			prompt = "Password:";
-	}
 	r = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &resp,
-	    "%s", prompt ? prompt : p);
+	    "%s", p ? p : prompt);
 	if (r != PAM_SUCCESS)
 		return (r);
 	*authtok = resp;
