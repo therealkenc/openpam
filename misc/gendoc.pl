@@ -38,7 +38,7 @@
 use strict;
 use Fcntl;
 use POSIX qw(strftime);
-use vars qw($TODAY %FUNCTIONS);
+use vars qw($COPYRIGHT $TODAY %FUNCTIONS);
 
 sub gendoc($) {
     my $fn = shift;
@@ -66,6 +66,7 @@ sub gendoc($) {
 	$mdoc = $1;
 	$mdoc =~ s,^.\*,.\\\",gm;
 	$mdoc .= "\n.\\\"\n";
+	$COPYRIGHT = $mdoc;
     } else {
 	$mdoc = ".\\\" \$" . "Id" . "\$\n";
     }
@@ -135,6 +136,7 @@ as part of the DARPA CHATS research program.
 
 sub gensummary() {
 
+    print "$COPYRIGHT";
     print ".Dd $TODAY
 .Dt PAM 3
 .Os
