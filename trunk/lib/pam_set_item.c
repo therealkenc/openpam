@@ -55,11 +55,13 @@ pam_set_item(pam_handle_t *pamh,
 	int item_type,
 	const void *item)
 {
-	void *tmp;
+	void **slot, *tmp;
+	size_t size;
 
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 
+	slot = &pamh->item[item_type];
 	switch (item_type) {
 	case PAM_SERVICE:
 	case PAM_USER:
@@ -70,26 +72,24 @@ pam_set_item(pam_handle_t *pamh,
 	case PAM_RUSER:
 	case PAM_USER_PROMPT:
 	case PAM_AUTHTOK_PROMPT:
-		if (item == NULL) {
-			tmp = NULL;
-			break;
-		}
-		if ((tmp = strdup(item)) == NULL)
-			return (PAM_BUF_ERR);
+		size = strlen(*slot) + 1;
+		if (item != NULL)
+			tmp = strdup(item);
 		break;
 	case PAM_CONV:
-		if (item == NULL) {
-			tmp = NULL;
-			break;
-		}
-		if ((tmp = malloc(sizeof(struct pam_conv))) == NULL)
-			return (PAM_BUF_ERR);
-		memcpy(tmp, item, sizeof(struct pam_conv));
+		size = sizeof(struct pam_conv);
+		if (item != NULL)
+			tmp = malloc(size);
 		break;
 	default:
 		return (PAM_SYSTEM_ERR);
 	}
-	free(pamh->item[item_type]);
-	pamh->item[item_type] = tmp;
+	if (item != NULL && tmp == NULL)
+		return (PAM_BUF_ERR);
+	if (*slot != NULL) {
+		memset(*slot, 0xd0, size);
+		free(*slot);
+	}
+	*slot = tmp;
 	return (PAM_SUCCESS);
 }
