@@ -35,6 +35,10 @@
 #
 
 MAN		 =
+MAN		+= openpam_get_option.3
+MAN		+= openpam_log.3
+MAN		+= openpam_set_option.3
+MAN		+= openpam_ttyconv.3
 MAN		+= pam.3
 MAN		+= pam_acct_mgmt.3
 MAN		+= pam_authenticate.3

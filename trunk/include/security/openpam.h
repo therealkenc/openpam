@@ -49,6 +49,15 @@ extern "C" {
 /*
  * API extensions
  */
+const char *
+openpam_get_option(pam_handle_t *_pamh,
+	const char *_option);
+
+int
+openpam_set_option(pam_handle_t *_pamh,
+	const char *_option,
+	const char *_value);
+
 int
 pam_error(pam_handle_t *_pamh,
 	const char *_fmt,
