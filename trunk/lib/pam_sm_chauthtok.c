@@ -74,6 +74,7 @@ pam_sm_chauthtok(pam_handle_t *pamh,
  *	PAM_AUTHTOK_RECOVERY_ERR
  *	PAM_AUTHTOK_LOCK_BUSY
  *	PAM_AUTHTOK_DISABLE_AGING
+ *	PAM_TRY_AGAIN
  */
 
 /**
