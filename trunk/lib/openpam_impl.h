@@ -39,6 +39,8 @@
 
 #include <security/openpam.h>
 
+extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
+
 /*
  * Control flags
  */
@@ -57,27 +59,13 @@
 #define PAM_PASSWORD		3
 #define PAM_NUM_CHAINS		4
 
-#define PAM_ACCT_MGMT		0
-#define PAM_AUTHENTICATE	1
-#define PAM_CHAUTHTOK		2
-#define PAM_CLOSE_SESSION	3
-#define PAM_OPEN_SESSION	4
-#define PAM_SETCRED		5
-#define PAM_NUM_PRIMITIVES	6
-
-extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
-
-typedef int (*pam_func_t)(pam_handle_t *, int, int, const char **);
-
 typedef struct pam_chain pam_chain_t;
 struct pam_chain {
+	pam_module_t	*module;
 	int		 flag;
-	char		*modpath;
 	int		 optc;
 	char	       **optv;
 	pam_chain_t	*next;
-	void		*dlh;
-	pam_func_t	 primitive[PAM_NUM_PRIMITIVES];
 };
 
 #define PAM_NUM_ITEMS	       10

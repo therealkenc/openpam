@@ -52,5 +52,5 @@ pam_authenticate(pam_handle_t *pamh,
 	int flags)
 {
 
-	return (openpam_dispatch(pamh, PAM_AUTHENTICATE, flags));
+	return (openpam_dispatch(pamh, PAM_SM_AUTHENTICATE, flags));
 }
