@@ -1,5 +1,5 @@
 #
-# $P4: //depot/projects/openpam/MANIFEST#13 $
+# $P4: //depot/projects/openpam/MANIFEST#14 $
 #
 CREDITS
 HISTORY
@@ -7,9 +7,11 @@ INSTALL
 LICENSE
 MANIFEST
 Makefile
+Makefile.inc
 README
 RELNOTES
 bin/Makefile
+bin/Makefile.inc
 bin/su/Makefile
 bin/su/su.c
 doc/Makefile
