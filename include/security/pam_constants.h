@@ -70,7 +70,7 @@ enum {
 	PAM_ABORT			=  26,
 	PAM_TRY_AGAIN			=  27,
 	PAM_MODULE_UNKNOWN		=  28,
-	PAM_DOMAIN_UNKNOWN		=  29,
+	PAM_DOMAIN_UNKNOWN		=  29
 };
 
 /*
@@ -83,7 +83,7 @@ enum {
 	PAM_TEXT_INFO			=   4,
 	PAM_MAX_NUM_MSG			=  32,
 	PAM_MAX_MSG_SIZE		= 512,
-	PAM_MAX_RESP_SIZE		= 512,
+	PAM_MAX_RESP_SIZE		= 512
 };
 
 /*
@@ -98,7 +98,7 @@ enum {
 	PAM_REFRESH_CRED		= 0x8,
 	PAM_CRED_PRELIM_CHECK		= 0x1,
 	PAM_UPDATE_AUTHTOK		= 0x2,
-	PAM_CHANGE_EXPIRED_AUTHTOK	= 0x4,
+	PAM_CHANGE_EXPIRED_AUTHTOK	= 0x4
 };
 
 /*
@@ -114,7 +114,7 @@ enum {
 	PAM_OLDAUTHTOK			=   7,
 	PAM_RUSER			=   8,
 	PAM_USER_PROMPT			=   9,
-	PAM_AUTHTOK_PROMPT		=  10,		/* OpenPAM extension */
+	PAM_AUTHTOK_PROMPT		=  10		/* OpenPAM extension */
 };
 
 #endif
