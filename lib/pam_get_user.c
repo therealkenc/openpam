@@ -34,7 +34,11 @@
  * $Id$
  */
 
+#include <sys/param.h>
+
 #include <security/pam_appl.h>
+
+#include "openpam.h"
 
 /*
  * XSSO 4.2.1
@@ -48,6 +52,18 @@ pam_get_user(pam_handle_t *pamh,
 	char **user,
 	const char *prompt)
 {
+	int r;
+	
+	if (pamh == NULL || user == NULL)
+		return (PAM_SYSTEM_ERR);
 
-	return (PAM_SYSTEM_ERR);
+	if ((r = pam_get_item(pamh, PAM_USER, (void **)user)) == PAM_SUCCESS)
+		return (PAM_SUCCESS);
+	if (prompt == NULL)
+		pam_get_item(pamh, PAM_USER_PROMPT, (void **)&prompt);
+	if (prompt == NULL)
+		prompt = "Login: ";
+	if ((r = pam_prompt(pamh, user, 0, "%s", prompt)) != PAM_SUCCESS)
+		return (r);
+	return (pam_set_item(pamh, PAM_USER, *user));
 }
