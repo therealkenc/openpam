@@ -4,9 +4,9 @@
 # All rights reserved.
 #
 # This software was developed for the FreeBSD Project by ThinkSec AS and
-# NAI Labs, the Security Research Division of Network Associates, Inc.
-# under DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"), as part of the
-# DARPA CHATS research program.
+# Network Associates Laboratories, the Security Research Division of
+# Network Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+# ("CBOSS"), as part of the DARPA CHATS research program.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#17 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#18 $
 #
 
 use strict;
@@ -46,9 +46,9 @@ $COPYRIGHT = ".\\\"-
 .\\\" All rights reserved.
 .\\\"
 .\\\" This software was developed for the FreeBSD Project by ThinkSec AS and
-.\\\" NAI Labs, the Security Research Division of Network Associates, Inc.
-.\\\" under DARPA/SPAWAR contract N66001-01-C-8035 (\"CBOSS\"), as part of the
-.\\\" DARPA CHATS research program.
+.\\\" Network Associates Laboratories, the Security Research Division of
+.\\\" Network Associates, Inc. under DARPA/SPAWAR contract N66001-01-C-8035
+.\\\" (\"CBOSS\"), as part of the DARPA CHATS research program.
 .\\\"
 .\\\" Redistribution and use in source and binary forms, with or without
 .\\\" modification, are permitted provided that the following conditions
@@ -415,8 +415,9 @@ function is an OpenPAM extension.
 The
 .Nm
 function and this manual page were developed for the FreeBSD Project
-by ThinkSec AS and NAI Labs, the Security Research Division of Network
-Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+by ThinkSec AS and Network Associates Laboratories, the Security
+Research Division of Network Associates, Inc.  under DARPA/SPAWAR
+contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
 ";
@@ -532,9 +533,9 @@ The following return codes are defined by
 .Re
 .Sh AUTHORS
 The OpenPAM library and this manual page were developed for the
-FreeBSD Project by ThinkSec AS and NAI Labs, the Security Research
-Division of Network Associates, Inc.  under DARPA/SPAWAR contract
-N66001-01-C-8035
+FreeBSD Project by ThinkSec AS and Network Associates Laboratories,
+the Security Research Division of Network Associates, Inc.  under
+DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
 ";
