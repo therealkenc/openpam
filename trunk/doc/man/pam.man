@@ -1,5 +1,5 @@
 .\"
-.\" $P4: //depot/projects/openpam/doc/man/pam.man#3 $
+.\" $P4: //depot/projects/openpam/doc/man/pam.man#4 $
 .\"
 .Sh DESCRIPTION
 The Pluggable Authentication Modules (PAM) library abstracts a number
@@ -89,9 +89,9 @@ The
 .Fn pam_getenv
 and
 .Fn pam_getenvlist
-functions
-manage a private environment list in which modules can set environment
-variables they want the server to export during the session.
+functions manage a private environment list in which modules can set
+environment variables they want the server to export during the
+session.
 .Pp
 The
 .Fn pam_strerror
