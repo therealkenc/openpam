@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#11 $
+ * $P4: //depot/projects/openpam/lib/openpam_borrow_cred.c#12 $
  */
 
 #include <sys/param.h>
@@ -114,7 +114,7 @@ openpam_borrow_cred(pam_handle_t *pamh,
  * group access list.  The original credentials can be restored using
  * =openpam_restore_cred.
  *
- * >setegid
- * >seteuid
- * >setgroups
+ * >setegid 2
+ * >seteuid 2
+ * >setgroups 2
  */
