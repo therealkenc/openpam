@@ -31,9 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_configure.c#9 $
+ * $P4: //depot/projects/openpam/lib/openpam_configure.c#10 $
  */
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ const char *_pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
 	[PAM_SUFFICIENT]	= "sufficient",
 };
 
-static int openpam_load_chain(pam_chain_t **, const char *, const char *);
+static int openpam_load_chain(pam_handle_t *, const char *, pam_facility_t);
 
 /*
  * Matches a word against the first one in a string.
@@ -68,7 +69,7 @@ static int
 match_word(const char *str, const char *word)
 {
 
-	while (*str && *str == *word)
+	while (*str && tolower(*str) == tolower(*word))
 		++str, ++word;
 	return (*str == ' ' && *word == '\0');
 }
@@ -121,18 +122,20 @@ wordlen(const char *str)
 typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
 
 /*
- * Extracts a given chain from a policy file.
+ * Extracts given chains from a policy file.
  */
 static int
-openpam_read_chain(pam_chain_t **chain,
+openpam_read_chain(pam_handle_t *pamh,
 	const char *service,
-	const char *facility,
+	pam_facility_t facility,
 	const char *filename,
 	openpam_style_t style)
 {
 	pam_chain_t *this, **next;
 	const char *p, *q;
 	int count, i, lineno, ret;
+	pam_facility_t fclt;
+	pam_control_t ctlf;
 	char *line, *name;
 	FILE *f;
 
@@ -141,8 +144,7 @@ openpam_read_chain(pam_chain_t **chain,
 		    "%s: %m", filename);
 		return (0);
 	}
-	next = chain;
-	this = *next = NULL;
+	this = NULL;
 	count = lineno = 0;
 	while ((line = openpam_readline(f, &lineno, NULL)) != NULL) {
 		p = line;
@@ -157,15 +159,16 @@ openpam_read_chain(pam_chain_t **chain,
 		}
 
 		/* match facility name */
-		for (i = 0; i < PAM_NUM_FACILITIES; ++i)
-			if (match_word(p, _pam_facility_name[i]))
+		for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt)
+			if (match_word(p, _pam_facility_name[fclt]))
 				break;
-		if (i == PAM_NUM_FACILITIES) {
+		if (fclt == PAM_NUM_FACILITIES) {
 			openpam_log(PAM_LOG_NOTICE,
 			    "%s(%d): invalid facility '%.*s' (ignored)",
 			    filename, lineno, wordlen(p), p);
+			goto fail;
 		}
-		if (!match_word(p, facility)) {
+		if (facility != fclt && facility != PAM_FACILITY_ANY) {
 			FREE(line);
 			continue;
 		}
@@ -180,15 +183,13 @@ openpam_read_chain(pam_chain_t **chain,
 				    filename, lineno);
 			if ((name = dup_word(p)) == NULL)
 				goto syserr;
-			ret = openpam_load_chain(next, name, facility);
+			ret = openpam_load_chain(pamh, name, fclt);
+			fprintf(stderr, "include %s returned %d\n", name, ret);
 			FREE(name);
-			while (*next != NULL) {
-				next = &(*next)->next;
-				++count;
-			}
-			FREE(line);
 			if (ret < 0)
 				goto fail;
+			count += ret;
+			FREE(line);
 			continue;
 		}
 
@@ -197,16 +198,16 @@ openpam_read_chain(pam_chain_t **chain,
 			goto syserr;
 
 		/* control flag */
-		for (i = 0; i < PAM_NUM_CONTROL_FLAGS; ++i)
-			if (match_word(p, _pam_control_flag_name[i]))
+		for (ctlf = 0; ctlf < PAM_NUM_CONTROL_FLAGS; ++ctlf)
+			if (match_word(p, _pam_control_flag_name[ctlf]))
 				break;
-		if (i == PAM_NUM_CONTROL_FLAGS) {
+		if (ctlf == PAM_NUM_CONTROL_FLAGS) {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): invalid control flag '%.*s'",
 			    filename, lineno, wordlen(p), p);
 			goto fail;
 		}
-		this->flag = i;
+		this->flag = ctlf;
 
 		/* module name */
 		p = next_word(p);
@@ -239,8 +240,10 @@ openpam_read_chain(pam_chain_t **chain,
 		}
 
 		/* hook it up */
+		for (next = &pamh->chains[fclt]; *next != NULL;
+		     next = &(*next)->next)
+			/* nothing */ ;
 		*next = this;
-		next = &this->next;
 		this = NULL;
 		++count;
 
@@ -269,13 +272,13 @@ static const char *openpam_policy_path[] = {
 };
 
 /*
- * Locates the policy file for a given service and reads the given chain
+ * Locates the policy file for a given service and reads the given chains
  * from it.
  */
 static int
-openpam_load_chain(pam_chain_t **chain,
+openpam_load_chain(pam_handle_t *pamh,
 	const char *service,
-	const char *facility)
+	pam_facility_t facility)
 {
 	const char **path;
 	char *filename;
@@ -289,11 +292,11 @@ openpam_load_chain(pam_chain_t **chain,
 				openpam_log(PAM_LOG_ERROR, "asprintf(): %m");
 				return (-PAM_BUF_ERR);
 			}
-			r = openpam_read_chain(chain, service, facility,
+			r = openpam_read_chain(pamh, service, facility,
 			    filename, pam_d_style);
 			FREE(filename);
 		} else {
-			r = openpam_read_chain(chain, service, facility,
+			r = openpam_read_chain(pamh, service, facility,
 			    *path, pam_conf_style);
 		}
 		if (r != 0)
@@ -312,20 +315,21 @@ int
 openpam_configure(pam_handle_t *pamh,
 	const char *service)
 {
-	int i, ret;
+	pam_facility_t fclt;
 
-	for (i = 0; i < PAM_NUM_FACILITIES; ++i) {
-		ret = openpam_load_chain(&pamh->chains[i],
-		    service, _pam_facility_name[i]);
-		if (ret == 0)
-			ret = openpam_load_chain(&pamh->chains[i],
-			    PAM_OTHER, _pam_facility_name[i]);
-		if (ret < 0) {
-			openpam_clear_chains(pamh->chains);
-			return (PAM_SYSTEM_ERR);
-		}
+	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) < 0)
+		goto load_err;
+
+	for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt) {
+		if (pamh->chains[fclt] != NULL)
+			continue;
+		if (openpam_load_chain(pamh, PAM_OTHER, fclt) < 0)
+			goto load_err;
 	}
 	return (PAM_SUCCESS);
+ load_err:
+	openpam_clear_chains(pamh->chains);
+	return (PAM_SYSTEM_ERR);
 }
 
 /*
