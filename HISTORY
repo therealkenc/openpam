@@ -1,6 +1,9 @@
 ============================================================================
 OpenPAM Cineraria						2002-04-14
 
+ - BUGFIX: Fix confusion between token and prompt in
+   pam_get_authtok(3).
+
  - ENHANCE: Improved documentation.
 
  - ENHANCE: Adopt the same preprocessor tricks that were used in
@@ -128,4 +131,4 @@ OpenPAM	Calamite						2002-02-09
 
 First (beta) release.
 ============================================================================
-$P4: //depot/projects/openpam/HISTORY#9 $
+$P4: //depot/projects/openpam/HISTORY#10 $
