@@ -1,4 +1,4 @@
-openpamdir = $(oldincludedir)/security
+openpamdir = $(includedir)/security
 
 openpam_HEADERS = \
 	openpam.h \
