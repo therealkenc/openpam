@@ -50,7 +50,7 @@
 int
 pam_get_item(pam_handle_t *pamh,
 	int item_type,
-	void **item)
+	const void **item)
 {
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
