@@ -61,7 +61,7 @@ pam_strerror(pam_handle_t *pamh,
 	case PAM_OPEN_ERR:
 		return ("failed to load module");
 	case PAM_SYMBOL_ERR:
-		return ("symbol not found in module");
+		return ("invalid symbol");
 	case PAM_SERVICE_ERR:
 		return ("error in service module");
 	case PAM_SYSTEM_ERR:

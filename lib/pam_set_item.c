@@ -88,7 +88,7 @@ pam_set_item(pam_handle_t *pamh,
 		}
 		break;
 	default:
-		return (PAM_SYSTEM_ERR);
+		return (PAM_SYMBOL_ERR);
 	}
 	if (*slot != NULL) {
 		memset(*slot, 0xd0, size);

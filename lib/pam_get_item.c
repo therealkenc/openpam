@@ -69,6 +69,6 @@ pam_get_item(pam_handle_t *pamh,
 		*item = pamh->item[item_type];
 		return (PAM_SUCCESS);
 	default:
-		return (PAM_SYSTEM_ERR);
+		return (PAM_SYMBOL_ERR);
 	}
 }
