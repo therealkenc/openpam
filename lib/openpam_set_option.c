@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_set_option.c#9 $
+ * $P4: //depot/projects/openpam/lib/openpam_set_option.c#10 $
  */
 
 #include <sys/param.h>
@@ -89,7 +89,7 @@ openpam_set_option(pam_handle_t *pamh,
 		/* add */
 		optv = realloc(cur->optv, sizeof(char *) * (cur->optc + 2));
 		if (optv == NULL) {
-			free(opt);
+			FREE(opt);
 			RETURNC(PAM_BUF_ERR);
 		}
 		optv[i] = opt;
@@ -98,7 +98,7 @@ openpam_set_option(pam_handle_t *pamh,
 		++cur->optc;
 	} else {
 		/* replace */
-		free(cur->optv[i]);
+		FREE(cur->optv[i]);
 		cur->optv[i] = opt;
 	}
 	RETURNC(PAM_SUCCESS);

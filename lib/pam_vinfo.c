@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_vinfo.c#6 $
+ * $P4: //depot/projects/openpam/lib/pam_vinfo.c#7 $
  */
 
 #include <stdarg.h>
@@ -39,6 +39,8 @@
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
+
+#include "openpam_impl.h"
 
 /*
  * OpenPAM extension
@@ -55,7 +57,7 @@ pam_vinfo(pam_handle_t *pamh,
 	int r;
 
 	r = pam_vprompt(pamh, PAM_TEXT_INFO, &rsp, fmt, ap);
-	free(rsp); /* ignore response */
+	FREE(rsp); /* ignore response */
 	return (r);
 }
 

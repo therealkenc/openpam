@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_free_data.c#3 $
+ * $P4: //depot/projects/openpam/lib/openpam_free_data.c#4 $
  */
 
 #include <stdlib.h>
@@ -54,7 +54,7 @@ openpam_free_data(pam_handle_t *pamh, void *data, int status)
 	ENTER();
 	(void)pamh;
 	(void)status;
-	free(data);
+	FREE(data);
 	RETURNV();
 }
 

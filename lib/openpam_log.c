@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_log.c#21 $
+ * $P4: //depot/projects/openpam/lib/openpam_log.c#22 $
  */
 
 #include <ctype.h>
@@ -112,7 +112,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 	va_start(ap, fmt);
 	if (asprintf(&format, "in %s(): %s", func, fmt) > 0) {
 		vsyslog(priority, format, ap);
-		free(format);
+		FREE(format);
 	} else {
 		vsyslog(priority, fmt, ap);
 	}

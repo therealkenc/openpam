@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_impl.h#22 $
+ * $P4: //depot/projects/openpam/lib/openpam_impl.h#23 $
  */
 
 #ifndef _OPENPAM_IMPL_H_INCLUDED
@@ -123,6 +123,8 @@ void		openpam_clear_chains(pam_chain_t **);
 pam_module_t   *openpam_static(const char *);
 #endif
 pam_module_t   *openpam_dynamic(const char *);
+
+#define	FREE(p) do { free((p)); (p) = NULL; } while (0);
 
 #ifdef DEBUG
 #define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
