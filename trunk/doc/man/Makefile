@@ -31,7 +31,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/doc/man/Makefile#7 $
+# $P4: //depot/projects/openpam/doc/man/Makefile#8 $
 #
 
 MAN		 =
