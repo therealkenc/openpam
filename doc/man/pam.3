@@ -33,7 +33,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd February 4, 2002
+.Dd February 9, 2002
 .Dt PAM 3
 .Os
 .Sh NAME
@@ -62,7 +62,7 @@
 .Nm pam_verror ,
 .Nm pam_vinfo ,
 .Nm pam_vprompt
-.Nd Pluggable Authentication Modules
+.Nd Pluggable Authentication Modules Library
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
@@ -118,7 +118,6 @@
 .Ft int
 .Fn pam_vprompt "pam_handle_t *pamh" "int style" "char **resp" "const char *fmt" "va_list ap"
 .Sh DESCRIPTION
-Foo
 .Sh RETURN VALUES
 .Sh SEE ALSO
 .Xr pam_acct_mgmt 3 ,
