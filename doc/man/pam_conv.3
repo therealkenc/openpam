@@ -3,9 +3,9 @@
 .\" All rights reserved.
 .\"
 .\" This software was developed for the FreeBSD Project by ThinkSec AS and
-.\" NAI Labs, the Security Research Division of Network Associates, Inc.
-.\" under DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"), as part of the
-.\" DARPA CHATS research program.
+.\" Network Associates Laboratories, the Security Research Division of
+.\" Network Associates, Inc. under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
 .\"
 .\" Redistribution and use in source and binary forms, with or without
 .\" modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" $P4: //depot/projects/openpam/doc/man/pam_conv.3#1 $
+.\" $P4: //depot/projects/openpam/doc/man/pam_conv.3#2 $
 .\"
 .Dd May 27, 2002
 .Dt PAM_CONV 3
@@ -45,25 +45,25 @@
 .In security/pam_appl.h
 .Bd -literal
 struct pam_message {
-        int      msg_style;
-        char    *msg;
+	int      msg_style;
+	char    *msg;
 };
 
 struct pam_response {
-        char    *resp;
-        int      resp_retcode;
+	char    *resp;
+	int      resp_retcode;
 };
 
 struct pam_conv {
-        int     (*conv)(int, const struct pam_message **,
-            struct pam_response **, void *);
-        void    *appdata_ptr;
+	int     (*conv)(int, const struct pam_message **,
+	    struct pam_response **, void *);
+	void    *appdata_ptr;
 };
 .Ed
 .Sh DESCRIPTION
 The PAM library uses an application-defined callback to communicate
-with the user.  
-This callback is specified by the 
+with the user.
+This callback is specified by the
 .Vt struct pam_conv
 passed to
 .Fn pam_start
@@ -76,7 +76,7 @@ item.
 The conversation function's first argument specifies the number of
 messages (up to
 .Dv PAM_NUM_MSG )
-to process.  
+to process.
 The second argument is a pointer to a contiguous array of
 .Vt struct pam_message
 containing the actual messages.
@@ -111,7 +111,7 @@ characters long, including the terminating NUL.
 On success, the conversation function should allocate and fill a
 contiguous array of
 .Vt struct pam_response ,
-one for each message that was passed in.  
+one for each message that was passed in.
 A pointer to the user's response to each message (or
 .Dv NULL
 in the case of informational or error messages) should be stored in
@@ -125,7 +125,7 @@ characters long, including the terminating NUL.
 .Pp
 The
 .Va resp_retcode
-member of 
+member of
 .Vt struct pam_response
 is unused and should be set to zero.
 .Pp
@@ -137,7 +137,7 @@ responses themselves, using
 It is the conversation function's responsibility to ensure that it is
 legal to do so.
 .Pp
-The 
+The
 .Va appdata_ptr
 member of
 .Vt struct pam_conv
@@ -175,8 +175,8 @@ System error.
 .Re
 .Sh AUTHORS
 The OpenPAM library and this manual page were developed for the
-FreeBSD Project by ThinkSec AS and NAI Labs, the Security Research
-Division of Network Associates, Inc. under DARPA/SPAWAR contract
-N66001-01-C-8035
+FreeBSD Project by ThinkSec AS and Network Associates Laboratories,
+the Security Research Division of Network Associates, Inc. under
+DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
