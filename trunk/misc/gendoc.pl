@@ -116,7 +116,7 @@ function returns one of the following values:
 .%T \"X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules\"
 .%D \"June 1997\"
 .Re
-.AUTHORS
+.Sh AUTHORS
 The
 .Nm
 function and this manual page were developed for the FreeBSD Project
@@ -126,7 +126,7 @@ Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
 as part of the DARPA CHATS research program.
 ";
 
-     $fn =~ s,\.c$,.3,;
+     $fn = "$func.3";
      sysopen(FILE, $fn, O_RDWR|O_CREAT|O_TRUNC)
  	or die("$fn: open(): $!\n");
      print(FILE $mdoc);
@@ -168,7 +168,7 @@ Foo
 .%T \"X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules\"
 .%D \"June 1997\"
 .Re
-.AUTHORS
+.Sh AUTHORS
 The OpenPAM library and this manual page were developed for the
 FreeBSD Project by ThinkSec AS and NAI Labs, the Security Research
 Division of Network Associates, Inc.  under DARPA/SPAWAR contract
