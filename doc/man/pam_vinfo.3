@@ -34,17 +34,17 @@
 .\" $Id$
 .\"
 .Dd February 4, 2002
-.Dt PAM_GET_USER 3
+.Dt PAM_VINFO 3
 .Os
 .Sh NAME
-.Nm pam_get_user
-.Nd retrieve user name
+.Nm pam_vinfo
+.Nd display an information message
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
 .Ft int
-.Fn pam_get_user "pam_handle_t *pamh" "const char **user" "const char *prompt"
+.Fn pam_vinfo "pam_handle_t *pamh" "const char *fmt" "va_list ap"
 .Sh DESCRIPTION
 The
 .Nm
