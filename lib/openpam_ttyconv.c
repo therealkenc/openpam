@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#18 $
+ * $P4: //depot/projects/openpam/lib/openpam_ttyconv.c#19 $
  */
 
 #include <sys/types.h>
@@ -181,7 +181,6 @@ openpam_ttyconv(int n,
 	while (i)
 		FREE(resp[--i]);
 	FREE(*resp);
-	*resp = NULL;
 	RETURNC(PAM_CONV_ERR);
 }
 
