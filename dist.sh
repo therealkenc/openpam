@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/dist.sh#4 $
+# $P4: //depot/projects/openpam/dist.sh#5 $
 #
 
 set -e
@@ -10,7 +10,7 @@ distname="openpam-${release}"
 
 make cleandir
 make cleandir
-(cd doc/man && make openpam.3)
+(cd doc/man && make)
 install -d -m 0755 "${distname}"
 grep -v '^#' MANIFEST | while read file; do
     install -d -m 0755 "${distname}/$(dirname ${file})"
