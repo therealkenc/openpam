@@ -31,13 +31,14 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/modules/Makefile#6 $
+# $P4: //depot/projects/openpam/modules/pam_unix/Makefile#1 $
 #
 
-SUBDIR		 =
-SUBDIR		+= pam_deny
-SUBDIR		+= pam_dummy
-SUBDIR		+= pam_permit
-SUBDIR		+= pam_unix
+LIB		 = pam_unix
+SHLIB_NAME	 = pam_unix.so
+SRCS		 = pam_unix.c
+CFLAGS		+= -I${.CURDIR}/../../include
+DPADD		 = ${LIBCRYPT}
+LDADD		 = -lcrypt
 
-.include <bsd.subdir.mk>
+.include <bsd.lib.mk>
