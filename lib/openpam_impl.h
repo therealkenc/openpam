@@ -91,6 +91,7 @@ struct pam_data {
 
 struct pam_handle {
 	char		*service;
+	int		 dispatching;
 
 	/* chains */
 	pam_chain_t	*chains[PAM_NUM_CHAINS];

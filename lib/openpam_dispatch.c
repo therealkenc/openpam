@@ -61,6 +61,14 @@ openpam_dispatch(pam_handle_t *pamh,
 	if (pamh == NULL)
 		return (PAM_SYSTEM_ERR);
 
+	/* prevent recursion */
+	if (pamh->dispatching) {
+		openpam_log(PAM_LOG_ERROR, "indirect recursion");
+		return (PAM_SYSTEM_ERR);
+	}
+	pamh->dispatching = 1;
+
+	/* pick a chain */
 	switch (primitive) {
 	case PAM_AUTHENTICATE:
 	case PAM_SETCRED:
@@ -77,19 +85,27 @@ openpam_dispatch(pam_handle_t *pamh,
 		module = pamh->chains[PAM_PASSWORD];
 		break;
 	default:
+		pamh->dispatching = 0;
 		return (PAM_SYSTEM_ERR);
 	}
 
+	/* fail if the chain is empty */
+	if (module == NULL)
+		return (PAM_SYSTEM_ERR);
+
+	/* execute */
 	for (err = fail = 0; module != NULL; module = module->next) {
 		if (module->primitive[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
 			    module->modpath, _pam_sm_func_name[primitive]);
-			return (PAM_SYMBOL_ERR);
+			pamh->dispatching = 0;
+			r = PAM_SYMBOL_ERR;
+		} else {
+			r = (module->primitive[primitive])(pamh, flags);
+			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
+			    module->modpath, _pam_sm_func_name[primitive],
+			    pam_strerror(pamh, r));
 		}
-		r = (module->primitive[primitive])(pamh, flags);
-		openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
-		    module->modpath, _pam_sm_func_name[primitive],
-		    pam_strerror(pamh, r));
 
 		if (r == PAM_IGNORE)
 			continue;
@@ -131,9 +147,8 @@ openpam_dispatch(pam_handle_t *pamh,
 		}
 	}
 
-	if (fail)
-		return (err);
-	return (PAM_SUCCESS);
+	pamh->dispatching = 0;
+	return (fail ? err : PAM_SUCCESS);
 }
 
 #if !defined(OPENPAM_RELAX_CHECKS)
