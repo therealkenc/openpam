@@ -42,6 +42,10 @@
  */
 #include <stdarg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * API extensions
  */
@@ -197,6 +201,10 @@ DATA_SET(_openpam_modules, _pam_module)
 /* normal case */
 #define PAM_EXTERN
 #define PAM_MODULE_ENTRY(name)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

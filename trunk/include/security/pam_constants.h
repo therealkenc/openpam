@@ -37,6 +37,10 @@
 #ifndef _PAM_CONSTANTS_H_INCLUDED
 #define _PAM_CONSTANTS_H_INCLUDED
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * XSSO 5.2
  */
@@ -116,5 +120,9 @@ enum {
 	PAM_USER_PROMPT			=   9,
 	PAM_AUTHTOK_PROMPT		=  10		/* OpenPAM extension */
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
