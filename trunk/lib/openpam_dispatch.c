@@ -187,7 +187,7 @@ _openpam_check_error_code(int primitive, int r)
 		break;
 	}
 	
-	openpam_log(PAM_LOG_ERROR, "%s(): invalid return value %d",
+	openpam_log(PAM_LOG_ERROR, "%s(): unexpected return value %d",
 	    _pam_sm_func_name[primitive], r);
 }
 #endif /* !defined(OPENPAM_RELAX_CHECKS) */
