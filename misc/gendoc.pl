@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#27 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#28 $
 #
 
 use strict;
@@ -96,7 +96,7 @@ $COPYRIGHT = ".\\\"-
     PAM_CRED_UNAVAIL		=> "Failed to retrieve user credentials",
     PAM_CRED_EXPIRED		=> "User credentials have expired",
     PAM_CRED_ERR		=> "Failed to set user credentials",
-    PAM_ACCT_EXPIRED		=> "User accound has expired",
+    PAM_ACCT_EXPIRED		=> "User account has expired",
     PAM_AUTHTOK_EXPIRED		=> "Password has expired",
     PAM_SESSION_ERR		=> "Session failure",
     PAM_AUTHTOK_ERR		=> "Authentication token failure",
