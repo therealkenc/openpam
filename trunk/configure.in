@@ -1,4 +1,4 @@
-dnl $P4: //depot/projects/openpam/configure.in#3 $
+dnl $P4: //depot/projects/openpam/configure.in#4 $
 
 AC_PREREQ(2.53)
 AC_INIT([OpenPAM],[YYYYMMDD],[des@freebsd.org])
@@ -50,7 +50,7 @@ AC_ARG_WITH(pam-su,
 	AC_HELP_STRING([--with-pam-su],
 		[compile example version of /bin/su]),
 	,
-	[with_pam_su=yes])
+	[with_pam_su=no])
 AC_MSG_RESULT($with_pam_su)
 
 AC_MSG_CHECKING([whether to build example version of pam_unix.so])
@@ -58,7 +58,7 @@ AC_ARG_WITH(pam-unix,
 	AC_HELP_STRING([--with-pam-unix],
 		[compile example version of pam_unix.so]),
 	,
-	[with_pam_unix=yes])
+	[with_pam_unix=no])
 AC_MSG_RESULT($with_pam_unix)
 
 AM_CONDITIONAL(WITH_PAM_SU, test "x$with_pam_su" = "xyes")
