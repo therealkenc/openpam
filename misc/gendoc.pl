@@ -32,7 +32,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/misc/gendoc.pl#23 $
+# $P4: //depot/projects/openpam/misc/gendoc.pl#24 $
 #
 
 use strict;
@@ -494,7 +494,7 @@ sub gensummary($) {
     while (<STDIN>) {
 	if (m/^\.Xr (\S+)\s*(\d)\s*$/) {
 	    $xref{$1} = $2;
-        }
+	}
 	print FILE $_;
     }
 
@@ -514,14 +514,14 @@ The following return codes are defined by
     print FILE ".Xr openpam 3\n"
 	if ($page eq 'pam');
     foreach $func (keys(%FUNCTIONS)) {
-        $xref{$func} = 3;
+	$xref{$func} = 3;
     }
     my @refs = sort(keys(%xref));
     while ($_ = shift(@refs)) {
 	print FILE ".Xr $_ $xref{$_}";
-        print FILE " ,"
+	print FILE " ,"
 	    if (@refs);
-        print FILE "\n";
+	print FILE "\n";
     }
     print FILE ".Sh STANDARDS
 .Rs
