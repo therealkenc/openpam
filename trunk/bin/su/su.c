@@ -31,13 +31,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/bin/su/su.c#10 $
+ * $P4: //depot/projects/openpam/bin/su/su.c#11 $
  */
 
 #include <sys/param.h>
 #include <sys/wait.h>
 
 #include <err.h>
+#include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
