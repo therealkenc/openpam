@@ -72,11 +72,11 @@ pam_get_data(pam_handle_t *_pamh,
 int
 pam_get_item(pam_handle_t *_pamh,
 	int _item_type,
-	void **_item);
+	const void **_item);
 
 int
 pam_get_user(pam_handle_t *_pamh,
-	char **_user,
+	const char **_user,
 	const char *_prompt);
 
 char *
@@ -131,7 +131,7 @@ pam_error(pam_handle_t *_pamh,
 
 int
 pam_get_authtok(pam_handle_t *_pamh,
-	char **_authtok,
+	const char **_authtok,
 	const char *_prompt);
 
 int
