@@ -32,13 +32,13 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $P4: //depot/projects/openpam/bin/su/Makefile#5 $
+# $P4: //depot/projects/openpam/bin/su/Makefile#6 $
 #
 
 PROG		 = su
 WARNS		?= 4
 CFLAGS		+= -I${.CURDIR}/../../include
-DPADD		 = ${.OBJDIR}/../../lib/libpam.so
+DPADD		 = ${.OBJDIR}/../../lib/libpam.a
 LDADD		 = -L${.OBJDIR}/../../lib -R${.OBJDIR}/../../lib -lpam
 NOMAN		 = YES
 
