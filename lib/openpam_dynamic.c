@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_dynamic.c#7 $
+ * $P4: //depot/projects/openpam/lib/openpam_dynamic.c#8 $
  */
 
 #include <dlfcn.h>
@@ -64,10 +64,10 @@ openpam_dynamic(const char *path)
 	/* try versioned module first, then unversioned module */
 	if (asprintf(&vpath, "%s.%d", path, LIB_MAJ) == -1)
 		goto buf_err;
-	if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
+	if ((dlh = dlopen(vpath, RTLD_LAZY)) == NULL) {
 		openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
 		*strrchr(vpath, '.') = '\0';
-		if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
+		if ((dlh = dlopen(vpath, RTLD_LAZY)) == NULL) {
 			openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
 			free(module);
 			return (NULL);
