@@ -34,40 +34,21 @@
 .\" $Id$
 .\"
 .Dd February 18, 2002
-.Dt PAM_END 3
+.Dt OPENPAM_LOG 3
 .Os
 .Sh NAME
-.Nm pam_end
-.Nd terminate the PAM transaction
+.Nm openpam_log
+.Nd it).  Do the next best thing
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
-.Ft int
-.Fn pam_end "pam_handle_t *pamh" "int status"
+.Ft void
+.Fn openpam_log "int level" "const char *fmt" "..."
 .Sh DESCRIPTION
-The
-.Nm
-function terminates a PAM transaction and destroys the
-corresponding PAM context, releasing all resources allocated to it.
-.Pp
-The
-.Va status
-argument should be set to the error code returned by the
-last API call before the call to
-.Nm
-.
-.Sh RETURN VALUES
-The
-.Nm
-function returns one of the following values:
-.Bl -tag -width 18n
-.It Bq Er PAM_SYSTEM_ERR
-System error.
-.El
+No description available.
 .Sh SEE ALSO
-.Xr pam 3 ,
-.Xr pam_strerror 3
+.Xr pam 3
 .Sh STANDARDS
 .Rs
 .%T "X/Open Single Sign-On Service (XSSO) - Pluggable Authentication Modules"

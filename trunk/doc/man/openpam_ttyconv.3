@@ -34,34 +34,28 @@
 .\" $Id$
 .\"
 .Dd February 18, 2002
-.Dt PAM_END 3
+.Dt OPENPAM_TTYCONV 3
 .Os
 .Sh NAME
-.Nm pam_end
-.Nd terminate the PAM transaction
+.Nm openpam_ttyconv
+.Nd simple tty-based conversation function
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In security/pam_appl.h
 .Ft int
-.Fn pam_end "pam_handle_t *pamh" "int status"
+.Fn openpam_ttyconv "int n" "const struct pam_message **msg" "struct pam_response **resp" "void *data"
 .Sh DESCRIPTION
-The
-.Nm
-function terminates a PAM transaction and destroys the
-corresponding PAM context, releasing all resources allocated to it.
-.Pp
-The
-.Va status
-argument should be set to the error code returned by the
-last API call before the call to
-.Nm
-.
+No description available.
 .Sh RETURN VALUES
 The
 .Nm
 function returns one of the following values:
 .Bl -tag -width 18n
+.It Bq Er PAM_BUF_ERR
+Memory buffer error.
+.It Bq Er PAM_CONV_ERR
+Conversation failure.
 .It Bq Er PAM_SYSTEM_ERR
 System error.
 .El
