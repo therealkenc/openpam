@@ -67,6 +67,7 @@ openpam_load_module(const char *path)
 {
 	pam_module_t *module;
 	void *dlh;
+	int i;
 
 	/* check cache first */
 	for (module = modules; module != NULL; module = module->next)
@@ -82,6 +83,8 @@ openpam_load_module(const char *path)
 		if ((module->path = strdup(path)) == NULL)
 			goto buf_err;
 		module->dlh = dlh;
+		for (i = 0; i < PAM_NUM_PRIMITIVES; ++i)
+			module->func[i] = dlsym(dlh, _pam_sm_func_name[i]);
 	}
 	openpam_log(PAM_LOG_DEBUG, "%s dynamic %s",
 	    (module == NULL) ? "no" : "using", path);
