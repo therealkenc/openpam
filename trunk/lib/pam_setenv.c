@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/pam_setenv.c#9 $
+ * $P4: //depot/projects/openpam/lib/pam_setenv.c#10 $
  */
 
 #include <stdlib.h>
@@ -71,9 +71,8 @@ pam_setenv(pam_handle_t *pamh,
 		RETURNC(PAM_SUCCESS);
 
 	/* set it... */
-	if ((env = malloc(strlen(name) + strlen(value) + 2)) == NULL)
+	if (asprintf(&env, "%s=%s", name, value) < 0)
 		RETURNC(PAM_BUF_ERR);
-	sprintf(env, "%s=%s", name, value);
 	r = pam_putenv(pamh, env);
 	FREE(env);
 	RETURNC(r);
