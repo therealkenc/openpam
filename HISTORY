@@ -1,4 +1,4 @@
-OpenPAM Dogwood							2003-07-14
+OpenPAM Dogwood							2003-07-15
 
  - ENHANCE: Use the GNU autotools.
 
@@ -263,4 +263,4 @@ OpenPAM	Calamite						2002-02-09
 
 First (beta) release.
 ============================================================================
-$P4: //depot/projects/openpam/HISTORY#20 $
+$P4: //depot/projects/openpam/HISTORY#21 $
