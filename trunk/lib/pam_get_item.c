@@ -65,7 +65,7 @@ pam_get_item(pam_handle_t *pamh,
 	case PAM_RUSER:
 	case PAM_CONV:
 	case PAM_USER_PROMPT:
-	case PAM_PASSWD_PROMPT:
+	case PAM_AUTHTOK_PROMPT:
 		*item = pamh->item[item_type];
 		return (PAM_SUCCESS);
 	default:
