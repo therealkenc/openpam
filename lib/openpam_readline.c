@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_readline.c#1 $
+ * $P4: //depot/projects/openpam/lib/openpam_readline.c#2 $
  */
 
 #include <ctype.h>
@@ -50,7 +50,7 @@
  */
 
 char *
-openpam_readline(FILE *f, size_t *lenp)
+openpam_readline(FILE *f, int *lineno, size_t *lenp)
 {
 	char *line;
 	size_t len, size;
@@ -92,6 +92,9 @@ openpam_readline(FILE *f, size_t *lenp)
 		}
 		/* eol */
 		if (ch == '\n') {
+			if (lineno != NULL)
+				++*lineno;
+
 			/* remove trailing whitespace */
 			while (len > 0 && isspace(line[len - 1]))
 				--len;
@@ -139,6 +142,9 @@ openpam_readline(FILE *f, size_t *lenp)
  * Blank lines are ignored.
  * If a line ends in a backslash, the backslash is stripped and the next
  * line is appended.
+ *
+ * If =lineno is not =NULL, the integer variable it points to is
+ * incremented every time a newline character is read.
  *
  * If =lenp is not =NULL, the length of the line (not including the
  * terminating NUL character) is stored in the variable it points to.
