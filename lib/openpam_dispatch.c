@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_dispatch.c#16 $
+ * $P4: //depot/projects/openpam/lib/openpam_dispatch.c#17 $
  */
 
 #include <sys/param.h>
@@ -109,13 +109,14 @@ openpam_dispatch(pam_handle_t *pamh,
 
 		if (r == PAM_IGNORE)
 			continue;
-		if (r == PAM_SUCCESS || r == PAM_NEW_AUTHTOK_REQD) {
+		if (r == PAM_SUCCESS) {
 			/*
 			 * For pam_setcred() and pam_chauthtok() with the
 			 * PAM_PRELIM_CHECK flag, treat "sufficient" as
 			 * "optional".
 			 */
-			if (chain->flag == PAM_SUFFICIENT && !fail &&
+			if ((chain->flag == PAM_SUFFICIENT ||
+			    chain->flag == PAM_BINDING) && !fail &&
 			    primitive != PAM_SM_SETCRED &&
 			    !(primitive == PAM_SM_CHAUTHTOK &&
 				(flags & PAM_PRELIM_CHECK)))
@@ -132,7 +133,8 @@ openpam_dispatch(pam_handle_t *pamh,
 		 */
 		if (err == 0)
 			err = r;
-		if (chain->flag == PAM_REQUIRED && !fail) {
+		if ((chain->flag == PAM_REQUIRED ||
+		    chain->flag == PAM_BINDING) && !fail) {
 			openpam_log(PAM_LOG_DEBUG, "required module failed");
 			fail = 1;
 			err = r;

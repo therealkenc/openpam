@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/lib/openpam_configure.c#4 $
+ * $P4: //depot/projects/openpam/lib/openpam_configure.c#5 $
  */
 
 #include <ctype.h>
@@ -150,6 +150,8 @@ openpam_read_policy_file(pam_chain_t *policy[],
 			flag = PAM_SUFFICIENT;
 		} else if (strcmp(p, "optional") == 0) {
 			flag = PAM_OPTIONAL;
+		} else if (strcmp(p, "binding") == 0) {
+			flag = PAM_BINDING;
 		} else {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s: invalid control flag on line %d: '%s'",
