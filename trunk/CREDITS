@@ -21,6 +21,7 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Gary Winiger <Gary.Winiger@sun.com>
 	Joe Marcus Clarke <marcus@freebsd.org>
 	Juli Mallett <jmallett@freebsd.org>
+	Hubert Feyrer <hubert@feyrer.de>
 	Mark Murray <markm@freebsd.org>
 	Mike Petullo <mike@flyn.org>
 	Mikko Työläjärvi <mbsd@pacbell.net>
@@ -30,4 +31,4 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Takanori Saneto <sanewo@ba2.so-net.ne.jp>
 	Yar Tikhiy <yar@freebsd.org>
 
-$P4: //depot/projects/openpam/CREDITS#11 $
+$P4: //depot/projects/openpam/CREDITS#12 $
