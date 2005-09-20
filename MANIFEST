@@ -1,5 +1,5 @@
 #
-# $P4: //depot/projects/openpam/MANIFEST#21 $
+# $P4: //depot/projects/openpam/MANIFEST#22 $
 #
 CREDITS
 HISTORY
@@ -90,6 +90,7 @@ include/security/Makefile.in
 include/security/openpam.h
 include/security/openpam_version.h
 include/security/pam_appl.h
+include/security/pam_attributes.h
 include/security/pam_constants.h
 include/security/pam_modules.h
 include/security/pam_types.h

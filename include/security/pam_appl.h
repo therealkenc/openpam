@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/pam_appl.h#14 $
+ * $P4: //depot/projects/openpam/include/security/pam_appl.h#15 $
  */
 
 #ifndef _PAM_APPL_H_INCLUDED
@@ -39,6 +39,7 @@
 
 #include <security/pam_types.h>
 #include <security/pam_constants.h>
+#include <security/pam_attributes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,53 +51,65 @@ extern "C" {
 
 int
 pam_acct_mgmt(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_authenticate(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_chauthtok(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_close_session(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_end(pam_handle_t *_pamh,
-	int _status);
+	int _status)
+	OPENPAM_NONNULL((1));
 
 int
 pam_get_data(pam_handle_t *_pamh,
 	const char *_module_data_name,
-	void **_data);
+	void **_data)
+	OPENPAM_NONNULL((1,2,3));
 
 int
 pam_get_item(pam_handle_t *_pamh,
 	int _item_type,
-	const void **_item);
+	const void **_item)
+	OPENPAM_NONNULL((1,3));
 
 int
 pam_get_user(pam_handle_t *_pamh,
 	const char **_user,
-	const char *_prompt);
+	const char *_prompt)
+	OPENPAM_NONNULL((1,2));
 
 const char *
 pam_getenv(pam_handle_t *_pamh,
-	const char *_name);
+	const char *_name)
+	OPENPAM_NONNULL((1,2));
 
 char **
-pam_getenvlist(pam_handle_t *_pamh);
+pam_getenvlist(pam_handle_t *_pamh)
+	OPENPAM_NONNULL((1));
 
 int
 pam_open_session(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_putenv(pam_handle_t *_pamh,
-	const char *_namevalue);
+	const char *_namevalue)
+	OPENPAM_NONNULL((1,2));
 
 int
 pam_set_data(pam_handle_t *_pamh,
@@ -104,22 +117,26 @@ pam_set_data(pam_handle_t *_pamh,
 	void *_data,
 	void (*_cleanup)(pam_handle_t *_pamh,
 		void *_data,
-		int _pam_end_status));
+		int _pam_end_status))
+	OPENPAM_NONNULL((1,2));
 
 int
 pam_set_item(pam_handle_t *_pamh,
 	int _item_type,
-	const void *_item);
+	const void *_item)
+	OPENPAM_NONNULL((1));
 
 int
 pam_setcred(pam_handle_t *_pamh,
-	int _flags);
+	int _flags)
+	OPENPAM_NONNULL((1));
 
 int
 pam_start(const char *_service,
 	const char *_user,
 	const struct pam_conv *_pam_conv,
-	pam_handle_t **_pamh);
+	pam_handle_t **_pamh)
+	OPENPAM_NONNULL((4));
 
 const char *
 pam_strerror(pam_handle_t *_pamh,
