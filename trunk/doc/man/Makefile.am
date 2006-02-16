@@ -1,4 +1,4 @@
-# $P4: //depot/projects/openpam/doc/man/Makefile.am#3 $
+# $Id$
 
 NULL =
 

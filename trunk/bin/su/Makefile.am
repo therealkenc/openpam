@@ -1,4 +1,4 @@
-# $P4: //depot/projects/openpam/bin/su/Makefile.am#2 $
+# $Id$
 
 INCLUDES = -I$(top_srcdir)/include
 

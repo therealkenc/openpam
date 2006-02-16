@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/pam_modules.h#9 $
+ * $Id$
  */
 
 #ifndef _PAM_MODULES_H_INCLUDED

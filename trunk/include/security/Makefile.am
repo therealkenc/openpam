@@ -1,4 +1,4 @@
-# $P4: //depot/projects/openpam/include/security/Makefile.am#4 $
+# $Id$
 
 openpamdir = $(includedir)/security
 

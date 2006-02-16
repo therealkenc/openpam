@@ -1,4 +1,4 @@
-# $P4: //depot/projects/openpam/modules/pam_permit/Makefile.am#2 $
+# $Id$
 
 pkglibdir = @OPENPAM_MODULES_DIR@
 INCLUDES = -I$(top_srcdir)/include

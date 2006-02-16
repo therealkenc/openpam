@@ -1,4 +1,4 @@
-# $P4: //depot/projects/openpam/Makefile.am#3 $
+# $Id$
 
 SUBDIRS = lib bin modules doc include
 
