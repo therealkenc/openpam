@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/clean.sh#2 $
+# $Id$
 
 tmpfile="/tmp/openpam-clean.$$"
 p4 files ... | grep -v 'delete change' |

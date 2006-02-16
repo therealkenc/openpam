@@ -1,4 +1,4 @@
-dnl $P4: //depot/projects/openpam/configure.ac#3 $
+dnl $Id$
 
 AC_PREREQ(2.53)
 AC_INIT([OpenPAM],[20050616],[des@freebsd.org],[openpam])

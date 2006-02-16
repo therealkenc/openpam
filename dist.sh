@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $P4: //depot/projects/openpam/dist.sh#11 $
+# $Id$
 #
 
 set -e

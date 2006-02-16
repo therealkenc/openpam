@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/include/security/openpam_version.h#14 $
+ * $Id$
  */
 
 #ifndef _OPENPAM_VERSION_H_INCLUDED

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $P4: //depot/projects/openpam/modules/pam_unix/pam_unix.c#6 $
+ * $Id$
  */
 
 #ifdef HAVE_CONFIG_H
