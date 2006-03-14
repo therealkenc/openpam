@@ -577,15 +577,23 @@ sub svn_delete_empty_parent_dirs {
 # Routines for interacting with Perforce server.
 #########################################################################
 
+my $global_p4;
+
 sub p4_init {
+    return $global_p4
+	if defined $global_p4;
     my $p4 = P4->new();
     $p4->SetUser($options{user}) if $options{user};
     $p4->SetClient($options{client}) if $options{client};
     $p4->SetPort($options{port}) if $options{port};
     $p4->SetPassword($options{password}) if $options{password};
     $p4->ParseForms();
-    $p4->Init() or die "failed to connect to Perforce server";
-    return $p4;
+    while (!$p4->Init()) {
+	warn "failed to connect to Perforce server";
+	sleep 3;
+	warn "retrying...\n";
+    };
+    return $global_p4 = $p4;
 }
 
 sub p4_get_changes {
@@ -596,7 +604,7 @@ sub p4_get_changes {
 	push @changes, $p4->Changes($branch . "...");
 	die "@{$p4->Errors()}" if $p4->ErrorCount();
     }
-    $p4->Final();
+    #$p4->Final();
     my %seen = map {$_->{change} => 1} @changes;
     return sort {$a <=> $b} keys %seen;
 }
@@ -607,7 +615,7 @@ sub p4_get_change_details {
     my $p4 = p4_init();
     my $change = $p4->Describe($change_num);
     die "@{$p4->Errors()}" if $p4->ErrorCount();
-    $p4->Final();
+    #$p4->Final();
     my %result;
     $result{author} = $change->{user};
     $result{log}  = $change->{desc};
@@ -636,24 +644,16 @@ sub p4_get_change_details {
 sub p4_get_file_content {
     my $filespec = shift;
     debug("p4_get_file_content: $filespec\n");
-    local *P4_OUTPUT;
-    local $/ = undef;
-    my $pid = open(P4_OUTPUT, "-|");
-    die "fork failed: $!" unless defined $pid;
-    if ($pid == 0) { # child
-	my $p4 = p4_init();
-	my $result = $p4->Print($filespec);
-	die "@{$p4->Errors()}" if $p4->ErrorCount();
-	if (ref $result eq "ARRAY") {
-	    for (my $i = 1; $i < @$result; $i++) {
-		print $result->[$i];
-	    }
-	}
-	$p4->Final();
-	exit 0;
+    my $p4 = p4_init();
+    my $result = $p4->Print($filespec);
+    die "@{$p4->Errors()}" if $p4->ErrorCount();
+    my $content = "";
+    if (ref $result eq "ARRAY") {
+        for (my $i = 1; $i < @$result; $i++) {
+	    $content .= $result->[$i];
+        }
     }
-    my $content = <P4_OUTPUT>;
-    close(P4_OUTPUT) or die "close failed: ($?) $!";
+    #$p4->Final();
     return $content;
 }
 
