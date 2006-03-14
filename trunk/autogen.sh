@@ -1,10 +1,14 @@
-#!/bin/sh -ex
+#!/bin/sh
 #
 # $Id$
 #
 
-libtoolize --copy --force
+if [ -d /usr/local/gnu-autotools/bin ] ; then
+	export PATH=${PATH}:/usr/local/gnu-autotools/bin
+fi
+
 aclocal
+libtoolize --copy --force
 autoheader
 automake -a -c --foreign
 autoconf
