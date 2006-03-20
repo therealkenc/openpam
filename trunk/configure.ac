@@ -15,6 +15,11 @@ LIB_MAJ=2
 AC_SUBST(LIB_MAJ)
 AC_DEFINE_UNQUOTED(LIB_MAJ, $LIB_MAJ, [OpenPAM library major number])
 
+AC_ARG_ENABLE(debug,
+	AC_HELP_STRING([--enable-debug],
+		[turn debugging on by default]),
+	AC_DEFINE(OPENPAM_DEBUG, 1, [Turn debugging on by default]))
+
 AC_MSG_CHECKING([whether loading unversioned modules support is enabled])
 AC_ARG_ENABLE(unversioned-modules,
 	AC_HELP_STRING([--disable-unversioned-modules],

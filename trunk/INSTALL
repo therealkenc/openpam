@@ -16,6 +16,9 @@
   Use the "configure" shell script to configure OpenPAM for your
   system.  Options include:
 
+    --enable-debug
+	Turn debugging on by default.
+
     --with-modules-dir=DIR
 	Indicates the directory where PAM modules will be installed.
 	This option should not be used if you intend to install PAM
