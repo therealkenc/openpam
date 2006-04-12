@@ -50,13 +50,13 @@ AC_ARG_WITH(modules-dir,
 	AC_MSG_RESULT(no)])
 AC_SUBST(OPENPAM_MODULES_DIR)
 
-AC_MSG_CHECKING([whether to build example version of /bin/su])
-AC_ARG_WITH(pam-su,
-	AC_HELP_STRING([--with-pam-su],
-		[compile example version of /bin/su]),
+AC_MSG_CHECKING([whether to build the documentation])
+AC_ARG_WITH(doc,
+	AC_HELP_STRING([--with-doc],
+		[build documentation]),
 	,
-	[with_pam_su=no])
-AC_MSG_RESULT($with_pam_su)
+	[with_doc=yes])
+AC_MSG_RESULT($with_pam_unix)
 
 AC_MSG_CHECKING([whether to build example version of pam_unix.so])
 AC_ARG_WITH(pam-unix,
@@ -66,8 +66,17 @@ AC_ARG_WITH(pam-unix,
 	[with_pam_unix=no])
 AC_MSG_RESULT($with_pam_unix)
 
-AM_CONDITIONAL(WITH_PAM_SU, test "x$with_pam_su" = "xyes")
+AC_MSG_CHECKING([whether to build example version of su(1)])
+AC_ARG_WITH(su,
+	AC_HELP_STRING([--with-su],
+		[compile example version of su(1)]),
+	,
+	[with_su=no])
+AC_MSG_RESULT($with_su)
+
+AM_CONDITIONAL(WITH_DOC, test "x$with_doc" = "xyes")
 AM_CONDITIONAL(WITH_PAM_UNIX, test "x$with_pam_unix" = "xyes")
+AM_CONDITIONAL(WITH_SU, test "x$with_su" = "xyes")
 
 AC_PROG_INSTALL
 
@@ -89,16 +98,18 @@ AC_SUBST(CPPFLAGS)
 CFLAGS="$CFLAGS -Werror"
 AC_SUBST(CFLAGS)
 
-AC_CONFIG_FILES([bin/Makefile
-		bin/su/Makefile
-		include/Makefile
-		include/security/Makefile
-		lib/Makefile
-		modules/Makefile
-		modules/pam_unix/Makefile
-		modules/pam_deny/Makefile
-		modules/pam_permit/Makefile
-		doc/Makefile
-		doc/man/Makefile
-		Makefile])
+AC_CONFIG_FILES([
+	bin/Makefile
+	bin/su/Makefile
+	include/Makefile
+	include/security/Makefile
+	lib/Makefile
+	modules/Makefile
+	modules/pam_unix/Makefile
+	modules/pam_deny/Makefile
+	modules/pam_permit/Makefile
+	doc/Makefile
+	doc/man/Makefile
+	Makefile
+])
 AC_OUTPUT
