@@ -56,7 +56,7 @@ AC_ARG_WITH(doc,
 		[build documentation]),
 	,
 	[with_doc=yes])
-AC_MSG_RESULT($with_pam_unix)
+AC_MSG_RESULT($with_doc)
 
 AC_MSG_CHECKING([whether to build example version of pam_unix.so])
 AC_ARG_WITH(pam-unix,
