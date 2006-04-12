@@ -1,5 +1,9 @@
 # $Id$
 
-SUBDIRS = lib bin modules doc include
+SUBDIRS = lib bin modules include
+
+if WITH_DOC
+SUBDIRS += doc
+endif
 
 EXTRA_DIST = CREDITS HISTORY INSTALL LICENSE MANIFEST README RELNOTES
