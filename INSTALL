@@ -24,6 +24,9 @@
 	This option should not be used if you intend to install PAM
 	modules in the system library directory.
 
+    --without-doc
+	Skips the documentation.
+
     --with-pam-unix
 	Builds the sample PAM module.
 
