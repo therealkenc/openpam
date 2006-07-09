@@ -93,10 +93,10 @@ AC_CHECK_LIB(crypt, crypt, CRYPT_LIBS=-lcrypt)
 AC_SUBST(CRYPT_LIBS)
 
 CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
-AC_SUBST(CPPFLAGS)
 
-CFLAGS="$CFLAGS -Werror"
-AC_SUBST(CFLAGS)
+if test "$GCC" = yes; then
+	CFLAGS="$CFLAGS -Werror"
+fi
 
 AC_CONFIG_FILES([
 	bin/Makefile
