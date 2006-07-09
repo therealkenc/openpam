@@ -6,6 +6,8 @@ INCLUDES = -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libpam.la
 
+noinst_HEADERS = openpam_impl.h
+
 libpam_la_SOURCES = \
 	openpam_borrow_cred.c \
 	openpam_configure.c \
@@ -53,6 +55,19 @@ libpam_la_SOURCES = \
 libpam_la_CFLAGS = -DOPENPAM_MODULES_DIR='"@OPENPAM_MODULES_DIR@/"'
 
 libpam_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@ @DL_LIBS@
+
+EXTRA_DIST = \
+	pam_sm_acct_mgmt.c \
+	pam_sm_authenticate.c \
+	pam_sm_authenticate_secondary.c \
+	pam_sm_chauthtok.c \
+	pam_sm_close_session.c \
+	pam_sm_get_mapped_authtok.c \
+	pam_sm_get_mapped_username.c \
+	pam_sm_open_session.c \
+	pam_sm_set_mapped_authtok.c \
+	pam_sm_set_mapped_username.c \
+	pam_sm_setcred.c
 
 # Not implemented yet:
 #	pam_authenticate_secondary.c
