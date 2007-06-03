@@ -61,7 +61,7 @@ ALLCMAN = $(PMAN) $(MMAN) $(OMAN)
 
 LINKS = $(ALLCMAN:.3=.c) openpam_configure.c openpam_dispatch.c
 
-man3_MANS = $(ALLCMAN) openpam.3 pam.3
+dist_man3_MANS = $(ALLCMAN) openpam.3 pam.3
 
 dist_man3_MANS = pam_conv.3
 
