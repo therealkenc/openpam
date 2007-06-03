@@ -87,6 +87,7 @@ prompt(const char *msg)
 	fd = fileno(stdin);
 	buf[0] = '\0';
 	eof = error = 0;
+	saved_alarm = 0;
 	if (openpam_ttyconv_timeout >= 0)
 		saved_alarm = alarm(openpam_ttyconv_timeout);
 	ch = '\0';
@@ -110,7 +111,7 @@ prompt(const char *msg)
 		alarm(0);
 	sigaction(SIGALRM, &saved_action, NULL);
 	sigprocmask(SIG_SETMASK, &saved_sigset, NULL);
-	if (openpam_ttyconv_timeout >= 0)
+	if (saved_alarm > 0)
 		alarm(saved_alarm);
 	if (error == EINTR)
 		fputs(" timeout!", stderr);
