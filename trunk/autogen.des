@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+set -ex
+
+. ./autogen.sh
+
+# autoconf prior to 2.62 has issues with zsh 4.2 and newer
+export CONFIG_SHELL=/bin/sh
+
+./configure \
+	--with-doc \
+	--with-pam-unix \
+	--with-su \
+	--enable-developer-warnings \
+	--enable-werror \
+	"$@"

@@ -1,15 +1,17 @@
 dnl $Id$
 
-AC_PREREQ(2.53)
-AC_INIT([OpenPAM],[20050616],[des@freebsd.org],[openpam])
-AC_CONFIG_SRCDIR([lib/pam_start.c])
-AM_CONFIG_HEADER([config.h])
+AC_PREREQ(2.59)
+AC_REVISION([$Id$])
+AC_INIT([OpenPAM],[trunk],[des@des.no])
+AC_CONFIG_SRCDIR(lib/pam_start.c)
+AM_CONFIG_HEADER(config.h)
 
 AC_CANONICAL_SYSTEM
+AC_LANG(C)
 AC_C_VOLATILE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
-AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
+AM_INIT_AUTOMAKE
 
 LIB_MAJ=2
 AC_SUBST(LIB_MAJ)
@@ -94,9 +96,18 @@ AC_SUBST(CRYPT_LIBS)
 
 CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
 
-if test "$GCC" = yes; then
-	CFLAGS="$CFLAGS -Werror"
-fi
+# This corresponds to FreeBSD's WARNS level 6
+DEVELOPER_CFLAGS="-Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wswitch -Wshadow -Wcast-align -Wunused-parameter -Wchar-subscripts -Winline -Wnested-externs -Wredundant-decls -Wformat"
+
+AC_ARG_ENABLE(developer-warnings,
+        AS_HELP_STRING([--enable-developer-warnings],[enable strict warnings (default is NO)]),
+        CFLAGS="${CFLAGS} ${DEVELOPER_CFLAGS}")
+AC_ARG_ENABLE(debugging-symbols,
+        AS_HELP_STRING([--enable-debugging-symbols],[enable debugging symbols (default is NO)]),
+        CFLAGS="${CFLAGS} -O0 -g -fno-inline")
+AC_ARG_ENABLE(werror,
+        AS_HELP_STRING([--enable-werror],[use -Werror (default is NO)]),
+        CFLAGS="${CFLAGS} -Werror")
 
 AC_CONFIG_FILES([
 	bin/Makefile

@@ -11,7 +11,7 @@ EXTRA_DIST = \
 	HISTORY \
 	INSTALL \
 	LICENSE \
-	MANIFEST \
 	README \
 	RELNOTES \
+	autogen.sh \
 	misc/gendoc.pl
