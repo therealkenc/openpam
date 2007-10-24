@@ -75,13 +75,13 @@ pam_end(pam_handle_t *_pamh,
 	OPENPAM_NONNULL((1));
 
 int
-pam_get_data(pam_handle_t *_pamh,
+pam_get_data(const pam_handle_t *_pamh,
 	const char *_module_data_name,
-	void **_data)
+	const void **_data)
 	OPENPAM_NONNULL((1,2,3));
 
 int
-pam_get_item(pam_handle_t *_pamh,
+pam_get_item(const pam_handle_t *_pamh,
 	int _item_type,
 	const void **_item)
 	OPENPAM_NONNULL((1,3));
@@ -139,7 +139,7 @@ pam_start(const char *_service,
 	OPENPAM_NONNULL((4));
 
 const char *
-pam_strerror(pam_handle_t *_pamh,
+pam_strerror(const pam_handle_t *_pamh,
 	int _error_number);
 
 /*

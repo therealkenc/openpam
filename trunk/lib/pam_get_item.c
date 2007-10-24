@@ -64,7 +64,7 @@ const char *_pam_item_name[PAM_NUM_ITEMS] = {
  */
 
 int
-pam_get_item(pam_handle_t *pamh,
+pam_get_item(const pam_handle_t *pamh,
 	int item_type,
 	const void **item)
 {

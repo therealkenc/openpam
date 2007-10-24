@@ -50,7 +50,7 @@
  */
 
 int
-pam_error(pam_handle_t *pamh,
+pam_error(const pam_handle_t *pamh,
 	const char *fmt,
 	...)
 {

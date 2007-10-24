@@ -80,7 +80,7 @@ openpam_set_option(pam_handle_t *_pamh,
 	const char *_value);
 
 int
-pam_error(pam_handle_t *_pamh,
+pam_error(const pam_handle_t *_pamh,
 	const char *_fmt,
 	...)
 	OPENPAM_FORMAT ((__printf__, 2, 3))
@@ -94,14 +94,14 @@ pam_get_authtok(pam_handle_t *_pamh,
 	OPENPAM_NONNULL((1,3));
 
 int
-pam_info(pam_handle_t *_pamh,
+pam_info(const pam_handle_t *_pamh,
 	const char *_fmt,
 	...)
 	OPENPAM_FORMAT ((__printf__, 2, 3))
 	OPENPAM_NONNULL((1,2));
 
 int
-pam_prompt(pam_handle_t *_pamh,
+pam_prompt(const pam_handle_t *_pamh,
 	int _style,
 	char **_resp,
 	const char *_fmt,
@@ -117,21 +117,21 @@ pam_setenv(pam_handle_t *_pamh,
 	OPENPAM_NONNULL((1,2,3));
 
 int
-pam_vinfo(pam_handle_t *_pamh,
+pam_vinfo(const pam_handle_t *_pamh,
 	const char *_fmt,
 	va_list _ap)
 	OPENPAM_FORMAT ((__printf__, 2, 0))
 	OPENPAM_NONNULL((1,2));
 
 int
-pam_verror(pam_handle_t *_pamh,
+pam_verror(const pam_handle_t *_pamh,
 	const char *_fmt,
 	va_list _ap)
 	OPENPAM_FORMAT ((__printf__, 2, 0))
 	OPENPAM_NONNULL((1,2));
 
 int
-pam_vprompt(pam_handle_t *_pamh,
+pam_vprompt(const pam_handle_t *_pamh,
 	int _style,
 	char **_resp,
 	const char *_fmt,

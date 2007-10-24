@@ -55,8 +55,8 @@
 int
 openpam_restore_cred(pam_handle_t *pamh)
 {
-	struct pam_saved_cred *scred;
-	void *scredp;
+	const struct pam_saved_cred *scred;
+	const void *scredp;
 	int r;
 
 	ENTER();

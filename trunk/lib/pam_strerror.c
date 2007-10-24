@@ -81,7 +81,7 @@ const char *_pam_err_name[PAM_NUM_ERRORS] = {
  */
 
 const char *
-pam_strerror(pam_handle_t *pamh,
+pam_strerror(const pam_handle_t *pamh,
 	int error_number)
 {
 	static char unknown[16];

@@ -48,9 +48,9 @@
  */
 
 int
-pam_get_data(pam_handle_t *pamh,
+pam_get_data(const pam_handle_t *pamh,
 	const char *module_data_name,
-	void **data)
+	const void **data)
 {
 	pam_data_t *dp;
 

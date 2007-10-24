@@ -49,7 +49,7 @@
  */
 
 int
-pam_verror(pam_handle_t *pamh,
+pam_verror(const pam_handle_t *pamh,
 	const char *fmt,
 	va_list ap)
 {
