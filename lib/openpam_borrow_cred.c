@@ -57,7 +57,7 @@ openpam_borrow_cred(pam_handle_t *pamh,
 	const struct passwd *pwd)
 {
 	struct pam_saved_cred *scred;
-	void *scredp;
+	const void *scredp;
 	int r;
 
 	ENTERI(pwd->pw_uid);

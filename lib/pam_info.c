@@ -50,7 +50,7 @@
  */
 
 int
-pam_info(pam_handle_t *pamh,
+pam_info(const pam_handle_t *pamh,
 	const char *fmt,
 	...)
 {

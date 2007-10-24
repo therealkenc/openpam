@@ -49,7 +49,7 @@
  */
 
 int
-pam_vinfo(pam_handle_t *pamh,
+pam_vinfo(const pam_handle_t *pamh,
 	const char *fmt,
 	va_list ap)
 {
