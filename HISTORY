@@ -1,10 +1,7 @@
-OpenPAM Xxx							2005-XX-XX
+OpenPAM Hydrangea						2007-12-18
 
  - ENHANCE: when compiling with GCC, mark up API functions with GCC
    attributes where appropriate.
-
-Thanks to Dmitry V. Levin <ldv@altlinux.org> for his assistance with
-this release.
 ============================================================================
 OpenPAM Figwort							2005-06-16
 
