@@ -53,7 +53,7 @@
 #include <security/pam_modules.h>
 #include <security/pam_appl.h>
 
-#ifndef _OPENPAM
+#ifndef OPENPAM
 static char password_prompt[] = "Password:";
 #endif
 
@@ -65,7 +65,7 @@ PAM_EXTERN int
 pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	int argc, const char *argv[])
 {
-#ifndef _OPENPAM
+#ifndef OPENPAM
 	struct pam_conv *conv;
 	struct pam_message msg;
 	const struct pam_message *msgp;
@@ -86,7 +86,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		return (PAM_USER_UNKNOWN);
 
 	/* get password */
-#ifndef _OPENPAM
+#ifndef OPENPAM
 	pam_err = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 	if (pam_err != PAM_SUCCESS)
 		return (PAM_SYSTEM_ERR);
@@ -95,7 +95,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	msgp = &msg;
 #endif
 	for (retry = 0; retry < 3; ++retry) {
-#ifdef _OPENPAM
+#ifdef OPENPAM
 		pam_err = pam_get_authtok(pamh, PAM_AUTHTOK,
 		    (const char **)&password, NULL);
 #else
@@ -124,7 +124,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		pam_err = PAM_AUTH_ERR;
 	else
 		pam_err = PAM_SUCCESS;
-#ifndef _OPENPAM
+#ifndef OPENPAM
 	free(password);
 #endif
 	return (pam_err);
