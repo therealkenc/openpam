@@ -258,9 +258,6 @@ struct pam_module {
 	char		*path;
 	pam_func_t	 func[PAM_NUM_PRIMITIVES];
 	void		*dlh;
-	int		 refcount;
-	pam_module_t	*prev;
-	pam_module_t	*next;
 };
 
 /*
