@@ -1,5 +1,9 @@
-#ifndef _PAM_ATTRIBUTES_H_INCLUDED
-#define _PAM_ATTRIBUTES_H_INCLUDED
+/*
+ * $Id$
+ */
+
+#ifndef SECURITY_PAM_ATTRIBUTES_H_INCLUDED
+#define SECURITY_PAM_ATTRIBUTES_H_INCLUDED
 
 /* GCC attributes */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && !defined(__STRICT_ANSI__)
@@ -21,4 +25,4 @@
 # define OPENPAM_NONNULL(params)
 #endif
 
-#endif /* _PAM_ATTRIBUTES_H_INCLUDED */
+#endif /* !SECURITY_PAM_ATTRIBUTES_H_INCLUDED */

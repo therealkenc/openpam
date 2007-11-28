@@ -34,8 +34,8 @@
  * $Id$
  */
 
-#ifndef _PAM_TYPES_H_INCLUDED
-#define _PAM_TYPES_H_INCLUDED
+#ifndef SECURITY_PAM_TYPES_H_INCLUDED
+#define SECURITY_PAM_TYPES_H_INCLUDED
 
 #include <stddef.h>
 
@@ -77,11 +77,11 @@ typedef struct pam_handle pam_handle_t;
 typedef struct pam_repository {
 	char	*type;
 	void	*scope;
-	size_t	scope_len;
+	size_t	 scope_len;
 } pam_repository_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* !SECURITY_PAM_TYPES_H_INCLUDED */
