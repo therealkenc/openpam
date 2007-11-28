@@ -34,8 +34,8 @@
  * $Id$
  */
 
-#ifndef _PAM_CONSTANTS_H_INCLUDED
-#define _PAM_CONSTANTS_H_INCLUDED
+#ifndef SECURITY_PAM_CONSTANTS_H_INCLUDED
+#define SECURITY_PAM_CONSTANTS_H_INCLUDED
 
 #include <security/openpam_version.h>
 
@@ -132,4 +132,4 @@ enum {
 }
 #endif
 
-#endif
+#endif /* !SECURITY_PAM_CONSTANTS_H_INCLUDED */

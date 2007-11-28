@@ -34,8 +34,8 @@
  * $Id$
  */
 
-#ifndef _SECURITY_OPENPAM_H_INCLUDED
-#define _SECURITY_OPENPAM_H_INCLUDED
+#ifndef SECURITY_OPENPAM_H_INCLUDED
+#define SECURITY_OPENPAM_H_INCLUDED
 
 /*
  * Annoying but necessary header pollution
@@ -236,6 +236,11 @@ PAM_EXTERN int								\
 pam_sm_##type(pam_handle_t *pamh, int flags,				\
     int argc, const char *argv[])					\
 {									\
+									\
+	(void)pamh;							\
+	(void)flags;							\
+	(void)argc;							\
+	(void)argv;							\
 	return (PAM_IGNORE);						\
 }
 
@@ -263,39 +268,43 @@ struct pam_module {
  */
 #if defined(PAM_SM_AUTH) || defined(PAM_SM_ACCOUNT) || \
 	defined(PAM_SM_SESSION) || defined(PAM_SM_PASSWORD)
-#define LINUX_PAM_MODULE
+# define LINUX_PAM_MODULE
 #endif
+
 #if defined(LINUX_PAM_MODULE) && !defined(PAM_SM_AUTH)
-#define _PAM_SM_AUTHENTICATE	0
-#define _PAM_SM_SETCRED		0
+# define _PAM_SM_AUTHENTICATE	0
+# define _PAM_SM_SETCRED	0
 #else
-#undef PAM_SM_AUTH
-#define PAM_SM_AUTH
-#define _PAM_SM_AUTHENTICATE	pam_sm_authenticate
-#define _PAM_SM_SETCRED		pam_sm_setcred
+# undef PAM_SM_AUTH
+# define PAM_SM_AUTH
+# define _PAM_SM_AUTHENTICATE	pam_sm_authenticate
+# define _PAM_SM_SETCRED	pam_sm_setcred
 #endif
+
 #if defined(LINUX_PAM_MODULE) && !defined(PAM_SM_ACCOUNT)
-#define _PAM_SM_ACCT_MGMT	0
+# define _PAM_SM_ACCT_MGMT	0
 #else
-#undef PAM_SM_ACCOUNT
-#define PAM_SM_ACCOUNT
-#define _PAM_SM_ACCT_MGMT	pam_sm_acct_mgmt
+# undef PAM_SM_ACCOUNT
+# define PAM_SM_ACCOUNT
+# define _PAM_SM_ACCT_MGMT	pam_sm_acct_mgmt
 #endif
+
 #if defined(LINUX_PAM_MODULE) && !defined(PAM_SM_SESSION)
-#define _PAM_SM_OPEN_SESSION	0
-#define _PAM_SM_CLOSE_SESSION	0
+# define _PAM_SM_OPEN_SESSION	0
+# define _PAM_SM_CLOSE_SESSION	0
 #else
-#undef PAM_SM_SESSION
-#define PAM_SM_SESSION
-#define _PAM_SM_OPEN_SESSION	pam_sm_open_session
-#define _PAM_SM_CLOSE_SESSION	pam_sm_close_session
+# undef PAM_SM_SESSION
+# define PAM_SM_SESSION
+# define _PAM_SM_OPEN_SESSION	pam_sm_open_session
+# define _PAM_SM_CLOSE_SESSION	pam_sm_close_session
 #endif
+
 #if defined(LINUX_PAM_MODULE) && !defined(PAM_SM_PASSWORD)
-#define _PAM_SM_CHAUTHTOK	0
+# define _PAM_SM_CHAUTHTOK	0
 #else
-#undef PAM_SM_PASSWORD
-#define PAM_SM_PASSWORD
-#define _PAM_SM_CHAUTHTOK	pam_sm_chauthtok
+# undef PAM_SM_PASSWORD
+# define PAM_SM_PASSWORD
+# define _PAM_SM_CHAUTHTOK	pam_sm_chauthtok
 #endif
 
 /*
@@ -303,33 +312,40 @@ struct pam_module {
  * You are not expected to understand this.
  */
 #if defined(__FreeBSD__)
-#define PAM_SOEXT ".so"
+# define PAM_SOEXT ".so"
 #else
-#ifndef NO_STATIC_MODULES
-#define NO_STATIC_MODULES
+# undef NO_STATIC_MODULES
+# define NO_STATIC_MODULES
 #endif
-#endif
+
 #if defined(__GNUC__) && !defined(__PIC__) && !defined(NO_STATIC_MODULES)
 /* gcc, static linking */
-#include <sys/cdefs.h>
-#include <linker_set.h>
-#define OPENPAM_STATIC_MODULES
-#define PAM_EXTERN static
-#define PAM_MODULE_ENTRY(name)						\
-static char _pam_name[] = name PAM_SOEXT;				\
-static struct pam_module _pam_module = { _pam_name, {			\
-    _PAM_SM_AUTHENTICATE, _PAM_SM_SETCRED, _PAM_SM_ACCT_MGMT,		\
-    _PAM_SM_OPEN_SESSION, _PAM_SM_CLOSE_SESSION, _PAM_SM_CHAUTHTOK },	\
-    NULL, 0, NULL, NULL };						\
-DATA_SET(_openpam_static_modules, _pam_module)
+# include <sys/cdefs.h>
+# include <linker_set.h>
+# define OPENPAM_STATIC_MODULES
+# define PAM_EXTERN static
+# define PAM_MODULE_ENTRY(name)						\
+	static char _pam_name[] = name PAM_SOEXT;			\
+	static struct pam_module _pam_module = {			\
+		.path = _pam_name,					\
+		.func = {						\
+			[PAM_SM_AUTHENTICATE] = _PAM_SM_AUTHENTICATE,	\
+			[PAM_SM_SETCRED] = _PAM_SM_SETCRED,		\
+			[PAM_SM_ACCT_MGMT] = _PAM_SM_ACCT_MGMT,		\
+			[PAM_SM_OPEN_SESSION] = _PAM_SM_OPEN_SESSION,	\
+			[PAM_SM_CLOSE_SESSION] = _PAM_SM_CLOSE_SESSION, \
+			[PAM_SM_CHAUTHTOK] = _PAM_SM_CHAUTHTOK		\
+		},							\
+	};								\
+	DATA_SET(_openpam_static_modules, _pam_module)
 #else
 /* normal case */
-#define PAM_EXTERN
-#define PAM_MODULE_ENTRY(name)
+# define PAM_EXTERN
+# define PAM_MODULE_ENTRY(name)
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* !SECURITY_OPENPAM_H_INCLUDED */

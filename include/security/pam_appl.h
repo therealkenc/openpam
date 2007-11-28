@@ -34,8 +34,8 @@
  * $Id$
  */
 
-#ifndef _PAM_APPL_H_INCLUDED
-#define _PAM_APPL_H_INCLUDED
+#ifndef SECURITY_PAM_APPL_H_INCLUDED
+#define SECURITY_PAM_APPL_H_INCLUDED
 
 #include <security/pam_types.h>
 #include <security/pam_constants.h>
@@ -194,4 +194,4 @@ pam_set_mapped_username(pam_handle_t *_pamh,
 }
 #endif
 
-#endif
+#endif /* !SECURITY_PAM_APPL_H_INCLUDED */
