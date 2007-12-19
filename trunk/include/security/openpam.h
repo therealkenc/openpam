@@ -42,7 +42,7 @@
  */
 #include <stdarg.h>
 
-#include <security/pam_attributes.h>
+#include <security/openpam_attr.h>
 
 #ifdef __cplusplus
 extern "C" {
