@@ -39,7 +39,7 @@
 
 #include <security/pam_types.h>
 #include <security/pam_constants.h>
-#include <security/pam_attributes.h>
+#include <security/openpam_attr.h>
 
 #ifdef __cplusplus
 extern "C" {
