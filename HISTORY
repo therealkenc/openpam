@@ -1,4 +1,4 @@
-OpenPAM Hydrangea						2007-12-19
+OpenPAM Hydrangea						2007-12-21
 
  - ENHANCE: when compiling with GCC, mark up API functions with GCC
    attributes where appropriate.
