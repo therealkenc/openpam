@@ -1,5 +1,6 @@
 /*-
  * Copyright (c) 2001-2003 Networks Associates Technology, Inc.
+ * Copyright (c) 2004-2007 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
