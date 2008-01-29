@@ -42,4 +42,7 @@
 #define OPENPAM_VERSION	20071221
 #define OPENPAM_RELEASE	"Hydrangea"
 
+/* violates reserved namespace, but can't be removed for legacy reasons */
+#define _OPENPAM
+
 #endif /* !SECURITY_OPENPAM_VERSION_H_INCLUDED */
