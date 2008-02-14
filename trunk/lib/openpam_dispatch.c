@@ -60,9 +60,7 @@ openpam_dispatch(pam_handle_t *pamh,
 {
 	pam_chain_t *chain;
 	int err, fail, r;
-#ifdef DEBUG
 	int debug;
-#endif
 
 	ENTER();
 	if (pamh == NULL)
@@ -107,23 +105,19 @@ openpam_dispatch(pam_handle_t *pamh,
 		} else {
 			pamh->primitive = primitive;
 			pamh->current = chain;
-#ifdef DEBUG
 			debug = (openpam_get_option(pamh, "debug") != NULL);
 			if (debug)
 				++_openpam_debug;
 			openpam_log(PAM_LOG_DEBUG, "calling %s() in %s",
 			    _pam_sm_func_name[primitive], chain->module->path);
-#endif
 			r = (chain->module->func[primitive])(pamh, flags,
 			    chain->optc, (const char **)chain->optv);
 			pamh->current = NULL;
-#ifdef DEBUG
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
 			    chain->module->path, _pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
 			if (debug)
 				--_openpam_debug;
-#endif
 		}
 
 		if (r == PAM_IGNORE)

@@ -135,7 +135,7 @@ pam_module_t	*openpam_dynamic(const char *);
 
 #define	FREE(p) do { free((p)); (p) = NULL; } while (0)
 
-#ifdef DEBUG
+#ifdef OPENPAM_DEBUG
 #define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
 #define ENTERI(i) do { \
 	int _i = (i); \
