@@ -38,10 +38,6 @@
 #ifndef _OPENPAM_IMPL_H_INCLUDED
 #define _OPENPAM_IMPL_H_INCLUDED
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <security/openpam.h>
 
 extern const char *_pam_func_name[PAM_NUM_PRIMITIVES];
