@@ -47,9 +47,9 @@
 #include "openpam_impl.h"
 
 #ifdef OPENPAM_DEBUG
-int _openpam_debug = 1;
+int openpam_debug = 1;
 #else
-int _openpam_debug = 0;
+int openpam_debug = 0;
 #endif
 
 #if !defined(openpam_log)
@@ -68,7 +68,7 @@ openpam_log(int level, const char *fmt, ...)
 
 	switch (level) {
 	case PAM_LOG_DEBUG:
-		if (!_openpam_debug)
+		if (!openpam_debug)
 			return;
 		priority = LOG_DEBUG;
 		break;
@@ -99,7 +99,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 
 	switch (level) {
 	case PAM_LOG_DEBUG:
-		if (!_openpam_debug)
+		if (!openpam_debug)
 			return;
 		priority = LOG_DEBUG;
 		break;
@@ -136,7 +136,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
  *	=PAM_LOG_DEBUG:
  *		Debugging messages.
  *		These messages are normally not logged unless the global
- *		integer variable :_openpam_debug is set to a non-zero
+ *		integer variable :openpam_debug is set to a non-zero
  *		value, in which case they are logged with a =syslog
  *		priority of =LOG_DEBUG.
  *	=PAM_LOG_VERBOSE:
