@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2005 Dag-Erling Coïdan Smørgrav
+ * Copyright (c) 2005-2008 Dag-Erling SmÃ¸rgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
