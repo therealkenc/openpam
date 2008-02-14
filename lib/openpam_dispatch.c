@@ -42,9 +42,9 @@
 #include "openpam_impl.h"
 
 #if !defined(OPENPAM_RELAX_CHECKS)
-static void _openpam_check_error_code(int, int);
+static void openpam_check_error_code(int, int);
 #else
-#define _openpam_check_error_code(a, b)
+#define openpam_check_error_code(a, b)
 #endif /* !defined(OPENPAM_RELAX_CHECKS) */
 
 /*
@@ -107,7 +107,7 @@ openpam_dispatch(pam_handle_t *pamh,
 			pamh->current = chain;
 			debug = (openpam_get_option(pamh, "debug") != NULL);
 			if (debug)
-				++_openpam_debug;
+				++openpam_debug;
 			openpam_log(PAM_LOG_DEBUG, "calling %s() in %s",
 			    _pam_sm_func_name[primitive], chain->module->path);
 			r = (chain->module->func[primitive])(pamh, flags,
@@ -117,7 +117,7 @@ openpam_dispatch(pam_handle_t *pamh,
 			    chain->module->path, _pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
 			if (debug)
-				--_openpam_debug;
+				--openpam_debug;
 		}
 
 		if (r == PAM_IGNORE)
@@ -137,7 +137,7 @@ openpam_dispatch(pam_handle_t *pamh,
 			continue;
 		}
 
-		_openpam_check_error_code(primitive, r);
+		openpam_check_error_code(primitive, r);
 
 		/*
 		 * Record the return code from the first module to
@@ -171,7 +171,7 @@ openpam_dispatch(pam_handle_t *pamh,
 
 #if !defined(OPENPAM_RELAX_CHECKS)
 static void
-_openpam_check_error_code(int primitive, int r)
+openpam_check_error_code(int primitive, int r)
 {
 	/* common error codes */
 	if (r == PAM_SUCCESS ||

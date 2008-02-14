@@ -49,7 +49,7 @@ extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
 extern const char *_pam_err_name[PAM_NUM_ERRORS];
 extern const char *_pam_item_name[PAM_NUM_ITEMS];
 
-extern int _openpam_debug;
+extern int openpam_debug;
 
 /*
  * Control flags
