@@ -1,3 +1,8 @@
+OpenPAM ???							????-??-??
+
+ - ENHANCE: remove static build autodetection, which doesn't work anyway.
+   Use an explicit, user-specified preprocessor variable instead.
+============================================================================
 OpenPAM Hydrangea						2007-12-21
 
  - ENHANCE: when compiling with GCC, mark up API functions with GCC
