@@ -309,18 +309,17 @@ struct pam_module {
  * Infrastructure for static modules using GCC linker sets.
  * You are not expected to understand this.
  */
-#if defined(__FreeBSD__)
+#if !defined(PAM_SOEXT)
 # define PAM_SOEXT ".so"
-#else
-# undef NO_STATIC_MODULES
-# define NO_STATIC_MODULES
 #endif
 
-#if defined(__GNUC__) && !defined(__PIC__) && !defined(NO_STATIC_MODULES)
+#if defined(OPENPAM_STATIC_MODULES)
+# if !defined(__GNUC__)
+#  error "Don't know how to build static modules on non-GNU compilers"
+# endif
 /* gcc, static linking */
 # include <sys/cdefs.h>
 # include <linker_set.h>
-# define OPENPAM_STATIC_MODULES
 # define PAM_EXTERN static
 # define PAM_MODULE_ENTRY(name)						\
 	static char _pam_name[] = name PAM_SOEXT;			\
