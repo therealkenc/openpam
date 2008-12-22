@@ -215,7 +215,7 @@ openpam_ttyconv(int n,
 	}
 	*resp = aresp;
 	RETURNC(PAM_SUCCESS);
- fail:
+fail:
 	for (i = 0; i < n; ++i) {
 		if (aresp[i].resp != NULL) {
 			memset(aresp[i].resp, 0, strlen(aresp[i].resp));
