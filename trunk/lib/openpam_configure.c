@@ -258,9 +258,9 @@ openpam_read_chain(pam_handle_t *pamh,
 		goto syserr;
 	fclose(f);
 	return (count);
- syserr:
+syserr:
 	openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
- fail:
+fail:
 	FREE(this);
 	FREE(line);
 	fclose(f);
@@ -331,7 +331,7 @@ openpam_configure(pam_handle_t *pamh,
 			goto load_err;
 	}
 	return (PAM_SUCCESS);
- load_err:
+load_err:
 	openpam_clear_chains(pamh->chains);
 	return (PAM_SYSTEM_ERR);
 }

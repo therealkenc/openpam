@@ -130,7 +130,7 @@ openpam_readline(FILE *f, int *lineno, size_t *lenp)
 	if (lenp != NULL)
 		*lenp = len;
 	return (line);
- fail:
+fail:
 	FREE(line);
 	return (NULL);
 }

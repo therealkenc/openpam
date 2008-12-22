@@ -101,7 +101,7 @@ openpam_dynamic(const char *path)
 			    path, _pam_sm_func_name[i], dlerror());
 	}
 	return (module);
- buf_err:
+buf_err:
 	openpam_log(PAM_LOG_ERROR, "%m");
 	if (dlh != NULL)
 		dlclose(dlh);
