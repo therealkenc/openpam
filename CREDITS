@@ -6,7 +6,7 @@ Network Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
 
 Principal design and development by:
 
-	 Dag-Erling Smørgrav <des@freebsd.org>
+	 Dag-Erling SmÃ¸rgrav <des@freebsd.org>
 
 The following persons (in no particular order) have contributed, directly
 or indirectly, with patches, criticism, suggestions, or ideas:
@@ -26,7 +26,7 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Mark Murray <markm@freebsd.org>
 	Mike Petullo <mike@flyn.org>
 	Mikhail Teterin <mi@aldan.algebra.com>
-	Mikko Työläjärvi <mbsd@pacbell.net>
+	Mikko TyÃ¶lÃ¤jÃ¤rvi <mbsd@pacbell.net>
 	Robert Watson <rwatson@freebsd.org>
 	Ruslan Ermilov <ru@freebsd.org>
 	Solar Designer <solar@openwall.com>
