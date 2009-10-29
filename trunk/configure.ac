@@ -96,12 +96,9 @@ AC_SUBST(CRYPT_LIBS)
 
 CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
 
-# This corresponds to FreeBSD's WARNS level 6
-DEVELOPER_CFLAGS="-Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wswitch -Wshadow -Wcast-align -Wunused-parameter -Wchar-subscripts -Winline -Wnested-externs -Wredundant-decls -Wformat"
-
 AC_ARG_ENABLE(developer-warnings,
         AS_HELP_STRING([--enable-developer-warnings],[enable strict warnings (default is NO)]),
-        CFLAGS="${CFLAGS} ${DEVELOPER_CFLAGS}")
+        CFLAGS="${CFLAGS} -Wall -Wextra")
 AC_ARG_ENABLE(debugging-symbols,
         AS_HELP_STRING([--enable-debugging-symbols],[enable debugging symbols (default is NO)]),
         CFLAGS="${CFLAGS} -O0 -g -fno-inline")
