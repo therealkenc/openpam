@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #-
 # Copyright (c) 2002-2003 Networks Associates Technology, Inc.
-# Copyright (c) 2004-2009 Dag-Erling SmÃ¸rgrav
+# Copyright (c) 2004-2009 Dag-Erling Smørgrav
 # All rights reserved.
 #
 # This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -45,7 +45,7 @@ use vars qw($COPYRIGHT $TODAY %FUNCTIONS %PAMERR);
 
 $COPYRIGHT = ".\\\"-
 .\\\" Copyright (c) 2001-2003 Networks Associates Technology, Inc.
-.\\\" Copyright (c) 2004-2009 Dag-Erling SmÃ¸rgrav
+.\\\" Copyright (c) 2004-2009 Dag-Erling Smørgrav
 .\\\" All rights reserved.
 .\\\"
 .\\\" This software was developed for the FreeBSD Project by ThinkSec AS and
