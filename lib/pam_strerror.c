@@ -165,4 +165,6 @@ pam_strerror(const pam_handle_t *pamh,
  * textual description of the error indicated by the =error_number
  * argument.
  * The =pamh argument is ignored.
+ * For compatibility with other implementations, it should be either a
+ * valid PAM handle returned by a previous call to =pam_start, or =NULL.
  */
