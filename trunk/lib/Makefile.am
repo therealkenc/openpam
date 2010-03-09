@@ -54,7 +54,8 @@ libpam_la_SOURCES = \
 
 libpam_la_CFLAGS = -DOPENPAM_MODULES_DIR='"@OPENPAM_MODULES_DIR@/"'
 
-libpam_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@ @DL_LIBS@
+libpam_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
+libpam_la_LIBADD = @DL_LIBS@
 
 EXTRA_DIST = \
 	pam_authenticate_secondary.c \
