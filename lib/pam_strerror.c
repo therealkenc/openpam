@@ -163,6 +163,6 @@ pam_strerror(const pam_handle_t *pamh,
 /**
  * The =pam_strerror function returns a pointer to a string containing a
  * textual description of the error indicated by the =error_number
- * argument, in the context of the PAM transaction described by the =pamh
  * argument.
+ * The =pamh argument is ignored.
  */
