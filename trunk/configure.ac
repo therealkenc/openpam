@@ -30,49 +30,49 @@ AC_SUBST(LIB_MAJ)
 AC_DEFINE_UNQUOTED(LIB_MAJ, $LIB_MAJ, [OpenPAM library major number])
 
 AC_ARG_ENABLE([debug],
-	AC_HELP_STRING([--enable-debug],
-		[turn debugging on by default]),
-	AC_DEFINE(OPENPAM_DEBUG, 1, [Turn debugging on by default]))
+    AC_HELP_STRING([--enable-debug],
+	[turn debugging on by default]),
+    AC_DEFINE(OPENPAM_DEBUG, 1, [Turn debugging on by default]))
 
 AC_ARG_ENABLE([unversioned-modules],
-	AC_HELP_STRING([--disable-unversioned-modules],
-		[support loading of unversioned modules]),
-	[AS_IF([test x"$enableval" = x"no"], [
-		AC_DEFINE(DISABLE_UNVERSIONED_MODULES,
-			1,
-			[Whether loading unversioned modules support is disabled])
-	])])
+    AC_HELP_STRING([--disable-unversioned-modules],
+	[support loading of unversioned modules]),
+    [AS_IF([test x"$enableval" = x"no"], [
+	AC_DEFINE(DISABLE_UNVERSIONED_MODULES,
+	    1,
+	    [Whether loading unversioned modules support is disabled])
+    ])])
 
 AC_ARG_WITH([modules-dir],
-	AC_HELP_STRING([--with-modules-dir=DIR],
-		[OpenPAM modules directory]),
-	[AS_IF([test x"$withval" != x"no"], [
-		OPENPAM_MODULES_DIR="$withval"
-		AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR,
-			"$OPENPAM_MODULES_DIR",
-			[OpenPAM modules directory])
-	], [
-		OPENPAM_MODULES_DIR="$libdir"
-	])],
-	[OPENPAM_MODULES_DIR="$libdir"])
+    AC_HELP_STRING([--with-modules-dir=DIR],
+	[OpenPAM modules directory]),
+    [AS_IF([test x"$withval" != x"no"], [
+	OPENPAM_MODULES_DIR="$withval"
+	AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR,
+	    "$OPENPAM_MODULES_DIR",
+	    [OpenPAM modules directory])
+    ], [
+	OPENPAM_MODULES_DIR="$libdir"
+    ])],
+    [OPENPAM_MODULES_DIR="$libdir"])
 AC_SUBST(OPENPAM_MODULES_DIR)
 
 AC_ARG_WITH([doc],
-	AC_HELP_STRING([--with-doc], [build documentation]),
-	[],
-	[with_doc=yes])
+    AC_HELP_STRING([--with-doc], [build documentation]),
+    [],
+    [with_doc=yes])
 AM_CONDITIONAL([WITH_DOC], [test x"$with_doc" = x"yes"])
 
 AC_ARG_WITH([pam-unix],
-	AC_HELP_STRING([--with-pam-unix], [compile example version of pam_unix.so]),
-	[],
-	[with_pam_unix=no])
+    AC_HELP_STRING([--with-pam-unix], [compile example version of pam_unix.so]),
+    [],
+    [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
 
 AC_ARG_WITH(su,
-	AC_HELP_STRING([--with-su], [compile example version of su(1)]),
-	[],
-	[with_su=no])
+    AC_HELP_STRING([--with-su], [compile example version of su(1)]),
+    [],
+    [with_su=no])
 AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
 
 AC_CHECK_HEADERS([crypt.h])
@@ -94,27 +94,27 @@ LIBS="${saved_LIBS}"
 AC_SUBST(CRYPT_LIBS)
 
 AC_ARG_ENABLE([developer-warnings],
-        AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
-        [CFLAGS="${CFLAGS} -Wall -Wextra"])
+    AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
+    [CFLAGS="${CFLAGS} -Wall -Wextra"])
 AC_ARG_ENABLE([debugging-symbols],
-        AS_HELP_STRING([--enable-debugging-symbols], [enable debugging symbols (default is NO)]),
-        [CFLAGS="${CFLAGS} -O0 -g -fno-inline"])
+    AS_HELP_STRING([--enable-debugging-symbols], [enable debugging symbols (default is NO)]),
+    [CFLAGS="${CFLAGS} -O0 -g -fno-inline"])
 AC_ARG_ENABLE([werror],
-        AS_HELP_STRING([--enable-werror], [use -Werror (default is NO)]),
-        [CFLAGS="${CFLAGS} -Werror"])
+    AS_HELP_STRING([--enable-werror], [use -Werror (default is NO)]),
+    [CFLAGS="${CFLAGS} -Werror"])
 
 AC_CONFIG_FILES([
-	bin/Makefile
-	bin/su/Makefile
-	include/Makefile
-	include/security/Makefile
-	lib/Makefile
-	modules/Makefile
-	modules/pam_unix/Makefile
-	modules/pam_deny/Makefile
-	modules/pam_permit/Makefile
-	doc/Makefile
-	doc/man/Makefile
-	Makefile
+    bin/Makefile
+    bin/su/Makefile
+    include/Makefile
+    include/security/Makefile
+    lib/Makefile
+    modules/Makefile
+    modules/pam_unix/Makefile
+    modules/pam_deny/Makefile
+    modules/pam_permit/Makefile
+    doc/Makefile
+    doc/man/Makefile
+    Makefile
 ])
 AC_OUTPUT
