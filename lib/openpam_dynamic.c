@@ -61,6 +61,7 @@
 pam_module_t *
 openpam_dynamic(const char *path)
 {
+	const pam_module_t *dlmodule;
 	pam_module_t *module;
 	const char *prefix;
 	char *vpath;
@@ -68,8 +69,6 @@ openpam_dynamic(const char *path)
 	int i;
 
 	dlh = NULL;
-	if ((module = calloc(1, sizeof *module)) == NULL)
-		goto buf_err;
 
 	/* Prepend the standard prefix if not an absolute pathname. */
 	if (path[0] != '/')
@@ -79,33 +78,37 @@ openpam_dynamic(const char *path)
 
 	/* try versioned module first, then unversioned module */
 	if (asprintf(&vpath, "%s%s.%d", prefix, path, LIB_MAJ) < 0)
-		goto buf_err;
+		goto err;
 	if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
 		openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
 		*strrchr(vpath, '.') = '\0';
 		if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
 			openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
 			FREE(vpath);
-			FREE(module);
 			return (NULL);
 		}
 	}
 	FREE(vpath);
+	if ((module = calloc(1, sizeof *module)) == NULL)
+		goto buf_err;
 	if ((module->path = strdup(path)) == NULL)
 		goto buf_err;
 	module->dlh = dlh;
+	dlmodule = dlsym(dlh, "_pam_module");
 	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i) {
-		module->func[i] = (pam_func_t)dlsym(dlh, _pam_sm_func_name[i]);
+		module->func[i] = dlmodule ? dlmodule->func[i] :
+		    (pam_func_t)dlsym(dlh, _pam_sm_func_name[i]);
 		if (module->func[i] == NULL)
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
 			    path, _pam_sm_func_name[i], dlerror());
 	}
 	return (module);
 buf_err:
-	openpam_log(PAM_LOG_ERROR, "%m");
 	if (dlh != NULL)
 		dlclose(dlh);
 	FREE(module);
+err:
+	openpam_log(PAM_LOG_ERROR, "%m");
 	return (NULL);
 }
 
