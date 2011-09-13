@@ -26,7 +26,7 @@ OpenPAM Hydrangea						2007-12-21
    contexts), since the module cache was the only part of OpenPAM that
    was not thread-safe.
 ============================================================================
-OpenPAM Figwort 2005-06-16
+OpenPAM Figwort							2005-06-16
 
  - BUGFIX: Correct several small signedness and initialization bugs
    discovered during review by the NetBSD team.
