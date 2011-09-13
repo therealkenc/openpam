@@ -64,13 +64,13 @@ AC_ARG_WITH([doc],
 AM_CONDITIONAL([WITH_DOC], [test x"$with_doc" = x"yes"])
 
 AC_ARG_WITH([pam-unix],
-    AC_HELP_STRING([--with-pam-unix], [compile example version of pam_unix.so]),
+    AC_HELP_STRING([--with-pam-unix], [compile sample pam_unix(8) implementation]),
     [],
     [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
 
 AC_ARG_WITH(su,
-    AC_HELP_STRING([--with-su], [compile example version of su(1)]),
+    AC_HELP_STRING([--with-su], [compile sample su(1) implementation]),
     [],
     [with_su=no])
 AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
