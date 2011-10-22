@@ -67,4 +67,6 @@ openpam_free_envlist(char **envlist)
  * frees all the environment variables in an environment list, and the
  * list itself.
  * It is suitable for freeing the return value from =pam_getenvlist.
+ *
+ * AUTHOR DES
  */
