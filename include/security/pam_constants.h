@@ -126,6 +126,7 @@ enum {
 	PAM_REPOSITORY			=  10,
 	PAM_AUTHTOK_PROMPT		=  11,		/* OpenPAM extension */
 	PAM_OLDAUTHTOK_PROMPT		=  12,		/* OpenPAM extension */
+	PAM_HOST			=  13,		/* OpenPAM extension */
 	PAM_NUM_ITEMS					/* OpenPAM extension */
 };
 

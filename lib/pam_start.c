@@ -40,10 +40,18 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+
+#ifdef _SC_HOST_NAME_MAX
+#define HOST_NAME_MAX sysconf(_SC_HOST_NAME_MAX)
+#else
+#define HOST_NAME_MAX 1024
+#endif
 
 /*
  * XSSO 4.2.1
@@ -58,6 +66,7 @@ pam_start(const char *service,
 	const struct pam_conv *pam_conv,
 	pam_handle_t **pamh)
 {
+	char hostname[HOST_NAME_MAX + 1];
 	struct pam_handle *ph;
 	int r;
 
@@ -65,6 +74,10 @@ pam_start(const char *service,
 	if ((ph = calloc(1, sizeof *ph)) == NULL)
 		RETURNC(PAM_BUF_ERR);
 	if ((r = pam_set_item(ph, PAM_SERVICE, service)) != PAM_SUCCESS)
+		goto fail;
+	if (gethostname(hostname, sizeof hostname) != 0)
+		strlcpy(hostname, "localhost", sizeof hostname);
+	if ((r = pam_set_item(ph, PAM_HOST, hostname)) != PAM_SUCCESS)
 		goto fail;
 	if ((r = pam_set_item(ph, PAM_USER, user)) != PAM_SUCCESS)
 		goto fail;

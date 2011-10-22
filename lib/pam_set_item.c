@@ -79,6 +79,7 @@ pam_set_item(pam_handle_t *pamh,
 	case PAM_USER_PROMPT:
 	case PAM_AUTHTOK_PROMPT:
 	case PAM_OLDAUTHTOK_PROMPT:
+	case PAM_HOST:
 		if (*slot != NULL)
 			osize = strlen(*slot) + 1;
 		if (item != NULL)
