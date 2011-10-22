@@ -84,6 +84,7 @@ pam_get_data(const pam_handle_t *pamh,
  * context specified by the =pamh argument.
  * A pointer to the object is stored in the location pointed to by the
  * =data argument.
+ * If =pam_get_data fails, the =data argument is untouched.
  *
  * This function and its counterpart =pam_set_data are useful for managing
  * data that are meaningful only to a particular service module.
