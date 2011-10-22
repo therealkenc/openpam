@@ -36,6 +36,7 @@ MMAN = \
 # OpenPAM extensions
 OMAN = \
 	openpam_borrow_cred.3 \
+	openpam_expand_prompt.3 \
 	openpam_free_data.3 \
 	openpam_free_envlist.3 \
 	openpam_get_option.3 \
@@ -59,31 +60,25 @@ EXTRA_DIST = openpam.man pam.man
 
 ALLCMAN = $(PMAN) $(MMAN) $(OMAN)
 
-LINKS = $(ALLCMAN:.3=.c) openpam_configure.c openpam_dispatch.c
-
 dist_man3_MANS = $(ALLCMAN) openpam.3 pam.3 pam_conv.3
 
 dist_man5_MANS = pam.conf.5
 
-CLEANFILES = $(ALLCMAN) $(LINKS) openpam.3 pam.3 symlink-stamp
+CLEANFILES = $(ALLCMAN) openpam.3 pam.3
 
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
+SRCDIR = $(top_srcdir)/lib
+
+VPATH = $(SRCDIR)
+
 SUFFIXES = .3
 
-$(LINKS): symlink-stamp
-
-symlink-stamp: Makefile
-	for lnk in $(LINKS); do \
-	    ln -sf $(top_srcdir)/lib/$$lnk . || exit; \
-	done
-	touch symlink-stamp
-
-.c.3: symlink-stamp
+.c.3: $(GENDOC)
 	perl -w $(GENDOC) $<
 
 openpam.3: $(OMAN) $(GENDOC) openpam.man
-	perl -w $(GENDOC) -o $(OMAN) <$(srcdir)/openpam.man
+	perl -w $(GENDOC) -o $(abs_srcdir)/$(OMAN) <$(srcdir)/openpam.man
 
 pam.3: $(PMAN) $(GENDOC) pam.man
-	perl -w $(GENDOC) -p $(PMAN) <$(srcdir)/pam.man
+	perl -w $(GENDOC) -p $(abs_srcdir)/$(PMAN) <$(srcdir)/pam.man
