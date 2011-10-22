@@ -36,7 +36,6 @@ MMAN = \
 # OpenPAM extensions
 OMAN = \
 	openpam_borrow_cred.3 \
-	openpam_expand_prompt.3 \
 	openpam_free_data.3 \
 	openpam_free_envlist.3 \
 	openpam_get_option.3 \
