@@ -108,10 +108,12 @@ pam_get_item(const pam_handle_t *pamh,
 
 /**
  * The =pam_get_item function stores a pointer to the item specified by
- * the =item_type argument in the location specified by the =item
+ * the =item_type argument in the location pointed to by the =item
  * argument.
  * The item is retrieved from the PAM context specified by the =pamh
  * argument.
+ * If =pam_get_item fails, the =item argument is untouched.
+ *
  * The following item types are recognized:
  *
  *	=PAM_SERVICE:
