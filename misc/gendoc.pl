@@ -41,7 +41,7 @@ use locale;
 use Fcntl;
 use Getopt::Std;
 use POSIX qw(locale_h strftime);
-use vars qw($COPYRIGHT $TODAY %FUNCTIONS %PAMERR);
+use vars qw($COPYRIGHT %AUTHORS $TODAY %FUNCTIONS %PAMERR);
 
 $COPYRIGHT = ".\\\"-
 .\\\" Copyright (c) 2001-2003 Networks Associates Technology, Inc.
@@ -77,8 +77,17 @@ $COPYRIGHT = ".\\\"-
 .\\\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\\\" SUCH DAMAGE.
 .\\\"
-.\\\" \$" . "P4" . "\$
+.\\\" \$" . "Id" . "\$
 .\\\"";
+
+%AUTHORS = (
+    THINKSEC => "ThinkSec AS and Network Associates Laboratories, the
+Security Research Division of Network Associates, Inc.\\& under
+DARPA/SPAWAR contract N66001-01-C-8035
+.Pq Dq CBOSS ,
+as part of the DARPA CHATS research program.",
+    DES => ".An Dag-Erling Sm\\(/orgrav Aq des\@FreeBSD.org .",
+);
 
 %PAMERR = (
     PAM_SUCCESS			=> "Success",
@@ -128,19 +137,25 @@ sub parse_source($) {
     my $inliteral;
     my %xref;
     my @errors;
+    my $author;
 
     if ($fn !~ m,\.c$,) {
 	warn("$fn: not C source, ignoring\n");
 	return undef;
     }
 
-    sysopen(FILE, $fn, O_RDONLY)
+    open(FILE, "<", "$fn")
 	or die("$fn: open(): $!\n");
     $source = join('', <FILE>);
     close(FILE);
 
     return undef
 	if ($source =~ m/^ \* NOPARSE\s*$/m);
+
+    $author = 'THINKSEC';
+    if ($source =~ s/^ \* AUTHOR\s+(.*?)\s*$//m) {
+	$author = $1;
+    }
 
     $func = $fn;
     $func =~ s,^(?:.*/)?([^/]+)\.c$,$1,;
@@ -211,7 +226,7 @@ sub parse_source($) {
 	    ++$xref{$sect}->{$page};
 	    next;
 	}
-	if (s/^\s+(=?\w+):\s*/.It $1/) {
+	if (s/^\s+([=%]?\w+):\s*/.It $1/) {
 	    if ($inliteral) {
 		$man .= ".Ed\n";
 		$inliteral = 0;
@@ -263,6 +278,7 @@ sub parse_source($) {
 	if ($inliteral) {
 	    $man .= ".Ed\n";
 	}
+	$man =~ s/\%/\\&\%/gs;
 	$man =~ s/(\n\.[A-Z][a-z] [\w ]+)\n([\.,:;-]\S*)\s*/$1 $2\n/gs;
 	$man =~ s/\s*$/\n/gm;
 	$man =~ s/\n+/\n/gs;
@@ -282,6 +298,7 @@ sub parse_source($) {
 	'man'		=> $man,
 	'xref'		=> \%xref,
 	'errors'	=> \@errors,
+	'author'	=> $author,
     };
     if ($source =~ m/^ \* NODOC\s*$/m) {
 	$FUNCTIONS{$func}->{'nodoc'} = 1;
@@ -445,15 +462,9 @@ The
 .Nm
 function and this manual page were developed for the
 .Fx
-Project by ThinkSec AS and Network Associates Laboratories, the
-Security Research Division of Network Associates, Inc.\\& under
-DARPA/SPAWAR contract N66001-01-C-8035
-.Pq Dq CBOSS ,
-as part of the DARPA CHATS research program.
-";
-
+Project by\n" . $AUTHORS{$func->{'author'} // 'THINKSEC_DARPA'} . "\n";
     $fn = "$func->{'name'}.3";
-    if (sysopen(FILE, $fn, O_RDWR|O_CREAT|O_TRUNC)) {
+    if (open(FILE, ">", $fn)) {
 	print(FILE $mdoc);
 	close(FILE);
     } else {
@@ -467,7 +478,7 @@ sub readproto($) {
     local *FILE;
     my %func;
 
-    sysopen(FILE, $fn, O_RDONLY)
+    open(FILE, "<", "$fn")
 	or die("$fn: open(): $!\n");
     while (<FILE>) {
 	if (m/^\.Nm ((?:open)?pam_.*?)\s*$/) {
@@ -494,10 +505,11 @@ sub gensummary($) {
     my $func;
     my %xref;
 
-    sysopen(FILE, "$page.3", O_RDWR|O_CREAT|O_TRUNC)
+    open(FILE, ">", "$page.3")
 	or die("$page.3: $!\n");
 
-    $upage = uc($page);
+    $page =~ m/(\w+)$/;
+    $upage = uc($1);
     print FILE "$COPYRIGHT
 .Dd $TODAY
 .Dt $upage 3
@@ -570,7 +582,7 @@ as part of the DARPA CHATS research program.
 
 sub usage() {
 
-    print(STDERR "usage: gendoc [-s] source [...]\n");
+    print(STDERR "usage: gendoc [-op] source [...]\n");
     exit(1);
 }
 
@@ -579,7 +591,7 @@ MAIN:{
 
     usage()
 	unless (@ARGV && getopts("op", \%opts));
-    setlocale(LC_ALL, "en_US.ISO8859-1");
+    setlocale(LC_ALL, "en_US.UTF-8");
     $TODAY = strftime("%B %e, %Y", localtime(time()));
     $TODAY =~ s,\s+, ,g;
     if ($opts{'o'} || $opts{'p'}) {
