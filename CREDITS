@@ -8,8 +8,9 @@ Principal design and development by:
 
 	 Dag-Erling Smørgrav <des@des.no>
 
-The following persons (in no particular order) have contributed, directly
-or indirectly, with patches, criticism, suggestions, or ideas:
+The following persons (in alphabetical order) have contributed,
+directly or indirectly, with patches, criticism, suggestions, or
+ideas:
 
 	Andrew Morgan <morgan@transmeta.com>
 	Brian Fundakowski Feldman <green@freebsd.org>
@@ -20,10 +21,10 @@ or indirectly, with patches, criticism, suggestions, or ideas:
 	Emmanuel Dreyfus <manu@netbsd.org>
 	Eric Melville <eric@freebsd.org>
 	Gary Winiger <Gary.Winiger@sun.com>
-	Joe Marcus Clarke <marcus@freebsd.org>
-	Jörg Sonnenberger <joerg@britannica.bec.de>
-	Juli Mallett <jmallett@freebsd.org>
 	Hubert Feyrer <hubert@feyrer.de>
+	Joe Marcus Clarke <marcus@freebsd.org>
+	Juli Mallett <jmallett@freebsd.org>
+	Jörg Sonnenberger <joerg@britannica.bec.de>
 	Mark Murray <markm@freebsd.org>
 	Mike Petullo <mike@flyn.org>
 	Mikhail Teterin <mi@aldan.algebra.com>
