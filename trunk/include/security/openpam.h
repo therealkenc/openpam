@@ -59,6 +59,12 @@ openpam_borrow_cred(pam_handle_t *_pamh,
 	const struct passwd *_pwd)
 	OPENPAM_NONNULL((1,2));
 
+int
+openpam_subst(const pam_handle_t *_pamh,
+	char *_buf,
+	size_t *_bufsize,
+	const char *_template);
+
 void
 openpam_free_data(pam_handle_t *_pamh,
 	void *_data,

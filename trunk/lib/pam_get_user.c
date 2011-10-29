@@ -62,6 +62,8 @@ pam_get_user(pam_handle_t *pamh,
 	const char **user,
 	const char *prompt)
 {
+	char prompt_buf[1024];
+	size_t prompt_size;
 	const void *promptp;
 	char *resp;
 	int r;
@@ -72,13 +74,22 @@ pam_get_user(pam_handle_t *pamh,
 	r = pam_get_item(pamh, PAM_USER, (const void **)user);
 	if (r == PAM_SUCCESS && *user != NULL)
 		RETURNC(PAM_SUCCESS);
-	if (prompt == NULL) {
-		r = pam_get_item(pamh, PAM_USER_PROMPT, &promptp);
-		if (r != PAM_SUCCESS || promptp == NULL)
-			prompt = user_prompt;
-		else
+	/* pam policy overrides the module's choice */
+	if ((promptp = openpam_get_option(pamh, "user_prompt")) != NULL)
+		prompt = promptp;
+	/* no prompt provided, see if there is one tucked away somewhere */
+	if (prompt == NULL)
+		if (pam_get_item(pamh, PAM_USER_PROMPT, &promptp) &&
+		    promptp != NULL)
 			prompt = promptp;
-	}
+	/* fall back to hardcoded default */
+	if (prompt == NULL)
+		prompt = user_prompt;
+	/* expand */
+	prompt_size = sizeof prompt_buf;
+	r = openpam_subst(pamh, prompt_buf, &prompt_size, prompt);
+	if (r == PAM_SUCCESS && prompt_size <= sizeof prompt_buf)
+		prompt = prompt_buf;
 	r = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &resp, "%s", prompt);
 	if (r != PAM_SUCCESS)
 		RETURNC(r);
@@ -109,9 +120,16 @@ pam_get_user(pam_handle_t *pamh,
  *
  * The =prompt argument specifies a prompt to use if no user name is
  * cached.
- * If it is =NULL, the =PAM_USER_PROMPT will be used.
+ * If it is =NULL, the =PAM_USER_PROMPT item will be used.
  * If that item is also =NULL, a hardcoded default prompt will be used.
+ * Either way, the prompt is expanded using =openpam_subst before it is
+ * passed to the conversation function.
+ *
+ * If =pam_get_user is called from a module and the ;user_prompt option is
+ * set in the policy file, the value of that option takes precedence over
+ * both the =prompt argument and the =PAM_USER_PROMPT item.
  *
  * >pam_get_item
  * >pam_get_authtok
+ * >openpam_subst
  */
