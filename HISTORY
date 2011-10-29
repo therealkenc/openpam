@@ -2,6 +2,16 @@ OpenPAM Lycopsida						2011-??-??
 
  - ENHANCE: removed static build autodetection, which didn't work anyway.
    Use an explicit, user-specified preprocessor variable instead.
+
+ - ENHANCE: cleaned up the documentation a bit.
+
+ - ENHANCE: added openpam_subst(3), allowing certain PAM items to be
+   embedded in strings such as prompts.  Apply it to the prompts used
+   by pam_get_user(3) and pam_get_authtok(3).
+
+ - ENHANCE: add support for the user_prompt, authtok_prompt and
+   oldauthtok_prompt module options, which override the prompts passed
+   by the module to pam_set_user(3) and pam_get_authtok(3).
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
 
