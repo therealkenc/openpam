@@ -53,7 +53,7 @@ AC_ARG_WITH([modules-dir],
     ])],
     [OPENPAM_MODULES_DIR="$libdir"])
 AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR,
-    "$OPENPAM_MODULES_DIR",
+    "${OPENPAM_MODULES_DIR%/}/",
     [OpenPAM modules directory])
 AC_SUBST(OPENPAM_MODULES_DIR)
 
