@@ -13,6 +13,7 @@ export CONFIG_SHELL=/bin/sh
 ./configure \
 	--with-doc \
 	--with-pam-unix \
+	--with-pamtest \
 	--with-su \
 	--with-modules-dir=/usr/lib \
 	--enable-developer-warnings \
