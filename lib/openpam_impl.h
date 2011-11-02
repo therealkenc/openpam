@@ -171,7 +171,7 @@ pam_module_t	*openpam_dynamic(const char *);
 		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
 	else \
 		openpam_log(PAM_LOG_DEBUG, "returning %p", _p); \
-	return (p); \
+	return (_p); \
 } while (0)
 #define	RETURNS(s) do { \
 	const char *_s = (s); \
