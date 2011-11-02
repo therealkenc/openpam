@@ -47,7 +47,7 @@
 
 #include "openpam_impl.h"
 
-const char *_pam_func_name[PAM_NUM_PRIMITIVES] = {
+const char *pam_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_authenticate",
 	"pam_setcred",
 	"pam_acct_mgmt",
@@ -56,7 +56,7 @@ const char *_pam_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_chauthtok"
 };
 
-const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
+const char *pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_sm_authenticate",
 	"pam_sm_setcred",
 	"pam_sm_acct_mgmt",

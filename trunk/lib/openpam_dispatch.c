@@ -74,9 +74,9 @@ openpam_dispatch(pam_handle_t *pamh,
 	if (pamh->current != NULL) {
 		openpam_log(PAM_LOG_ERROR,
 		    "%s() called while %s::%s() is in progress",
-		    _pam_func_name[primitive],
+		    pam_func_name[primitive],
 		    pamh->current->module->path,
-		    _pam_sm_func_name[pamh->primitive]);
+		    pam_sm_func_name[pamh->primitive]);
 		RETURNC(PAM_ABORT);
 	}
 
@@ -104,7 +104,7 @@ openpam_dispatch(pam_handle_t *pamh,
 	for (err = fail = 0; chain != NULL; chain = chain->next) {
 		if (chain->module->func[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
-			    chain->module->path, _pam_sm_func_name[primitive]);
+			    chain->module->path, pam_sm_func_name[primitive]);
 			continue;
 		} else {
 			pamh->primitive = primitive;
@@ -113,12 +113,12 @@ openpam_dispatch(pam_handle_t *pamh,
 			if (debug)
 				++openpam_debug;
 			openpam_log(PAM_LOG_DEBUG, "calling %s() in %s",
-			    _pam_sm_func_name[primitive], chain->module->path);
+			    pam_sm_func_name[primitive], chain->module->path);
 			r = (chain->module->func[primitive])(pamh, flags,
 			    chain->optc, (const char **)chain->optv);
 			pamh->current = NULL;
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
-			    chain->module->path, _pam_sm_func_name[primitive],
+			    chain->module->path, pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
 			if (debug)
 				--openpam_debug;
@@ -227,7 +227,7 @@ openpam_check_error_code(int primitive, int r)
 	}
 
 	openpam_log(PAM_LOG_ERROR, "%s(): unexpected return value %d",
-	    _pam_sm_func_name[primitive], r);
+	    pam_sm_func_name[primitive], r);
 }
 #endif /* !defined(OPENPAM_RELAX_CHECKS) */
 

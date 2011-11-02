@@ -97,10 +97,10 @@ openpam_dynamic(const char *path)
 	dlmodule = dlsym(dlh, "_pam_module");
 	for (i = 0; i < PAM_NUM_PRIMITIVES; ++i) {
 		module->func[i] = dlmodule ? dlmodule->func[i] :
-		    (pam_func_t)dlsym(dlh, _pam_sm_func_name[i]);
+		    (pam_func_t)dlsym(dlh, pam_sm_func_name[i]);
 		if (module->func[i] == NULL)
 			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
-			    path, _pam_sm_func_name[i], dlerror());
+			    path, pam_sm_func_name[i], dlerror());
 	}
 	return (module);
 buf_err:
