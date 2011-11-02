@@ -53,8 +53,6 @@ libpam_la_SOURCES = \
 	pam_vprompt.c \
 	$(NULL)
 
-libpam_la_CFLAGS = -DOPENPAM_MODULES_DIR='"@OPENPAM_MODULES_DIR@/"'
-
 libpam_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
 libpam_la_LIBADD = @DL_LIBS@
 

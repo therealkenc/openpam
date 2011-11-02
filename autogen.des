@@ -14,6 +14,7 @@ export CONFIG_SHELL=/bin/sh
 	--with-doc \
 	--with-pam-unix \
 	--with-su \
+	--with-modules-dir=/usr/lib \
 	--enable-developer-warnings \
 	--enable-werror \
 	"$@"
