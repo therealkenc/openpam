@@ -12,6 +12,8 @@ OpenPAM Lycopsida						2011-??-??
  - ENHANCE: add support for the user_prompt, authtok_prompt and
    oldauthtok_prompt module options, which override the prompts passed
    by the module to pam_set_user(3) and pam_get_authtok(3).
+
+ - ENHANCE: add pamtest(1), a tool for testing modules and policies.
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
 
