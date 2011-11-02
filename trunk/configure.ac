@@ -69,6 +69,12 @@ AC_ARG_WITH([pam-unix],
     [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
 
+AC_ARG_WITH(pamtest,
+    AC_HELP_STRING([--with-pamtest], [compile test application]),
+    [],
+    [with_pamtest=no])
+AM_CONDITIONAL([WITH_PAMTEST], [test x"$with_pamtest" = x"yes"])
+
 AC_ARG_WITH(su,
     AC_HELP_STRING([--with-su], [compile sample su(1) implementation]),
     [],
@@ -105,6 +111,7 @@ AC_ARG_ENABLE([werror],
 
 AC_CONFIG_FILES([
     bin/Makefile
+    bin/pamtest/Makefile
     bin/su/Makefile
     include/Makefile
     include/security/Makefile
