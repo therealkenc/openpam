@@ -134,6 +134,7 @@ sub parse_source($) {
     my $argnames;
     my $man;
     my $inlist;
+    my $intaglist;
     my $inliteral;
     my %xref;
     my @errors;
@@ -196,7 +197,7 @@ sub parse_source($) {
     # and surround with ()
     $argnames =~ s/^\"(.*)\"$/($1)/;
     # $argnames is now a regexp that matches argument names
-    $inliteral = $inlist = 0;
+    $inliteral = $inlist = $intaglist = 0;
     foreach (split("\n", $source)) {
 	s/\s*$//;
 	if (!defined($man)) {
@@ -209,12 +210,13 @@ sub parse_source($) {
 	s/^ \* ?//;
 	s/\\(.)/$1/gs;
 	if (m/^$/) {
+	    # paragraph separator
 	    if ($man ne "" && $man !~ m/\.Pp\n$/s) {
 		if ($inliteral) {
 		    $man .= "\0\n";
-		} elsif ($inlist) {
+		} elsif ($inlist || $intaglist) {
 		    $man .= ".El\n.Pp\n";
-		    $inlist = 0;
+		    $inlist = $intaglist = 0;
 		} else {
 		    $man .= ".Pp\n";
 		}
@@ -222,35 +224,63 @@ sub parse_source($) {
 	    next;
 	}
 	if (m/^>(\w+)(\s+\d)?$/) {
+	    # "see also" cross-reference
 	    my ($page, $sect) = ($1, $2 ? int($2) : 3);
 	    ++$xref{$sect}->{$page};
 	    next;
 	}
-	if (s/^\s+([=%]?\w+):\s*/.It $1/) {
+	if (s/^\s+-\s+//) {
+	    # item in bullet list
 	    if ($inliteral) {
 		$man .= ".Ed\n";
 		$inliteral = 0;
 	    }
+	    if ($intaglist) {
+		$man .= ".El\n.Pp\n";
+		$intaglist = 0;
+	    }
 	    if (!$inlist) {
 		$man =~ s/\.Pp\n$//s;
-		$man .= ".Bl -tag -width 18n\n";
+		$man .= ".Bl -bullet\n";
 		$inlist = 1;
+	    }
+	    $man .= ".It\n";
+	    # fall through
+	} elsif (s/^\s+(\S+):\s*/.It $1/) {
+	    # item in tag list
+	    if ($inliteral) {
+		$man .= ".Ed\n";
+		$inliteral = 0;
+	    }
+	    if ($inlist) {
+		$man .= ".El\n.Pp\n";
+		$inlist = 0;
+	    }
+	    if (!$intaglist) {
+		$man =~ s/\.Pp\n$//s;
+		$man .= ".Bl -tag -width 18n\n";
+		$intaglist = 1;
 	    }
 	    s/^\.It =([A-Z][A-Z_]+)$/.It Dv $1/gs;
 	    $man .= "$_\n";
 	    next;
-	} elsif ($inlist && m/^\S/) {
+	} elsif (($inlist || $intaglist) && m/^\S/) {
+	    # regular text after list
 	    $man .= ".El\n.Pp\n";
-	    $inlist = 0;
+	    $inlist = $intaglist = 0;
 	} elsif ($inliteral && m/^\S/) {
+	    # regular text after literal section
 	    $man .= ".Ed\n";
 	    $inliteral = 0;
 	} elsif ($inliteral) {
+	    # additional text within literal section
 	    $man .= "$_\n";
 	    next;
-	} elsif ($inlist) {
+	} elsif ($inlist || $intaglist) {
+	    # additional text within list
 	    s/^\s+//;
 	} elsif (m/^\s+/) {
+	    # new literal section
 	    $man .= ".Bd -literal\n";
 	    $inliteral = 1;
 	    $man .= "$_\n";
@@ -272,11 +302,13 @@ sub parse_source($) {
 	$man .= "$_\n";
     }
     if (defined($man)) {
-	if ($inlist) {
+	if ($inlist || $intaglist) {
 	    $man .= ".El\n";
+	    $inlist = $intaglist = 0;
 	}
 	if ($inliteral) {
 	    $man .= ".Ed\n";
+	    $inliteral = 0;
 	}
 	$man =~ s/\%/\\&\%/gs;
 	$man =~ s/(\n\.[A-Z][a-z] [\w ]+)\n([\.,:;-]\S*)\s*/$1 $2\n/gs;
