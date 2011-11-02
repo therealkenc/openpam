@@ -40,10 +40,10 @@
 
 #include <security/openpam.h>
 
-extern const char *_pam_func_name[PAM_NUM_PRIMITIVES];
-extern const char *_pam_sm_func_name[PAM_NUM_PRIMITIVES];
-extern const char *_pam_err_name[PAM_NUM_ERRORS];
-extern const char *_pam_item_name[PAM_NUM_ITEMS];
+extern const char *pam_func_name[PAM_NUM_PRIMITIVES];
+extern const char *pam_sm_func_name[PAM_NUM_PRIMITIVES];
+extern const char *pam_err_name[PAM_NUM_ERRORS];
+extern const char *pam_item_name[PAM_NUM_ITEMS];
 
 extern int openpam_debug;
 
@@ -136,7 +136,7 @@ pam_module_t	*openpam_dynamic(const char *);
 #define ENTERI(i) do { \
 	int _i = (i); \
 	if (_i > 0 && _i < PAM_NUM_ITEMS) \
-		openpam_log(PAM_LOG_DEBUG, "entering: %s", _pam_item_name[_i]); \
+		openpam_log(PAM_LOG_DEBUG, "entering: %s", pam_item_name[_i]); \
 	else \
 		openpam_log(PAM_LOG_DEBUG, "entering: %d", _i); \
 } while (0)
@@ -155,7 +155,7 @@ pam_module_t	*openpam_dynamic(const char *);
 #define RETURNC(c) do { \
 	int _c = (c); \
 	if (_c >= 0 && _c < PAM_NUM_ERRORS) \
-		openpam_log(PAM_LOG_DEBUG, "returning %s", _pam_err_name[_c]); \
+		openpam_log(PAM_LOG_DEBUG, "returning %s", pam_err_name[_c]); \
 	else \
 		openpam_log(PAM_LOG_DEBUG, "returning %d!", _c); \
 	return (_c); \

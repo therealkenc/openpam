@@ -49,14 +49,14 @@
 
 #include "openpam_impl.h"
 
-const char *_pam_facility_name[PAM_NUM_FACILITIES] = {
+const char *pam_facility_name[PAM_NUM_FACILITIES] = {
 	[PAM_ACCOUNT]		= "account",
 	[PAM_AUTH]		= "auth",
 	[PAM_PASSWORD]		= "password",
 	[PAM_SESSION]		= "session",
 };
 
-const char *_pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
+const char *pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
 	[PAM_BINDING]		= "binding",
 	[PAM_OPTIONAL]		= "optional",
 	[PAM_REQUIRED]		= "required",
@@ -165,7 +165,7 @@ openpam_read_chain(pam_handle_t *pamh,
 
 		/* match facility name */
 		for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt)
-			if (match_word(p, _pam_facility_name[fclt]))
+			if (match_word(p, pam_facility_name[fclt]))
 				break;
 		if (fclt == PAM_NUM_FACILITIES) {
 			openpam_log(PAM_LOG_NOTICE,
@@ -203,7 +203,7 @@ openpam_read_chain(pam_handle_t *pamh,
 
 		/* control flag */
 		for (ctlf = 0; ctlf < PAM_NUM_CONTROL_FLAGS; ++ctlf)
-			if (match_word(p, _pam_control_flag_name[ctlf]))
+			if (match_word(p, pam_control_flag_name[ctlf]))
 				break;
 		if (ctlf == PAM_NUM_CONTROL_FLAGS) {
 			openpam_log(PAM_LOG_ERROR,

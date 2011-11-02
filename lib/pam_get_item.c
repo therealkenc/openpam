@@ -45,7 +45,7 @@
 
 #include "openpam_impl.h"
 
-const char *_pam_item_name[PAM_NUM_ITEMS] = {
+const char *pam_item_name[PAM_NUM_ITEMS] = {
 	"(NO ITEM)",
 	"PAM_SERVICE",
 	"PAM_USER",

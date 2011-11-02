@@ -45,7 +45,7 @@
 
 #include "openpam_impl.h"
 
-const char *_pam_err_name[PAM_NUM_ERRORS] = {
+const char *pam_err_name[PAM_NUM_ERRORS] = {
 	"PAM_SUCCESS",
 	"PAM_OPEN_ERR",
 	"PAM_SYMBOL_ERR",
