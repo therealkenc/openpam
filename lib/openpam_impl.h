@@ -134,52 +134,52 @@ pam_module_t	*openpam_dynamic(const char *);
 #ifdef OPENPAM_DEBUG
 #define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
 #define ENTERI(i) do { \
-	int _i = (i); \
-	if (_i > 0 && _i < PAM_NUM_ITEMS) \
-		openpam_log(PAM_LOG_DEBUG, "entering: %s", pam_item_name[_i]); \
+	int i_ = (i); \
+	if (i_ > 0 && i_ < PAM_NUM_ITEMS) \
+		openpam_log(PAM_LOG_DEBUG, "entering: %s", pam_item_name[i_]); \
 	else \
-		openpam_log(PAM_LOG_DEBUG, "entering: %d", _i); \
+		openpam_log(PAM_LOG_DEBUG, "entering: %d", i_); \
 } while (0)
 #define ENTERN(n) do { \
-	int _n = (n); \
-	openpam_log(PAM_LOG_DEBUG, "entering: %d", _n); \
+	int n_ = (n); \
+	openpam_log(PAM_LOG_DEBUG, "entering: %d", n_); \
 } while (0)
 #define ENTERS(s) do { \
-	const char *_s = (s); \
-	if (_s == NULL) \
+	const char *s_ = (s); \
+	if (s_ == NULL) \
 		openpam_log(PAM_LOG_DEBUG, "entering: NULL"); \
 	else \
-		openpam_log(PAM_LOG_DEBUG, "entering: '%s'", _s); \
+		openpam_log(PAM_LOG_DEBUG, "entering: '%s'", s_); \
 } while (0)
 #define	RETURNV() openpam_log(PAM_LOG_DEBUG, "returning")
 #define RETURNC(c) do { \
-	int _c = (c); \
-	if (_c >= 0 && _c < PAM_NUM_ERRORS) \
-		openpam_log(PAM_LOG_DEBUG, "returning %s", pam_err_name[_c]); \
+	int c_ = (c); \
+	if (c_ >= 0 && c_ < PAM_NUM_ERRORS) \
+		openpam_log(PAM_LOG_DEBUG, "returning %s", pam_err_name[c_]); \
 	else \
-		openpam_log(PAM_LOG_DEBUG, "returning %d!", _c); \
-	return (_c); \
+		openpam_log(PAM_LOG_DEBUG, "returning %d!", c_); \
+	return (c_); \
 } while (0)
 #define	RETURNN(n) do { \
-	int _n = (n); \
-	openpam_log(PAM_LOG_DEBUG, "returning %d", _n); \
-	return (_n); \
+	int n_ = (n); \
+	openpam_log(PAM_LOG_DEBUG, "returning %d", n_); \
+	return (n_); \
 } while (0)
 #define	RETURNP(p) do { \
-	const void *_p = (p); \
-	if (_p == NULL) \
+	const void *p_ = (p); \
+	if (p_ == NULL) \
 		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
 	else \
-		openpam_log(PAM_LOG_DEBUG, "returning %p", _p); \
-	return (_p); \
+		openpam_log(PAM_LOG_DEBUG, "returning %p", p_); \
+	return (p_); \
 } while (0)
 #define	RETURNS(s) do { \
-	const char *_s = (s); \
-	if (_s == NULL) \
+	const char *s_ = (s); \
+	if (s_ == NULL) \
 		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
 	else \
-		openpam_log(PAM_LOG_DEBUG, "returning '%s'", _s); \
-	return (_s); \
+		openpam_log(PAM_LOG_DEBUG, "returning '%s'", s_); \
+	return (s_); \
 } while (0)
 #else
 #define ENTER()

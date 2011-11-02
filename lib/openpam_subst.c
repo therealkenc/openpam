@@ -36,24 +36,24 @@
 #include "openpam_impl.h"
 
 #define subst_char(ch) do {			\
-	int _ch = (ch);				\
+	int ch_ = (ch);				\
 	if (buf && len < *bufsize)		\
-		*buf++ = _ch;			\
+		*buf++ = ch_;			\
 	++len;					\
 } while (0)
 
 #define subst_string(s) do {			\
-	const char *_s = (s);			\
-	while (*_s)				\
-		subst_char(*_s++);		\
+	const char *s_ = (s);			\
+	while (*s_)				\
+		subst_char(*s_++);		\
 } while (0)
 
 #define subst_item(i) do {			\
-	int _i = (i);				\
-	const void *_p;				\
-	ret = pam_get_item(pamh, _i, &_p);	\
-	if (ret == PAM_SUCCESS && _p != NULL)	\
-		subst_string(_p);		\
+	int i_ = (i);				\
+	const void *p_;				\
+	ret = pam_get_item(pamh, i_, &p_);	\
+	if (ret == PAM_SUCCESS && p_ != NULL)	\
+		subst_string(p_);		\
 } while (0)
 
 /*
