@@ -84,4 +84,8 @@ pam_sm_chauthtok(pam_handle_t *pamh,
 /**
  * The =pam_sm_chauthtok function is the service module's implementation
  * of the =pam_chauthtok API function.
+ *
+ * When the application calls =pam_chauthtok, the service function is
+ * called twice, first with the =PAM_PRELIM_CHECK flag set and then again
+ * with the =PAM_UPDATE_AUTHTOK flag set.
  */
