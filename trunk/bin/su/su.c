@@ -63,7 +63,7 @@ static void
 usage(void)
 {
 
-	fprintf(stderr, "Usage: su [login [args]]\n");
+	fprintf(stderr, "usage: su [login [args]]\n");
 	exit(1);
 }
 
@@ -78,9 +78,8 @@ main(int argc, char *argv[])
 	int o, pam_err, status;
 	pid_t pid;
 
-	while ((o = getopt(argc, argv, "h")) != -1)
+	while ((o = getopt(argc, argv, "")) != -1)
 		switch (o) {
-		case 'h':
 		default:
 			usage();
 		}
