@@ -14,6 +14,8 @@ OpenPAM Lycopsida						2011-??-??
    oldauthtok_prompt module options, which override the prompts passed
    by the module to pam_set_user(3) and pam_get_authtok(3).
 
+ - ENHANCE: rewrote the policy parser to support quoted option values.
+
  - ENHANCE: added pamtest(1), a tool for testing modules and policies.
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
