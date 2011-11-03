@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd June 16, 2005
+.Dd November 3, 2011
 .Dt PAM.CONF 5
 .Os
 .Sh NAME
@@ -146,6 +146,11 @@ to call.
 .Pp
 The remaining fields are passed as arguments to the module if and when
 it is invoked.
+As a special case, if an argument is of the form ``name=value'' and
+the right-hand side is surrounded by single or double quotes, any
+whitespace between the quote characters will be considered part of the
+same argument rather than a separator between this argument and the
+next.
 .Pp
 The
 .Cm include
@@ -166,10 +171,9 @@ modify each and every service-specific policy.
 .Sh AUTHORS
 The OpenPAM library was developed for the
 .Fx
-Project by ThinkSec
-AS and Network Associates Laboratories, the Security Research Division
-of Network Associates, Inc.\& under DARPA/SPAWAR contract
-N66001-01-C-8035
+Project by ThinkSec AS and Network Associates Laboratories, the
+Security Research Division of Network Associates, Inc.\& under
+DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
 .Pp
