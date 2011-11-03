@@ -126,10 +126,8 @@ openpam_destroy_chain(pam_chain_t *chain)
 		return;
 	openpam_destroy_chain(chain->next);
 	chain->next = NULL;
-	while (chain->optc) {
-		--chain->optc;
+	while (chain->optc--)
 		FREE(chain->optv[chain->optc]);
-	}
 	FREE(chain->optv);
 	openpam_release_module(chain->module);
 	chain->module = NULL;
