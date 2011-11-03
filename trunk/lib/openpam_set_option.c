@@ -62,22 +62,16 @@ openpam_set_option(pam_handle_t *pamh,
 	const char *value)
 {
 	pam_chain_t *cur;
-	char *opt, **optv;
-	size_t len;
-	int i;
+	pam_opt_t *opt, **optv;
+	int i, ol, vl;
 
 	ENTERS(option);
 	if (pamh == NULL || pamh->current == NULL || option == NULL)
 		RETURNC(PAM_SYSTEM_ERR);
 	cur = pamh->current;
-	for (len = 0; option[len] != '\0'; ++len)
-		if (option[len] == '=')
+	for (i = 0; i < cur->optc; ++i)
+		if (strcmp(cur->optv[i]->name, option) == 0)
 			break;
-	for (i = 0; i < cur->optc; ++i) {
-		if (strncmp(cur->optv[i], option, len) == 0 &&
-		    (cur->optv[i][len] == '\0' || cur->optv[i][len] == '='))
-			break;
-	}
 	if (value == NULL) {
 		/* remove */
 		if (i == cur->optc)
@@ -85,13 +79,20 @@ openpam_set_option(pam_handle_t *pamh,
 		for (free(cur->optv[i]); i < cur->optc; ++i)
 			cur->optv[i] = cur->optv[i + 1];
 		cur->optv[i] = NULL;
+		cur->optc--;
 		RETURNC(PAM_SUCCESS);
 	}
-	if (asprintf(&opt, "%.*s=%s", (int)len, option, value) < 0)
+	ol = strlen(option) + 1;
+	vl = strlen(value) + 1;
+	if ((opt = malloc(sizeof *opt + ol + vl)) == NULL)
 		RETURNC(PAM_BUF_ERR);
+	opt->name = (char *)opt + sizeof *opt;
+	strlcpy(opt->name, option, ol);
+	opt->value = opt->name + ol;
+	strlcpy(opt->value, value, vl);
 	if (i == cur->optc) {
 		/* add */
-		optv = realloc(cur->optv, sizeof(char *) * (cur->optc + 2));
+		optv = realloc(cur->optv, sizeof *optv * (cur->optc + 2));
 		if (optv == NULL) {
 			FREE(opt);
 			RETURNC(PAM_BUF_ERR);
