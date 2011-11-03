@@ -6,7 +6,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libpam.la
 
-noinst_HEADERS = openpam_impl.h
+noinst_HEADERS = openpam_impl.h openpam_strlcmp.h
 
 libpam_la_SOURCES = \
 	openpam_borrow_cred.c \
