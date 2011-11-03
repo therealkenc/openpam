@@ -269,23 +269,17 @@ parse_filename(char **line, char **filename)
 /*
  * Parse an option.
  *
- * Returns a pointer to a dynamically allocated pam_opt_t with the name
- * and value of the next module option, or NULL if the end of the string
- * was reached or a disallowed non-whitespace character was encountered.
- *
- * An option consists of an option name optionally followed by an equal
- * sign and an option value.
- *
- * The structure and strings are allocated as a single object, so a single
- * free(3) call is sufficient to release the allocated memory.
+ * Returns a dynamically allocated string containing the next module
+ * option, or NULL if the end of the string was reached or a disallowed
+ * non-whitespace character was encountered.
  *
  * If parse_option() is successful, it updates *line to point one
  * character past the end of the option.  If it reaches the end of the
  * string, it updates *line to point to the terminating NUL character.  In
  * all other cases, it leaves *line unmodified.
  *
- * If parse_option() fails to allocate memory for the option structure, it
- * will return NULL and set errno to a non-zero value.
+ * If parse_option() fails to allocate memory, it will return NULL and set
+ * errno to a non-zero value.
  *
  * Allowed characters for option names are all characters in the POSIX
  * portable filename character set.  Allowed characters for option values
@@ -294,13 +288,12 @@ parse_filename(char **line, char **filename)
  * characters and whichever quote character was not used are allowed.
  * Note that the entire value must be quoted, not just part of it.
  */
-static pam_opt_t *
+static char *
 parse_option(char **line)
 {
 	char *nb, *ne, *vb, *ve;
 	unsigned char q = 0;
-	pam_opt_t *opt;
-	size_t size;
+	char *option;
 
 	errno = 0;
 	for (nb = *line; *nb && is_lws(*nb); ++nb)
@@ -331,17 +324,14 @@ parse_option(char **line)
 	} else {
 		vb = ve = ne;
 	}
-	size = sizeof *opt;
-	size += ne - nb + 1;
-	size += ve - vb + 1;
-	if ((opt = malloc(size)) == NULL)
+	if ((option = malloc((ne - nb) + 1 + (ve - vb) + 1)) == NULL)
 		return (NULL);
-	opt->name = (char *)opt + sizeof *opt;
-	strlcpy(opt->name, nb, ne - nb + 1);
-	opt->value = opt->name + (ne - nb) + 1;
-	strlcpy(opt->value, vb, ve - vb + 1);
+	strncpy(option, nb, ne - nb);
+	option[ne - nb] = '=';
+	strncpy(option + (ne - nb), vb, ve - vb);
+	option[(ne - nb) + 1 + (ve - vb) + 1] = '\0';
 	*line = q ? ve + 1 : ve;
-	return (opt);
+	return (option);
 }
 
 /*
@@ -380,8 +370,8 @@ openpam_parse_chain(pam_handle_t *pamh,
 	int count, lineno;
 	pam_facility_t fclt;
 	pam_control_t ctlf;
-	pam_opt_t *opt;
 	char *line, *str, *name;
+	char *option, **optv;
 	int len, ret;
 	FILE *f;
 
@@ -470,12 +460,17 @@ openpam_parse_chain(pam_handle_t *pamh,
 		this->flag = ctlf;
 
 		/* get module options */
-		/* XXX quick and dirty, may waste a few hundred bytes */
-		if ((this->optv = malloc(sizeof *opt * strlen(line))) == NULL)
-			goto syserr;
-		while ((opt = parse_option(&line)) != NULL)
-			this->optv[this->optc++] = opt;
-		this->optv[this->optc] = NULL;
+		this->optv = NULL;
+		this->optc = 0;
+		while ((option = parse_option(&line)) != NULL) {
+			optv = realloc(this->optv,
+			    (this->optc + 2) * sizeof *optv);
+			if (optv == NULL)
+				goto syserr;
+			this->optv = optv;
+			this->optv[this->optc++] = option;
+			this->optv[this->optc] = NULL;
+		}
 		if (*line != '\0') {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): syntax error in module options",

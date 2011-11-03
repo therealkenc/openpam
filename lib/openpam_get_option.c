@@ -59,15 +59,22 @@ openpam_get_option(pam_handle_t *pamh,
 	const char *option)
 {
 	pam_chain_t *cur;
+	size_t len;
 	int i;
 
 	ENTERS(option);
 	if (pamh == NULL || pamh->current == NULL || option == NULL)
 		RETURNS(NULL);
 	cur = pamh->current;
-	for (i = 0; i < cur->optc; ++i)
-		if (strcmp(cur->optv[i]->name, option) == 0)
-			RETURNS(cur->optv[i]->value);
+	len = strlen(option);
+	for (i = 0; i < cur->optc; ++i) {
+		if (strncmp(cur->optv[i], option, len) == 0) {
+			if (cur->optv[i][len] == '\0')
+				RETURNS(&cur->optv[i][len]);
+			else if (cur->optv[i][len] == '=')
+				RETURNS(&cur->optv[i][len + 1]);
+		}
+	}
 	RETURNS(NULL);
 }
 
