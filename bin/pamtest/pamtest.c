@@ -287,7 +287,6 @@ int
 main(int argc, char *argv[])
 {
 	char hostname[1024];
-//	struct passwd *pwd;
 	const char *rhost = NULL;
 	const char *host = NULL;
 	const char *ruser = NULL;
