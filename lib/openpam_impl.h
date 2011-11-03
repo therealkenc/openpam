@@ -71,12 +71,19 @@ typedef enum {
 	PAM_NUM_FACILITIES
 } pam_facility_t;
 
+typedef struct pam_opt pam_opt_t;
+struct pam_opt {
+	char		*name;
+	char		*value;
+	char		 str[];
+};
+
 typedef struct pam_chain pam_chain_t;
 struct pam_chain {
 	pam_module_t	*module;
 	int		 flag;
 	int		 optc;
-	char	       **optv;
+	pam_opt_t      **optv;
 	pam_chain_t	*next;
 };
 
