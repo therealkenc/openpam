@@ -56,8 +56,8 @@ policy is used instead, if it exists.
 Entries in per-service policy files must be of one of the two forms
 below:
 .Bd -unfilled -offset indent
-.Ar function-class control-flag module-path Op Ar arguments ...
-.Ar function-class Cm include Ar other-service-name
+.Ar facility control-flag module-path Op Ar arguments ...
+.Ar facility Cm include Ar other-service-name
 .Ed
 .Pp
 Entries in
@@ -71,9 +71,8 @@ to the right of a
 sign.
 .Pp
 The
-.Ar function-class
-field specifies the class of functions the entry applies to, and is
-one of:
+.Ar facility
+field specifies the facility the entry applies to, and is one of:
 .Bl -tag -width ".Cm password"
 .It Cm auth
 Authentication functions
