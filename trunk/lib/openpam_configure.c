@@ -344,6 +344,26 @@ parse_option(char **line)
 	return (opt);
 }
 
+/*
+ * Consume trailing whitespace.
+ *
+ * If there are no non-whitespace characters left on the line, parse_eol()
+ * updates *line to point at the terminating NUL character and returns 0.
+ * Otherwise, it leaves *line unmodified and returns a non-zero value.
+ */
+static int
+parse_eol(char **line)
+{
+	char *p;
+
+	for (p = *line; *p && is_lws(*p); ++p)
+		/* nothing */ ;
+	if (*p)
+		return ((unsigned char)*p);
+	*line = p;
+	return (0);
+}
+
 typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
 
 /*
@@ -403,7 +423,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 
 		/* check for "include" */
 		if (parse_include(&line)) {
-			if ((len = parse_filename(&line, &str)) == 0) {
+			if ((len = parse_service_name(&line, &str)) == 0) {
 				openpam_log(PAM_LOG_ERROR,
 				    "%s(%d): missing or invalid filename",
 				    filename, lineno);
@@ -411,6 +431,12 @@ openpam_parse_chain(pam_handle_t *pamh,
 			}
 			if ((name = strndup(str, len)) == NULL)
 				goto syserr;
+			if (parse_eol(&line) != 0) {
+				openpam_log(PAM_LOG_ERROR,
+				    "%s(%d): garbage at end of line",
+				    filename, lineno);
+				goto fail;
+			}
 			ret = openpam_load_chain(pamh, name, fclt);
 			FREE(name);
 			if (ret < 0)
@@ -444,7 +470,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 		this->flag = ctlf;
 
 		/* get module options */
-		/* quick and dirty, wastes a few hundred bytes */
+		/* XXX quick and dirty, may waste a few hundred bytes */
 		if ((this->optv = malloc(sizeof *opt * strlen(line))) == NULL)
 			goto syserr;
 		while ((opt = parse_option(&line)) != NULL)
