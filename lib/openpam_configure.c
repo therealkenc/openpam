@@ -76,7 +76,7 @@ match_word(const char *str, const char *word)
 
 	while (*str && tolower(*str) == tolower(*word))
 		++str, ++word;
-	return (*str == ' ' && *word == '\0');
+	return ((*str == ' ' || *str == '\0') && *word == '\0');
 }
 
 /*
