@@ -294,6 +294,7 @@ parse_option(char **line)
 	char *nb, *ne, *vb, *ve;
 	unsigned char q = 0;
 	char *option;
+	size_t size;
 
 	errno = 0;
 	for (nb = *line; *nb && is_lws(*nb); ++nb)
@@ -324,12 +325,18 @@ parse_option(char **line)
 	} else {
 		vb = ve = ne;
 	}
-	if ((option = malloc((ne - nb) + 1 + (ve - vb) + 1)) == NULL)
+	size = (ne - nb) + 1;
+	if (ve > vb)
+		size += (ve - vb) + 1;
+	if ((option = malloc(size)) == NULL)
 		return (NULL);
 	strncpy(option, nb, ne - nb);
-	option[ne - nb] = '=';
-	strncpy(option + (ne - nb), vb, ve - vb);
-	option[(ne - nb) + 1 + (ve - vb) + 1] = '\0';
+	if (ve > vb) {
+		option[ne - nb] = '=';
+		strncpy(option + (ne - nb) + 1, vb, ve - vb);
+	}
+	option[size - 1] = '\0';
+	fprintf(stderr, "%s\n", option);
 	*line = q ? ve + 1 : ve;
 	return (option);
 }
