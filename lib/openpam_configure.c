@@ -336,7 +336,6 @@ parse_option(char **line)
 		strncpy(option + (ne - nb) + 1, vb, ve - vb);
 	}
 	option[size - 1] = '\0';
-	fprintf(stderr, "%s\n", option);
 	*line = q ? ve + 1 : ve;
 	return (option);
 }
