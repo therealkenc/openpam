@@ -464,7 +464,8 @@ openpam_parse_chain(pam_handle_t *pamh,
 		this->flag = ctlf;
 
 		/* get module options */
-		this->optv = NULL;
+		if ((this->optv = malloc(sizeof *optv)) == NULL)
+			goto syserr;
 		this->optc = 0;
 		while ((option = parse_option(&line)) != NULL) {
 			optv = realloc(this->optv,
@@ -473,8 +474,8 @@ openpam_parse_chain(pam_handle_t *pamh,
 				goto syserr;
 			this->optv = optv;
 			this->optv[this->optc++] = option;
-			this->optv[this->optc] = NULL;
 		}
+		this->optv[this->optc] = NULL;
 		if (*line != '\0') {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): syntax error in module options",
