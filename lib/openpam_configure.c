@@ -373,22 +373,21 @@ openpam_parse_chain(pam_handle_t *pamh,
 	openpam_style_t style)
 {
 	pam_chain_t *this, **next;
-	int count, lineno;
 	pam_facility_t fclt;
 	pam_control_t ctlf;
 	char *line, *str, *name;
 	char *option, **optv;
-	int len, ret;
+	int len, lineno, ret;
 	FILE *f;
 
 	if ((f = fopen(filename, "r")) == NULL) {
 		openpam_log(errno == ENOENT ? PAM_LOG_DEBUG : PAM_LOG_NOTICE,
 		    "%s: %m", filename);
-		return (0);
+		return (PAM_SUCCESS);
 	}
 	this = NULL;
 	name = NULL;
-	count = lineno = 0;
+	lineno = 0;
 	while ((line = openpam_readline(f, &lineno, NULL)) != NULL) {
 		/* get service name if necessary */
 		if (style == pam_conf_style) {
@@ -435,9 +434,8 @@ openpam_parse_chain(pam_handle_t *pamh,
 			}
 			ret = openpam_load_chain(pamh, name, fclt);
 			FREE(name);
-			if (ret < 0)
+			if (ret != PAM_SUCCESS)
 				goto fail;
-			count += ret;
 			FREE(line);
 			continue;
 		}
@@ -496,7 +494,6 @@ openpam_parse_chain(pam_handle_t *pamh,
 			/* nothing */ ;
 		*next = this;
 		this = NULL;
-		++count;
 
 		/* next please... */
 		FREE(line);
@@ -504,7 +501,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 	if (!feof(f))
 		goto syserr;
 	fclose(f);
-	return (count);
+	return (PAM_SUCCESS);
 syserr:
 	openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
 fail:
@@ -517,7 +514,7 @@ fail:
 	FREE(line);
 	FREE(name);
 	fclose(f);
-	return (-1);
+	return (PAM_SYSTEM_ERR);
 }
 
 static const char *openpam_policy_path[] = {
@@ -540,26 +537,26 @@ openpam_load_chain(pam_handle_t *pamh,
 	const char **path;
 	char *filename;
 	size_t len;
-	int r;
+	int ret;
 
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		len = strlen(*path);
 		if ((*path)[len - 1] == '/') {
 			if (asprintf(&filename, "%s%s", *path, service) < 0) {
 				openpam_log(PAM_LOG_ERROR, "asprintf(): %m");
-				return (-PAM_BUF_ERR);
+				return (PAM_BUF_ERR);
 			}
-			r = openpam_parse_chain(pamh, service, facility,
+			ret = openpam_parse_chain(pamh, service, facility,
 			    filename, pam_d_style);
 			FREE(filename);
 		} else {
-			r = openpam_parse_chain(pamh, service, facility,
+			ret = openpam_parse_chain(pamh, service, facility,
 			    *path, pam_conf_style);
 		}
-		if (r != 0)
-			return (r);
+		if (ret != PAM_SUCCESS)
+			return (ret);
 	}
-	return (0);
+	return (PAM_SUCCESS);
 }
 
 /*
@@ -574,13 +571,13 @@ openpam_configure(pam_handle_t *pamh,
 {
 	pam_facility_t fclt;
 
-	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) < 0)
+	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) != PAM_SUCCESS)
 		goto load_err;
 
 	for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt) {
 		if (pamh->chains[fclt] != NULL)
 			continue;
-		if (openpam_load_chain(pamh, PAM_OTHER, fclt) < 0)
+		if (openpam_load_chain(pamh, PAM_OTHER, fclt) != PAM_SUCCESS)
 			goto load_err;
 	}
 	return (PAM_SUCCESS);
