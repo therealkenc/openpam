@@ -46,6 +46,7 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+#include "openpam_strlcpy.h"
 
 #ifdef _SC_HOST_NAME_MAX
 #define HOST_NAME_MAX sysconf(_SC_HOST_NAME_MAX)
