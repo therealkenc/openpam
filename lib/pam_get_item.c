@@ -45,23 +45,6 @@
 
 #include "openpam_impl.h"
 
-const char *pam_item_name[PAM_NUM_ITEMS] = {
-	"(NO ITEM)",
-	"PAM_SERVICE",
-	"PAM_USER",
-	"PAM_TTY",
-	"PAM_RHOST",
-	"PAM_CONV",
-	"PAM_AUTHTOK",
-	"PAM_OLDAUTHTOK",
-	"PAM_RUSER",
-	"PAM_USER_PROMPT",
-	"PAM_REPOSITORY",
-	"PAM_AUTHTOK_PROMPT",
-	"PAM_OLDAUTHTOK_PROMPT",
-	"PAM_HOST",
-};
-
 /*
  * XSSO 4.2.1
  * XSSO 6 page 46

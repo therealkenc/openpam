@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2002-2003 Networks Associates Technology, Inc.
+ * Copyright (c) 2001-2003 Networks Associates Technology, Inc.
  * Copyright (c) 2004-2011 Dag-Erling Smørgrav
  * All rights reserved.
  *
@@ -39,99 +39,89 @@
 # include "config.h"
 #endif
 
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
 
-/*
- * Locate a matching dynamic or static module.
- */
+const char *pam_err_name[PAM_NUM_ERRORS] = {
+	"PAM_SUCCESS",
+	"PAM_OPEN_ERR",
+	"PAM_SYMBOL_ERR",
+	"PAM_SERVICE_ERR",
+	"PAM_SYSTEM_ERR",
+	"PAM_BUF_ERR",
+	"PAM_CONV_ERR",
+	"PAM_PERM_DENIED",
+	"PAM_MAXTRIES",
+	"PAM_AUTH_ERR",
+	"PAM_NEW_AUTHTOK_REQD",
+	"PAM_CRED_INSUFFICIENT",
+	"PAM_AUTHINFO_UNAVAIL",
+	"PAM_USER_UNKNOWN",
+	"PAM_CRED_UNAVAIL",
+	"PAM_CRED_EXPIRED",
+	"PAM_CRED_ERR",
+	"PAM_ACCT_EXPIRED",
+	"PAM_AUTHTOK_EXPIRED",
+	"PAM_SESSION_ERR",
+	"PAM_AUTHTOK_ERR",
+	"PAM_AUTHTOK_RECOVERY_ERR",
+	"PAM_AUTHTOK_LOCK_BUSY",
+	"PAM_AUTHTOK_DISABLE_AGING",
+	"PAM_NO_MODULE_DATA",
+	"PAM_IGNORE",
+	"PAM_ABORT",
+	"PAM_TRY_AGAIN",
+	"PAM_MODULE_UNKNOWN",
+	"PAM_DOMAIN_UNKNOWN"
+};
 
-pam_module_t *
-openpam_load_module(const char *path)
-{
-	pam_module_t *module;
+const char *pam_item_name[PAM_NUM_ITEMS] = {
+	"(NO ITEM)",
+	"PAM_SERVICE",
+	"PAM_USER",
+	"PAM_TTY",
+	"PAM_RHOST",
+	"PAM_CONV",
+	"PAM_AUTHTOK",
+	"PAM_OLDAUTHTOK",
+	"PAM_RUSER",
+	"PAM_USER_PROMPT",
+	"PAM_REPOSITORY",
+	"PAM_AUTHTOK_PROMPT",
+	"PAM_OLDAUTHTOK_PROMPT",
+	"PAM_HOST",
+};
 
-	module = openpam_dynamic(path);
-	openpam_log(PAM_LOG_DEBUG, "%s dynamic %s",
-	    (module == NULL) ? "no" : "using", path);
+const char *pam_facility_name[PAM_NUM_FACILITIES] = {
+	[PAM_ACCOUNT]		= "account",
+	[PAM_AUTH]		= "auth",
+	[PAM_PASSWORD]		= "password",
+	[PAM_SESSION]		= "session",
+};
 
-#ifdef OPENPAM_STATIC_MODULES
-	/* look for a static module */
-	if (module == NULL && strchr(path, '/') == NULL) {
-		module = openpam_static(path);
-		openpam_log(PAM_LOG_DEBUG, "%s static %s",
-		    (module == NULL) ? "no" : "using", path);
-	}
-#endif
-	if (module == NULL) {
-		openpam_log(PAM_LOG_ERROR, "no %s found", path);
-		return (NULL);
-	}
-	return (module);
-}
+const char *pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
+	[PAM_BINDING]		= "binding",
+	[PAM_OPTIONAL]		= "optional",
+	[PAM_REQUIRED]		= "required",
+	[PAM_REQUISITE]		= "requisite",
+	[PAM_SUFFICIENT]	= "sufficient",
+};
 
+const char *pam_func_name[PAM_NUM_PRIMITIVES] = {
+	"pam_authenticate",
+	"pam_setcred",
+	"pam_acct_mgmt",
+	"pam_open_session",
+	"pam_close_session",
+	"pam_chauthtok"
+};
 
-/*
- * Release a module.
- * XXX highly thread-unsafe
- */
-
-static void
-openpam_release_module(pam_module_t *module)
-{
-	if (module == NULL)
-		return;
-	if (module->dlh == NULL)
-		/* static module */
-		return;
-	dlclose(module->dlh);
-	openpam_log(PAM_LOG_DEBUG, "releasing %s", module->path);
-	FREE(module->path);
-	FREE(module);
-}
-
-
-/*
- * Destroy a chain, freeing all its links and releasing the modules
- * they point to.
- */
-
-static void
-openpam_destroy_chain(pam_chain_t *chain)
-{
-	if (chain == NULL)
-		return;
-	openpam_destroy_chain(chain->next);
-	chain->next = NULL;
-	while (chain->optc--)
-		FREE(chain->optv[chain->optc]);
-	FREE(chain->optv);
-	openpam_release_module(chain->module);
-	chain->module = NULL;
-	FREE(chain);
-}
-
-
-/*
- * Clear the chains and release the modules
- */
-
-void
-openpam_clear_chains(pam_chain_t *policy[])
-{
-	int i;
-
-	for (i = 0; i < PAM_NUM_FACILITIES; ++i) {
-		openpam_destroy_chain(policy[i]);
-		policy[i] = NULL;
-	}
-}
-
-/*
- * NOPARSE
- */
+const char *pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
+	"pam_sm_authenticate",
+	"pam_sm_setcred",
+	"pam_sm_acct_mgmt",
+	"pam_sm_open_session",
+	"pam_sm_close_session",
+	"pam_sm_chauthtok"
+};

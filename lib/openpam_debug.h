@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2002-2003 Networks Associates Technology, Inc.
+ * Copyright (c) 2001-2003 Networks Associates Technology, Inc.
  * Copyright (c) 2004-2011 Dag-Erling Smørgrav
  * All rights reserved.
  *
@@ -35,103 +35,69 @@
  * $Id$
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
+#ifndef OPENPAM_DEBUG_INCLUDED
+#define OPENPAM_DEBUG_INCLUDED
+
+#ifdef OPENPAM_DEBUG
+#define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
+#define ENTERI(i) do { \
+	int i_ = (i); \
+	if (i_ > 0 && i_ < PAM_NUM_ITEMS) \
+		openpam_log(PAM_LOG_DEBUG, "entering: %s", pam_item_name[i_]); \
+	else \
+		openpam_log(PAM_LOG_DEBUG, "entering: %d", i_); \
+} while (0)
+#define ENTERN(n) do { \
+	int n_ = (n); \
+	openpam_log(PAM_LOG_DEBUG, "entering: %d", n_); \
+} while (0)
+#define ENTERS(s) do { \
+	const char *s_ = (s); \
+	if (s_ == NULL) \
+		openpam_log(PAM_LOG_DEBUG, "entering: NULL"); \
+	else \
+		openpam_log(PAM_LOG_DEBUG, "entering: '%s'", s_); \
+} while (0)
+#define	RETURNV() openpam_log(PAM_LOG_DEBUG, "returning")
+#define RETURNC(c) do { \
+	int c_ = (c); \
+	if (c_ >= 0 && c_ < PAM_NUM_ERRORS) \
+		openpam_log(PAM_LOG_DEBUG, "returning %s", pam_err_name[c_]); \
+	else \
+		openpam_log(PAM_LOG_DEBUG, "returning %d!", c_); \
+	return (c_); \
+} while (0)
+#define	RETURNN(n) do { \
+	int n_ = (n); \
+	openpam_log(PAM_LOG_DEBUG, "returning %d", n_); \
+	return (n_); \
+} while (0)
+#define	RETURNP(p) do { \
+	const void *p_ = (p); \
+	if (p_ == NULL) \
+		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
+	else \
+		openpam_log(PAM_LOG_DEBUG, "returning %p", p_); \
+	return (p_); \
+} while (0)
+#define	RETURNS(s) do { \
+	const char *s_ = (s); \
+	if (s_ == NULL) \
+		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
+	else \
+		openpam_log(PAM_LOG_DEBUG, "returning '%s'", s_); \
+	return (s_); \
+} while (0)
+#else
+#define ENTER()
+#define ENTERI(i)
+#define ENTERN(n)
+#define ENTERS(s)
+#define RETURNV() return
+#define RETURNC(c) return (c)
+#define RETURNN(n) return (n)
+#define RETURNP(p) return (p)
+#define RETURNS(s) return (s)
 #endif
 
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <security/pam_appl.h>
-
-#include "openpam_impl.h"
-
-/*
- * Locate a matching dynamic or static module.
- */
-
-pam_module_t *
-openpam_load_module(const char *path)
-{
-	pam_module_t *module;
-
-	module = openpam_dynamic(path);
-	openpam_log(PAM_LOG_DEBUG, "%s dynamic %s",
-	    (module == NULL) ? "no" : "using", path);
-
-#ifdef OPENPAM_STATIC_MODULES
-	/* look for a static module */
-	if (module == NULL && strchr(path, '/') == NULL) {
-		module = openpam_static(path);
-		openpam_log(PAM_LOG_DEBUG, "%s static %s",
-		    (module == NULL) ? "no" : "using", path);
-	}
 #endif
-	if (module == NULL) {
-		openpam_log(PAM_LOG_ERROR, "no %s found", path);
-		return (NULL);
-	}
-	return (module);
-}
-
-
-/*
- * Release a module.
- * XXX highly thread-unsafe
- */
-
-static void
-openpam_release_module(pam_module_t *module)
-{
-	if (module == NULL)
-		return;
-	if (module->dlh == NULL)
-		/* static module */
-		return;
-	dlclose(module->dlh);
-	openpam_log(PAM_LOG_DEBUG, "releasing %s", module->path);
-	FREE(module->path);
-	FREE(module);
-}
-
-
-/*
- * Destroy a chain, freeing all its links and releasing the modules
- * they point to.
- */
-
-static void
-openpam_destroy_chain(pam_chain_t *chain)
-{
-	if (chain == NULL)
-		return;
-	openpam_destroy_chain(chain->next);
-	chain->next = NULL;
-	while (chain->optc--)
-		FREE(chain->optv[chain->optc]);
-	FREE(chain->optv);
-	openpam_release_module(chain->module);
-	chain->module = NULL;
-	FREE(chain);
-}
-
-
-/*
- * Clear the chains and release the modules
- */
-
-void
-openpam_clear_chains(pam_chain_t *policy[])
-{
-	int i;
-
-	for (i = 0; i < PAM_NUM_FACILITIES; ++i) {
-		openpam_destroy_chain(policy[i]);
-		policy[i] = NULL;
-	}
-}
-
-/*
- * NOPARSE
- */
