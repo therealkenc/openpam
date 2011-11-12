@@ -40,11 +40,6 @@
 
 #include <security/openpam.h>
 
-extern const char *pam_func_name[PAM_NUM_PRIMITIVES];
-extern const char *pam_sm_func_name[PAM_NUM_PRIMITIVES];
-extern const char *pam_err_name[PAM_NUM_ERRORS];
-extern const char *pam_item_name[PAM_NUM_ITEMS];
-
 extern int openpam_debug;
 
 /*
@@ -71,6 +66,9 @@ typedef enum {
 	PAM_NUM_FACILITIES
 } pam_facility_t;
 
+/*
+ * Module chains
+ */
 typedef struct pam_chain pam_chain_t;
 struct pam_chain {
 	pam_module_t	*module;
@@ -80,6 +78,21 @@ struct pam_chain {
 	pam_chain_t	*next;
 };
 
+/*
+ * Service policies
+ */
+#if defined(OPENPAM_EMBEDDED)
+typedef struct pam_policy pam_policy_t;
+struct pam_policy {
+	const char	*service;
+	pam_chain_t	*chains[PAM_NUM_FACILITIES];
+};
+extern pam_policy_t *pam_embedded_policies[];
+#endif
+
+/*
+ * Module-specific data
+ */
 typedef struct pam_data pam_data_t;
 struct pam_data {
 	char		*name;
@@ -88,6 +101,9 @@ struct pam_data {
 	pam_data_t	*next;
 };
 
+/*
+ * PAM context
+ */
 struct pam_handle {
 	char		*service;
 
@@ -107,6 +123,9 @@ struct pam_handle {
 };
 
 #ifdef NGROUPS_MAX
+/*
+ * Saved credentials
+ */
 #define PAM_SAVED_CRED "pam_saved_cred"
 struct pam_saved_cred {
 	uid_t	 euid;
@@ -116,8 +135,14 @@ struct pam_saved_cred {
 };
 #endif
 
+/*
+ * Default policy
+ */
 #define PAM_OTHER	"other"
 
+/*
+ * Internal functions
+ */
 int		 openpam_configure(pam_handle_t *, const char *);
 int		 openpam_dispatch(pam_handle_t *, int, int);
 int		 openpam_findenv(pam_handle_t *, const char *, size_t);
@@ -131,66 +156,7 @@ pam_module_t	*openpam_dynamic(const char *);
 
 #define	FREE(p) do { free((p)); (p) = NULL; } while (0)
 
-#ifdef OPENPAM_DEBUG
-#define ENTER() openpam_log(PAM_LOG_DEBUG, "entering")
-#define ENTERI(i) do { \
-	int i_ = (i); \
-	if (i_ > 0 && i_ < PAM_NUM_ITEMS) \
-		openpam_log(PAM_LOG_DEBUG, "entering: %s", pam_item_name[i_]); \
-	else \
-		openpam_log(PAM_LOG_DEBUG, "entering: %d", i_); \
-} while (0)
-#define ENTERN(n) do { \
-	int n_ = (n); \
-	openpam_log(PAM_LOG_DEBUG, "entering: %d", n_); \
-} while (0)
-#define ENTERS(s) do { \
-	const char *s_ = (s); \
-	if (s_ == NULL) \
-		openpam_log(PAM_LOG_DEBUG, "entering: NULL"); \
-	else \
-		openpam_log(PAM_LOG_DEBUG, "entering: '%s'", s_); \
-} while (0)
-#define	RETURNV() openpam_log(PAM_LOG_DEBUG, "returning")
-#define RETURNC(c) do { \
-	int c_ = (c); \
-	if (c_ >= 0 && c_ < PAM_NUM_ERRORS) \
-		openpam_log(PAM_LOG_DEBUG, "returning %s", pam_err_name[c_]); \
-	else \
-		openpam_log(PAM_LOG_DEBUG, "returning %d!", c_); \
-	return (c_); \
-} while (0)
-#define	RETURNN(n) do { \
-	int n_ = (n); \
-	openpam_log(PAM_LOG_DEBUG, "returning %d", n_); \
-	return (n_); \
-} while (0)
-#define	RETURNP(p) do { \
-	const void *p_ = (p); \
-	if (p_ == NULL) \
-		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
-	else \
-		openpam_log(PAM_LOG_DEBUG, "returning %p", p_); \
-	return (p_); \
-} while (0)
-#define	RETURNS(s) do { \
-	const char *s_ = (s); \
-	if (s_ == NULL) \
-		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
-	else \
-		openpam_log(PAM_LOG_DEBUG, "returning '%s'", s_); \
-	return (s_); \
-} while (0)
-#else
-#define ENTER()
-#define ENTERI(i)
-#define ENTERN(n)
-#define ENTERS(s)
-#define RETURNV() return
-#define RETURNC(c) return (c)
-#define RETURNN(n) return (n)
-#define RETURNP(p) return (p)
-#define RETURNS(s) return (s)
-#endif
+#include "openpam_constants.h"
+#include "openpam_debug.h"
 
 #endif

@@ -50,21 +50,6 @@
 #include "openpam_impl.h"
 #include "openpam_strlcmp.h"
 
-const char *pam_facility_name[PAM_NUM_FACILITIES] = {
-	[PAM_ACCOUNT]		= "account",
-	[PAM_AUTH]		= "auth",
-	[PAM_PASSWORD]		= "password",
-	[PAM_SESSION]		= "session",
-};
-
-const char *pam_control_flag_name[PAM_NUM_CONTROL_FLAGS] = {
-	[PAM_BINDING]		= "binding",
-	[PAM_OPTIONAL]		= "optional",
-	[PAM_REQUIRED]		= "required",
-	[PAM_REQUISITE]		= "requisite",
-	[PAM_SUFFICIENT]	= "sufficient",
-};
-
 static int openpam_load_chain(pam_handle_t *, const char *, pam_facility_t);
 
 /*

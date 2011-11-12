@@ -7,6 +7,8 @@ INCLUDES = -I$(top_srcdir)/include
 lib_LTLIBRARIES = libpam.la
 
 noinst_HEADERS = \
+	openpam_constants.h \
+	openpam_debug.h \
 	openpam_impl.h \
 	openpam_strlcmp.h \
 	openpam_strlcpy.h
@@ -14,6 +16,7 @@ noinst_HEADERS = \
 libpam_la_SOURCES = \
 	openpam_borrow_cred.c \
 	openpam_configure.c \
+	openpam_constants.c \
 	openpam_dispatch.c \
 	openpam_dynamic.c \
 	openpam_findenv.c \
