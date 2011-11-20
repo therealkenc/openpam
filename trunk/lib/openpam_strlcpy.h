@@ -33,7 +33,7 @@
 #ifndef HAVE_STRLCPY
 /* like strcpy(3), but always NUL-terminates; returns strlen(src) */
 size_t
-strlcpy(const char *dst, const char *src, size_t size)
+strlcpy(char *dst, const char *src, size_t size)
 {
 	size_t len;
 
