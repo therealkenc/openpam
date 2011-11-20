@@ -104,7 +104,7 @@ try_dlopen(const char *modfn)
 	ok = (check_owner_perms(dirname(moddn)) == 0 &&
 	    check_owner_perms(modfn) == 0);
 	serrno = errno;
-	free(moddn);
+	FREE(moddn);
 	errno = serrno;
 	return (ok ? dlopen(modfn, RTLD_NOW) : NULL);
 }
