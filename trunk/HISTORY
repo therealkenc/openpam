@@ -17,6 +17,9 @@ OpenPAM Lycopsida						2011-??-??
  - ENHANCE: rewrote the policy parser to support quoted option values.
 
  - ENHANCE: added pamtest(1), a tool for testing modules and policies.
+
+ - ENHANCE: added code to check the ownership and permissions of a
+   module before loading it.
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
 
