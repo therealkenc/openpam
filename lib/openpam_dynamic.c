@@ -39,10 +39,16 @@
 # include "config.h"
 #endif
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <dlfcn.h>
+#include <errno.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <security/pam_appl.h>
 
@@ -52,6 +58,57 @@
 #define RTLD_NOW RTLD_LAZY
 #endif
 
+/*
+ * OpenPAM internal
+ *
+ * Verify that a file or directory is owned by either root or the
+ * arbitrator and that it is not writable by group or other.
+ */
+
+static int
+check_owner_perms(const char *path)
+{
+	struct stat sb;
+
+	if (stat(path, &sb) != 0)
+		return (-1);
+	if ((sb.st_uid != 0 && sb.st_uid != geteuid()) ||
+	    (sb.st_mode & (S_IWGRP|S_IWOTH)) != 0) {
+		openpam_log(PAM_LOG_ERROR,
+		    "%s: insecure ownership or permissions", path);
+		errno = EPERM;
+		return (-1);
+	}
+	return (0);
+}
+
+/*
+ * OpenPAM internal
+ *
+ * Perform sanity checks and attempt to load a module
+ */
+
+static void *
+try_dlopen(const char *modfn)
+{
+	char *moddn;
+	int ok, serrno;
+
+	/*
+	 * BSD dirname(3) returns a pointer to a static buffer, while GNU
+	 * dirname(3) modifies the input string.  Use a copy of the string
+	 * so both cases work.
+	 */
+	if ((moddn = strdup(modfn)) == NULL)
+		return (NULL);
+	ok = (check_owner_perms(dirname(moddn)) == 0 &&
+	    check_owner_perms(modfn) == 0);
+	serrno = errno;
+	free(moddn);
+	errno = serrno;
+	return (ok ? dlopen(modfn, RTLD_NOW) : NULL);
+}
+    
 /*
  * OpenPAM internal
  *
@@ -66,7 +123,7 @@ openpam_dynamic(const char *path)
 	const char *prefix;
 	char *vpath;
 	void *dlh;
-	int i;
+	int i, serrno;
 
 	dlh = NULL;
 
@@ -79,16 +136,15 @@ openpam_dynamic(const char *path)
 	/* try versioned module first, then unversioned module */
 	if (asprintf(&vpath, "%s%s.%d", prefix, path, LIB_MAJ) < 0)
 		goto err;
-	if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
-		openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
+	if ((dlh = try_dlopen(vpath)) == NULL && errno == ENOENT) {
 		*strrchr(vpath, '.') = '\0';
-		if ((dlh = dlopen(vpath, RTLD_NOW)) == NULL) {
-			openpam_log(PAM_LOG_DEBUG, "%s: %s", vpath, dlerror());
-			FREE(vpath);
-			return (NULL);
-		}
+		dlh = try_dlopen(vpath);
 	}
+	serrno = errno;
 	FREE(vpath);
+	errno = serrno;
+	if (dlh == NULL)
+		goto err;
 	if ((module = calloc(1, sizeof *module)) == NULL)
 		goto buf_err;
 	if ((module->path = strdup(path)) == NULL)
