@@ -556,6 +556,11 @@ openpam_configure(pam_handle_t *pamh,
 	const char *service)
 {
 	pam_facility_t fclt;
+	const char *p;
+
+	for (p = service; *p; ++p)
+		if (!is_pfcs(*p))
+			return (PAM_SYSTEM_ERR);
 
 	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) != PAM_SUCCESS)
 		goto load_err;
