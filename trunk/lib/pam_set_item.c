@@ -70,6 +70,10 @@ pam_set_item(pam_handle_t *pamh,
 	osize = nsize = 0;
 	switch (item_type) {
 	case PAM_SERVICE:
+		/* set once only, by pam_start() */
+		if (*slot != NULL)
+			RETURNC(PAM_SYSTEM_ERR);
+		/* fall through */
 	case PAM_USER:
 	case PAM_AUTHTOK:
 	case PAM_OLDAUTHTOK:
