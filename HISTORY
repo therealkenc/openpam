@@ -20,6 +20,9 @@ OpenPAM Lycopsida						2011-??-??
 
  - ENHANCE: added code to check the ownership and permissions of a
    module before loading it.
+
+ - ENHANCE: added / improved input validation in many cases, including
+   the policy file and some function arguments.
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
 
