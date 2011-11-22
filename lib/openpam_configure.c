@@ -370,6 +370,10 @@ openpam_parse_chain(pam_handle_t *pamh,
 		    "%s: %m", filename);
 		return (PAM_SUCCESS);
 	}
+	if (openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
+		fclose(f);
+		return (PAM_SYSTEM_ERR);
+	}
 	this = NULL;
 	name = NULL;
 	lineno = 0;
