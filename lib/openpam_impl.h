@@ -149,6 +149,9 @@ int		 openpam_findenv(pam_handle_t *, const char *, size_t);
 pam_module_t	*openpam_load_module(const char *);
 void		 openpam_clear_chains(pam_chain_t **);
 
+int		 openpam_check_desc_owner_perms(const char *, int);
+int		 openpam_check_path_owner_perms(const char *);
+
 #ifdef OPENPAM_STATIC_MODULES
 pam_module_t	*openpam_static(const char *);
 #endif

@@ -15,6 +15,7 @@ noinst_HEADERS = \
 
 libpam_la_SOURCES = \
 	openpam_borrow_cred.c \
+	openpam_check_owner_perms.c \
 	openpam_configure.c \
 	openpam_constants.c \
 	openpam_dispatch.c \
