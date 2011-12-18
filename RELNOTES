@@ -1,8 +1,8 @@
 
-		 Release notes for OpenPAM Hydrangea
+		 Release notes for OpenPAM Lycopsida
 		 ===================================
 
-This release corresponds to the code used in FreeBSD-CURRENT as of the
+This release corresponds to the code used in FreeBSD HEAD as of the
 release date, and is also expected to work on almost any POSIX-like
 platform that has GNU autotools, GNU make and the GNU compiler suite
 installed.
@@ -16,7 +16,8 @@ of date.
 The distribution also includes three sample modules (pam_deny,
 pam_permit and pam_unix) and a sample application (su).  These are not
 intended for actual use, but rather to serve as examples for module or
-application developers.
+application developers.  It also includes a command-line application
+(pamtest) which can be used to test policies and modules.
 
 Please direct bug reports and inquiries to <des@des.no>.
 
