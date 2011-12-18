@@ -58,7 +58,7 @@ AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR,
 AC_SUBST(OPENPAM_MODULES_DIR)
 
 AC_ARG_WITH([doc],
-    AC_HELP_STRING([--with-doc], [build documentation]),
+    AC_HELP_STRING([--without-doc], [do not build documentation]),
     [],
     [with_doc=yes])
 AM_CONDITIONAL([WITH_DOC], [test x"$with_doc" = x"yes"])
