@@ -1,4 +1,4 @@
-OpenPAM Lycopsida						2011-??-??
+OpenPAM Lycopsida						2011-12-18
 
  - ENHANCE: removed static build autodetection, which didn't work
    anyway.  Use an explicit, user-specified preprocessor variable
