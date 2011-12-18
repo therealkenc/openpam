@@ -84,15 +84,11 @@ pam_start(const char *service,
 		goto fail;
 	if ((r = pam_set_item(ph, PAM_CONV, pam_conv)) != PAM_SUCCESS)
 		goto fail;
-
-	r = openpam_configure(ph, service);
-	if (r != PAM_SUCCESS)
+	if ((r = openpam_configure(ph, service)) != PAM_SUCCESS)
 		goto fail;
-
 	*pamh = ph;
 	openpam_log(PAM_LOG_DEBUG, "pam_start(\"%s\") succeeded", service);
 	RETURNC(PAM_SUCCESS);
-
 fail:
 	pam_end(ph, r);
 	RETURNC(r);
