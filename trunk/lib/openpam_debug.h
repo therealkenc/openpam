@@ -73,7 +73,7 @@
 	return (n_); \
 } while (0)
 #define	RETURNP(p) do { \
-	const void *p_ = (p); \
+	void *p_ = (p); \
 	if (p_ == NULL) \
 		openpam_log(PAM_LOG_DEBUG, "returning NULL"); \
 	else \
