@@ -261,8 +261,8 @@ static void
 usage(void)
 {
 
-	fprintf(stderr, "usage: pamtest [-dksv] %s\n",
-	    "[-H rhost] [-h host] [-t tty] [-U ruser] [-u user] service");
+	fprintf(stderr, "usage: pamtest %s service command ...\n",
+	    "[-dksv] [-H rhost] [-h host] [-t tty] [-U ruser] [-u user]");
 	exit(1);
 }
 
