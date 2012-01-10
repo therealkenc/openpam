@@ -40,6 +40,7 @@
 #endif
 
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,14 +61,44 @@
  * Perform sanity checks and attempt to load a module
  */
 
+#ifdef HAVE_FDLOPEN
 static void *
 try_dlopen(const char *modfn)
 {
+	void *dlh;
+	int fd;
+
+	if ((fd = open(modfn, O_RDONLY)) < 0)
+		return (NULL);
+	if (openpam_check_desc_owner_perms(modfn, fd) != 0) {
+		close(fd);
+		return (NULL);
+	}
+	if ((dlh = fdlopen(fd, RTLD_NOW)) == NULL) {
+		openpam_log(PAM_LOG_ERROR, "%s: %s", modfn, dlerror());
+		close(fd);
+		errno = 0;
+		return (NULL);
+	}
+	close(fd);
+	return (dlh);
+}
+#else
+static void *
+try_dlopen(const char *modfn)
+{
+	void *dlh;
 
 	if (openpam_check_path_owner_perms(modfn) != 0)
 		return (NULL);
-	return (dlopen(modfn, RTLD_NOW));
+	if ((dlh = dlopen(modfn, RTLD_NOW)) == NULL) {
+		openpam_log(PAM_LOG_ERROR, "%s: %s", modfn, dlerror());
+		errno = 0;
+		return (NULL);
+	}
+	return (dlh);
 }
+#endif
     
 /*
  * OpenPAM internal
@@ -124,7 +155,8 @@ buf_err:
 		dlclose(dlh);
 	FREE(module);
 err:
-	openpam_log(PAM_LOG_ERROR, "%m");
+	if (errno != 0)
+		openpam_log(PAM_LOG_ERROR, "%s: %m", path);
 	return (NULL);
 }
 
