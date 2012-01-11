@@ -163,6 +163,7 @@ openpam_readline(FILE *_f,
  * Log levels
  */
 enum {
+	PAM_LOG_LIBDEBUG = -1,
 	PAM_LOG_DEBUG,
 	PAM_LOG_VERBOSE,
 	PAM_LOG_NOTICE,
