@@ -39,6 +39,8 @@
 # include "config.h"
 #endif
 
+#include <sys/param.h>
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -349,11 +351,16 @@ typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
 
 /*
  * Extracts given chains from a policy file.
+ *
+ * Returns the number of policy entries which were found for the specified
+ * service and facility, or -1 if a system error occurred or a syntax
+ * error was encountered.
  */
 static int
 openpam_parse_chain(pam_handle_t *pamh,
 	const char *service,
 	pam_facility_t facility,
+	FILE *f,
 	const char *filename,
 	openpam_style_t style)
 {
@@ -362,18 +369,9 @@ openpam_parse_chain(pam_handle_t *pamh,
 	pam_control_t ctlf;
 	char *line, *str, *name;
 	char *option, **optv;
-	int len, lineno, ret;
-	FILE *f;
+	int count, len, lineno, ret, serrno;
 
-	if ((f = fopen(filename, "r")) == NULL) {
-		openpam_log(errno == ENOENT ? PAM_LOG_DEBUG : PAM_LOG_NOTICE,
-		    "%s: %m", filename);
-		return (PAM_SUCCESS);
-	}
-	if (openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
-		fclose(f);
-		return (PAM_SYSTEM_ERR);
-	}
+	count = 0;
 	this = NULL;
 	name = NULL;
 	lineno = 0;
@@ -423,7 +421,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 			}
 			ret = openpam_load_chain(pamh, name, fclt);
 			FREE(name);
-			if (ret != PAM_SUCCESS)
+			if (ret < 0)
 				goto fail;
 			FREE(line);
 			continue;
@@ -484,6 +482,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 			/* nothing */ ;
 		*next = this;
 		this = NULL;
+		++count;
 
 		/* next please... */
 		FREE(line);
@@ -491,10 +490,14 @@ openpam_parse_chain(pam_handle_t *pamh,
 	if (!feof(f))
 		goto syserr;
 	fclose(f);
-	return (PAM_SUCCESS);
+	return (count);
 syserr:
+	serrno = errno;
 	openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
+	errno = serrno;
+	/* fall through */
 fail:
+	serrno = errno;
 	if (this && this->optc) {
 		while (this->optc--)
 			FREE(this->optv[this->optc]);
@@ -503,8 +506,8 @@ fail:
 	FREE(this);
 	FREE(line);
 	FREE(name);
-	fclose(f);
-	return (PAM_SYSTEM_ERR);
+	errno = serrno;
+	return (-1);
 }
 
 static const char *openpam_policy_path[] = {
@@ -518,6 +521,10 @@ static const char *openpam_policy_path[] = {
 /*
  * Locates the policy file for a given service and reads the given chains
  * from it.
+ *
+ * Returns the number of policy entries which were found for the specified
+ * service and facility, or -1 if a system error occurred or a syntax
+ * error was encountered.
  */
 static int
 openpam_load_chain(pam_handle_t *pamh,
@@ -525,28 +532,59 @@ openpam_load_chain(pam_handle_t *pamh,
 	pam_facility_t facility)
 {
 	const char **path;
-	char *filename;
+	char filename[PATH_MAX];
 	size_t len;
-	int ret;
+	openpam_style_t style;
+	FILE *f;
+	int ret, serrno;
 
+	ENTERS(facility < 0 ? "any" : pam_facility_name[facility]);
 	for (path = openpam_policy_path; *path != NULL; ++path) {
-		len = strlen(*path);
-		if ((*path)[len - 1] == '/') {
-			if (asprintf(&filename, "%s%s", *path, service) < 0) {
-				openpam_log(PAM_LOG_ERROR, "asprintf(): %m");
-				return (PAM_BUF_ERR);
+		/* construct filename */
+		len = strlcpy(filename, *path, sizeof filename);
+		if (filename[len - 1] == '/') {
+			len = strlcat(filename, service, sizeof filename);
+			if (len >= sizeof filename) {
+				errno = ENAMETOOLONG;
+				RETURNN(-1);
 			}
-			ret = openpam_parse_chain(pamh, service, facility,
-			    filename, pam_d_style);
-			FREE(filename);
+			style = pam_d_style;
 		} else {
-			ret = openpam_parse_chain(pamh, service, facility,
-			    *path, pam_conf_style);
+			style = pam_conf_style;
 		}
-		if (ret != PAM_SUCCESS)
-			return (ret);
+
+		/* attempt to open the file */
+		if ((f = fopen(filename, "r")) == NULL) {
+			if (errno == ENOENT || errno == ENOTDIR) {
+				openpam_log(PAM_LOG_DEBUG, "%s: %m", filename);
+				continue;
+			} else {
+				serrno = errno;
+				openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
+				errno = serrno;
+				RETURNN(-1);
+			}
+		} else {
+			openpam_log(PAM_LOG_DEBUG, "found %s", filename);
+		}
+
+		/* verify type, ownership and permissions */
+		if (openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
+			serrno = errno;
+			fclose(f);
+			errno = serrno;
+			RETURNN(-1);
+		}
+
+		/* parse the file */
+		ret = openpam_parse_chain(pamh, service, facility,
+		    f, filename, style);
+
+		/* in pam.d style, an empty file counts as a hit */
+		if (ret != 0 || style == pam_d_style)
+			RETURNN(ret);
 	}
-	return (PAM_SUCCESS);
+	RETURNN(0);
 }
 
 /*
@@ -561,24 +599,26 @@ openpam_configure(pam_handle_t *pamh,
 {
 	pam_facility_t fclt;
 	const char *p;
+	int serrno;
 
+	ENTERS(service);
 	for (p = service; *p; ++p)
 		if (!is_pfcs(*p))
-			return (PAM_SYSTEM_ERR);
-
-	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) != PAM_SUCCESS)
+			RETURNC(PAM_SYSTEM_ERR);
+	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) < 0)
 		goto load_err;
-
 	for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt) {
 		if (pamh->chains[fclt] != NULL)
 			continue;
-		if (openpam_load_chain(pamh, PAM_OTHER, fclt) != PAM_SUCCESS)
+		if (openpam_load_chain(pamh, PAM_OTHER, fclt) < 0)
 			goto load_err;
 	}
-	return (PAM_SUCCESS);
+	RETURNC(PAM_SUCCESS);
 load_err:
+	serrno = errno;
 	openpam_clear_chains(pamh->chains);
-	return (PAM_SYSTEM_ERR);
+	errno = serrno;
+	RETURNC(PAM_SYSTEM_ERR);
 }
 
 /*
