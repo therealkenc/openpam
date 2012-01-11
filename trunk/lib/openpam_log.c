@@ -138,6 +138,9 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
  * The =level argument indicates the importance of the message.
  * The following levels are defined:
  *
+ *	=PAM_LOG_LIBDEBUG:
+ *		Debugging messages.
+ *		For internal use only.
  *	=PAM_LOG_DEBUG:
  *		Debugging messages.
  *		These messages are normally not logged unless the global
