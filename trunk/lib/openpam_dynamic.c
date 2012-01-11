@@ -99,7 +99,7 @@ try_dlopen(const char *modfn)
 	return (dlh);
 }
 #endif
-    
+
 /*
  * OpenPAM internal
  *
@@ -131,9 +131,6 @@ openpam_dynamic(const char *path)
 		*strrchr(vpath, '.') = '\0';
 		dlh = try_dlopen(vpath);
 	}
-	serrno = errno;
-	FREE(vpath);
-	errno = serrno;
 	if (dlh == NULL)
 		goto err;
 	if ((module = calloc(1, sizeof *module)) == NULL)
@@ -164,14 +161,20 @@ openpam_dynamic(const char *path)
 #endif
 		}
 	}
+	FREE(vpath);
 	return (module);
 buf_err:
+	serrno = errno;
 	if (dlh != NULL)
 		dlclose(dlh);
 	FREE(module);
+	errno = serrno;
 err:
+	serrno = errno;
 	if (errno != 0)
-		openpam_log(PAM_LOG_ERROR, "%s: %m", path);
+		openpam_log(PAM_LOG_ERROR, "%s: %m", vpath);
+	FREE(vpath);
+	errno = serrno;
 	return (NULL);
 }
 
