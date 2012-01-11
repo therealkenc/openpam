@@ -71,6 +71,7 @@ openpam_log(int level, const char *fmt, ...)
 	int priority;
 
 	switch (level) {
+	case PAM_LOG_LIBDEBUG:
 	case PAM_LOG_DEBUG:
 		if (!openpam_debug)
 			return;
