@@ -148,9 +148,20 @@ openpam_dynamic(const char *path)
 		} else {
 			module->func[i] =
 			    (pam_func_t)dlsym(dlh, pam_sm_func_name[i]);
+			/*
+			 * This openpam_log() call is a major source of
+			 * log spam, and the cases that matter are caught
+			 * and logged in openpam_dispatch().  This would
+			 * be less problematic if dlerror() returned an
+			 * error code so we could log an error only when
+			 * dlsym() failed for a reason other than "no such
+			 * symbol".
+			 */
+#if 0
 			if (module->func[i] == NULL)
 				openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
 				    path, pam_sm_func_name[i], dlerror());
+#endif
 		}
 	}
 	return (module);
