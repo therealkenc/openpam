@@ -69,17 +69,17 @@ prompt(const char *msg)
 {
 	char buf[PAM_MAX_RESP_SIZE];
 	struct sigaction action, saved_action;
-	sigset_t saved_sigset, sigset;
+	sigset_t saved_sigset, the_sigset;
 	unsigned int saved_alarm;
 	int eof, error, fd;
 	size_t len;
 	char *retval;
 	char ch;
 
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGINT);
-	sigaddset(&sigset, SIGTSTP);
-	sigprocmask(SIG_SETMASK, &sigset, &saved_sigset);
+	sigemptyset(&the_sigset);
+	sigaddset(&the_sigset, SIGINT);
+	sigaddset(&the_sigset, SIGTSTP);
+	sigprocmask(SIG_SETMASK, &the_sigset, &saved_sigset);
 	action.sa_handler = &timeout;
 	action.sa_flags = 0;
 	sigemptyset(&action.sa_mask);
