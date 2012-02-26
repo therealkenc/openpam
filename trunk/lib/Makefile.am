@@ -31,6 +31,7 @@ libpam_la_SOURCES = \
 	openpam_restore_cred.c \
 	openpam_set_option.c \
 	openpam_static.c \
+	openpam_straddch.c \
 	openpam_subst.c \
 	openpam_ttyconv.c \
 	pam_acct_mgmt.c \
