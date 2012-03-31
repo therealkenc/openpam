@@ -311,7 +311,7 @@ sub parse_source($) {
 	    $inliteral = 0;
 	}
 	$man =~ s/\%/\\&\%/gs;
-	$man =~ s/(\n\.[A-Z][a-z] [\w ]+)\n([\.,:;-]\S*)\s*/$1 $2\n/gs;
+	$man =~ s/(\n\.[A-Z][a-z] [\w ]+)\n([.,:;-])\s+/$1 $2\n/gs;
 	$man =~ s/\s*$/\n/gm;
 	$man =~ s/\n+/\n/gs;
 	$man =~ s/\0//gs;
