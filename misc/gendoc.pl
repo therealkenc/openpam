@@ -450,30 +450,34 @@ sub gendoc($) {
 .Sh DESCRIPTION
 $func->{'man'}
 ";
-    if ($func->{'type'} eq "int") {
+    my @errors = @{$func->{'errors'}};
+    if ($func->{'type'} eq "int" && @errors) {
 	$mdoc .= ".Sh RETURN VALUES
 The
 .Nm
 function returns one of the following values:
 .Bl -tag -width 18n
 ";
-	my @errors = @{$func->{'errors'}};
-	warn("$func->{'name'}(): no error specification\n")
-	    unless(@errors);
 	foreach (@errors) {
 	    $mdoc .= ".It Bq Er $_\n$PAMERR{$_}.\n";
 	}
 	$mdoc .= ".El\n";
-    } else {
-	if ($func->{'type'} =~ m/\*$/) {
-	    $mdoc .= ".Sh RETURN VALUES
+    } elsif ($func->{'type'} eq "int") {
+	$mdoc .= ".Sh RETURN VALUES
+The
+.Nm
+function returns 0 on success and -1 on failure.
+";
+    } elsif ($func->{'type'} =~ m/\*$/) {
+	$mdoc .= ".Sh RETURN VALUES
 The
 .Nm
 function returns
 .Dv NULL
 on failure.
 ";
-	}
+    } elsif ($func->{'type'} ne "void") {
+	warn("$func->{'name'}(): no error specification\n");
     }
     $mdoc .= ".Sh SEE ALSO\n" . genxref($func->{'xref'});
     $mdoc .= ".Sh STANDARDS\n";
