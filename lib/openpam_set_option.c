@@ -46,7 +46,6 @@
 #include <string.h>
 
 #include <security/pam_appl.h>
-#include <security/openpam.h>
 
 #include "openpam_impl.h"
 
