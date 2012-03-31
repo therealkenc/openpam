@@ -1,6 +1,6 @@
 # $Id$
 
-SUBDIRS =
+SUBDIRS = openpam_dump_policy
 
 if WITH_PAMTEST
 SUBDIRS += pamtest
