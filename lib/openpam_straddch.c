@@ -61,7 +61,7 @@ openpam_straddch(char **str, size_t *size, size_t *len, int ch)
 		*str = tmpstr;
 		*size = tmpsize;
 		*len = 0;
-	} else if (*len >= *size - 1) {
+	} else if (*len + 1 >= *size) {
 		/* additional space required */
 		tmpsize = *size * 2;
 		if ((tmpstr = realloc(*str, tmpsize)) == NULL) {
