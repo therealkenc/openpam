@@ -34,7 +34,10 @@
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
+
 #include "openpam_impl.h"
+
+#define MIN_STR_SIZE	32
 
 /*
  * OpenPAM extension
@@ -45,24 +48,28 @@
 int
 openpam_straddch(char **str, size_t *size, size_t *len, char ch)
 {
-	char *tmp;
+	size_t tmpsize;
+	char *tmpstr;
 
 	if (*str == NULL) {
 		/* initial allocation */
-		if ((*str = malloc(*size = 32)) == NULL) {
+		tmpsize = MIN_STR_SIZE
+		if ((tmpstr = malloc(tmpsize)) == NULL) {
 			openpam_log(PAM_LOG_ERROR, "malloc(): %m");
 			return (-1);
 		}
+		*str = tmpstr;
+		*size = tmpsize;
 		*len = 0;
 	} else if (*len >= *size - 1) {
 		/* additional space required */
-		if ((tmp = realloc(*str, *size *= 2)) == NULL) {
+		tmpsize = *size * 2;
+		if ((tmpstr = realloc(*str, tmpsize)) == NULL) {
 			openpam_log(PAM_LOG_ERROR, "realloc(): %m");
-			free(*str);
-			*str = NULL;
 			return (-1);
 		}
-		*str = tmp;
+		size = tmpsize;
+		*str = tmpstr;
 	}
 	(*str)[*len] = ch;
 	++*len;
@@ -70,6 +77,27 @@ openpam_straddch(char **str, size_t *size, size_t *len, char ch)
 	return (0);
 }
 
-/*
- * NODOC
+/**
+ * The =openpam_straddch function appends a character to a dynamically
+ * allocated NUL-terminated buffer, reallocating the buffer as needed.
+ *
+ * The =str argument points to a variable containing either a pointer to
+ * an existing buffer or =NULL.
+ * If the value of the variable pointed to by =str is =NULL, a new buffer
+ * is allocated.
+ *
+ * The =size and =len argument point to variables used to hold the size
+ * of the buffer and the length of the string it contains, respectively.
+ *
+ * If a new buffer is allocated or an existing buffer is reallocated to
+ * make room for the additional character, =str and =size are updated
+ * accordingly.
+ *
+ * The =openpam_straddch function ensures that the buffer is always
+ * NUL-terminated.
+ *
+ * If the =openpam_straddch function is successful, it increments the
+ * integer variable pointed to by =len and returns 0.
+ * Otherwise, it leaves the variables pointed to by =str, =size and =len
+ * unmodified and returns -1.
  */
