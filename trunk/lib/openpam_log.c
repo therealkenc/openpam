@@ -39,11 +39,10 @@
 # include "config.h"
 #endif
 
-#include <ctype.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <syslog.h>
 
 #include <security/pam_appl.h>
@@ -101,6 +100,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 	va_list ap;
 	char *format;
 	int priority;
+	int serrno;
 
 	switch (level) {
 	case PAM_LOG_DEBUG:
@@ -120,10 +120,13 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 		break;
 	}
 	va_start(ap, fmt);
+	serrno = errno;
 	if (asprintf(&format, "in %s(): %s", func, fmt) > 0) {
+		errno = serrno;
 		vsyslog(priority, format, ap);
 		FREE(format);
 	} else {
+		errno = serrno;
 		vsyslog(priority, fmt, ap);
 	}
 	va_end(ap);
