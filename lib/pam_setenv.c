@@ -92,7 +92,7 @@ pam_setenv(pam_handle_t *pamh,
  */
 
 /**
- * The =pam_setenv function sets a environment variable.
+ * The =pam_setenv function sets an environment variable.
  * Its semantics are similar to those of =setenv, but it modifies the PAM
  * context's environment list instead of the application's.
  *
