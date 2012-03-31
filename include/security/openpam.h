@@ -157,6 +157,12 @@ openpam_readline(FILE *_f,
 	int *_lineno,
 	size_t *_lenp)
 	OPENPAM_NONNULL((1));
+
+int
+openpam_straddch(char **_str,
+    size_t *_sizep,
+    size_t *_lenp,
+    int ch);
 #endif
 
 /*

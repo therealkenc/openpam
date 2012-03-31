@@ -46,14 +46,14 @@
  */
 
 int
-openpam_straddch(char **str, size_t *size, size_t *len, char ch)
+openpam_straddch(char **str, size_t *size, size_t *len, int ch)
 {
 	size_t tmpsize;
 	char *tmpstr;
 
 	if (*str == NULL) {
 		/* initial allocation */
-		tmpsize = MIN_STR_SIZE
+		tmpsize = MIN_STR_SIZE;
 		if ((tmpstr = malloc(tmpsize)) == NULL) {
 			openpam_log(PAM_LOG_ERROR, "malloc(): %m");
 			return (-1);
@@ -68,7 +68,7 @@ openpam_straddch(char **str, size_t *size, size_t *len, char ch)
 			openpam_log(PAM_LOG_ERROR, "realloc(): %m");
 			return (-1);
 		}
-		size = tmpsize;
+		*size = tmpsize;
 		*str = tmpstr;
 	}
 	(*str)[*len] = ch;
