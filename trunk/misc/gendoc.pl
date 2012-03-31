@@ -474,7 +474,7 @@ $func->{'man'}
     } elsif ($func->{'type'} eq "int" && @errors) {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Nm
+.Fn $func->{'name'}
 function returns one of the following values:
 .Bl -tag -width 18n
 ";
@@ -485,13 +485,13 @@ function returns one of the following values:
     } elsif ($func->{'type'} eq "int") {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Nm
+.Fn $func->{'name'}
 function returns 0 on success and -1 on failure.
 ";
     } elsif ($func->{'type'} =~ m/\*$/) {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Nm
+.Fn $func->{'name'}
 function returns
 .Dv NULL
 on failure.
@@ -503,7 +503,7 @@ on failure.
     $mdoc .= ".Sh STANDARDS\n";
     if ($func->{'openpam'}) {
 	$mdoc .= "The
-.Nm
+.Fn $func->{'name'}
 function is an OpenPAM extension.
 ";
     } else {
@@ -515,7 +515,7 @@ function is an OpenPAM extension.
     }
     $mdoc .= ".Sh AUTHORS
 The
-.Nm
+.Fn $func->{'name'}
 function and this manual page were developed for the
 .Fx
 Project by\n" . $AUTHORS{$func->{'author'} // 'THINKSEC_DARPA'} . "\n";
