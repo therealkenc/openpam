@@ -111,6 +111,7 @@ AC_ARG_ENABLE([werror],
 
 AC_CONFIG_FILES([
     bin/Makefile
+    bin/openpam_dump_policy/Makefile
     bin/pamtest/Makefile
     bin/su/Makefile
     include/Makefile
