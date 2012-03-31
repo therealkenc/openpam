@@ -103,6 +103,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 	int serrno;
 
 	switch (level) {
+	case PAM_LOG_LIBDEBUG:
 	case PAM_LOG_DEBUG:
 		if (!openpam_debug)
 			return;
