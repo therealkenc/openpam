@@ -143,7 +143,6 @@ struct pam_saved_cred {
 /*
  * Internal functions
  */
-int		 openpam_straddch(char **, size_t *, size_t *, char);
 int		 openpam_configure(pam_handle_t *, const char *);
 int		 openpam_dispatch(pam_handle_t *, int, int);
 int		 openpam_findenv(pam_handle_t *, const char *, size_t);

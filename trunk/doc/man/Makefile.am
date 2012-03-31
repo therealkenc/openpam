@@ -44,6 +44,7 @@ OMAN = \
 	openpam_readline.3 \
 	openpam_restore_cred.3 \
 	openpam_set_option.3 \
+	openpam_straddch.3 \
 	openpam_subst.3 \
 	openpam_ttyconv.3 \
 	pam_error.3 \
