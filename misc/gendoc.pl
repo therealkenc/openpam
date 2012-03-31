@@ -195,7 +195,7 @@ sub parse_source($) {
     # separate argument names with |
     $argnames =~ s/\" \"/|/g;
     # and surround with ()
-    $argnames =~ s/^\"(.*)\"$/($1)/;
+    $argnames =~ s/^\"(.*)\"$/$1/;
     # $argnames is now a regexp that matches argument names
     $inliteral = $inlist = $intaglist = 0;
     foreach (split("\n", $source)) {
@@ -286,8 +286,8 @@ sub parse_source($) {
 	    $man .= "$_\n";
 	    next;
 	}
-	s/\s*=$func\b\s*/\n.Nm\n/gs;
-	s/\s*=$argnames\b\s*/\n.Fa $1\n/gs;
+	s/\s*=($func)\b\s*/\n.Fn $1\n/gs;
+	s/\s*=($argnames)\b\s*/\n.Fa $1\n/gs;
 	s/\s*=(struct \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
 	s/\s*:([a-z_]+)\b\s*/\n.Va $1\n/gs;
 	s/\s*;([a-z_]+)\b\s*/\n.Dv $1\n/gs;
