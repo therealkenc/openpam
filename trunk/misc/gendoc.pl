@@ -136,6 +136,7 @@ sub parse_source($) {
     my $inlist;
     my $intaglist;
     my $inliteral;
+    my $customrv;
     my %xref;
     my @errors;
     my $author;
@@ -211,12 +212,19 @@ sub parse_source($) {
 	s/\\(.)/$1/gs;
 	if (m/^$/) {
 	    # paragraph separator
+	    if ($inlist || $intaglist) {
+		# either a blank line between list items, or a blank
+		# line after the final list item.  The latter case
+		# will be handled further down.
+		next;
+	    }
+	    if ($man =~ m/\n\.Sh [^\n]+\n$/s) {
+		# a blank line after a section header
+		next;
+	    }
 	    if ($man ne "" && $man !~ m/\.Pp\n$/s) {
 		if ($inliteral) {
 		    $man .= "\0\n";
-		} elsif ($inlist || $intaglist) {
-		    $man .= ".El\n.Pp\n";
-		    $inlist = $intaglist = 0;
 		} else {
 		    $man .= ".Pp\n";
 		}
@@ -227,6 +235,14 @@ sub parse_source($) {
 	    # "see also" cross-reference
 	    my ($page, $sect) = ($1, $2 ? int($2) : 3);
 	    ++$xref{$sect}->{$page};
+	    next;
+	}
+	if (s/^([A-Z][0-9A-Z -]+)$/.Sh $1/) {
+	    if ($1 eq "RETURN VALUES") {
+		$customrv = $1;
+	    }
+	    $man =~ s/\n\.Pp$/\n/s;
+	    $man .= "$_\n";
 	    next;
 	}
 	if (s/^\s+-\s+//) {
@@ -291,6 +307,7 @@ sub parse_source($) {
 	s/\s*=(struct \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
 	s/\s*:([a-z_]+)\b\s*/\n.Va $1\n/gs;
 	s/\s*;([a-z_]+)\b\s*/\n.Dv $1\n/gs;
+	s/\s*=!([a-z_]+)\b\s*/\n.Xr $1 3\n/gs;
 	while (s/\s*=([a-z_]+)\b\s*/\n.Xr $1 3\n/s) {
 	    ++$xref{3}->{$1};
 	}
@@ -331,6 +348,7 @@ sub parse_source($) {
 	'xref'		=> \%xref,
 	'errors'	=> \@errors,
 	'author'	=> $author,
+	'customrv'	=> $customrv,
     };
     if ($source =~ m/^ \* NODOC\s*$/m) {
 	$FUNCTIONS{$func}->{'nodoc'} = 1;
@@ -451,7 +469,9 @@ sub gendoc($) {
 $func->{'man'}
 ";
     my @errors = @{$func->{'errors'}};
-    if ($func->{'type'} eq "int" && @errors) {
+    if ($func->{'customrv'}) {
+	# leave it
+    } elsif ($func->{'type'} eq "int" && @errors) {
 	$mdoc .= ".Sh RETURN VALUES
 The
 .Nm
