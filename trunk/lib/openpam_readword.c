@@ -85,6 +85,14 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 		} else if ((ch == '\'' || ch == '"') && !quote && !escape) {
 			/* begin quote */
 			quote = ch;
+			/* edge case: empty quoted string */
+			if (word == NULL && (word = malloc(1)) == NULL) {
+				openpam_log(PAM_LOG_ERROR, "malloc(): %m");
+				errno = ENOMEM;
+				return (NULL);
+			}
+			*word = '\0';
+			size = 1;
 		} else if (ch == quote && !escape) {
 			/* end quote */
 			quote = 0;
