@@ -28,6 +28,8 @@ libpam_la_SOURCES = \
 	openpam_log.c \
 	openpam_nullconv.c \
 	openpam_readline.c \
+	openpam_readlinev.c \
+	openpam_readword.c \
 	openpam_restore_cred.c \
 	openpam_set_option.c \
 	openpam_static.c \

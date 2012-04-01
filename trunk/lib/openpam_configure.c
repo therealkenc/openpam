@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 2001-2003 Networks Associates Technology, Inc.
- * Copyright (c) 2004-2011 Dag-Erling Smørgrav
+ * Copyright (c) 2004-2012 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -50,301 +50,79 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+#include "openpam_ctype.h"
 #include "openpam_strlcmp.h"
 
 static int openpam_load_chain(pam_handle_t *, const char *, pam_facility_t);
 
 /*
- * Evaluates to non-zero if the argument is a linear whitespace character.
- */
-#define is_lws(ch)				\
-	(ch == ' ' || ch == '\t')
-
-/*
- * Evaluates to non-zero if the argument is a printable ASCII character.
- * Assumes that the execution character set is a superset of ASCII.
- */
-#define is_p(ch) \
-	(ch >= '!' && ch <= '~')
-
-/*
- * Returns non-zero if the argument belongs to the POSIX Portable Filename
- * Character Set.  Assumes that the execution character set is a superset
- * of ASCII.
- */
-#define is_pfcs(ch)				\
-	((ch >= '0' && ch <= '9') ||		\
-	 (ch >= 'A' && ch <= 'Z') ||		\
-	 (ch >= 'a' && ch <= 'z') ||		\
-	 ch == '.' || ch == '_' || ch == '-')
-
-/*
- * Parse the service name.
+ * Validate a service name.
  *
- * Returns the length of the service name, or 0 if the end of the string
- * was reached or a disallowed non-whitespace character was encountered.
- *
- * If parse_service_name() is successful, it updates *service to point to
- * the first character of the service name and *line to point one
- * character past the end.  If it reaches the end of the string, it
- * updates *line to point to the terminating NUL character and leaves
- * *service unmodified.  In all other cases, it leaves both *line and
- * *service unmodified.
- *
- * Allowed characters are all characters in the POSIX portable filename
- * character set.
+ * Returns a non-zero value if the argument points to a NUL-terminated
+ * string consisting entirely of characters in the POSIX portable filename
+ * character set, excluding the path separator character.
  */
 static int
-parse_service_name(char **line, char **service)
+valid_service_name(const char *name)
 {
-	char *b, *e;
+	const char *p;
 
-	for (b = *line; *b && is_lws(*b); ++b)
-		/* nothing */ ;
-	if (!*b) {
-		*line = b;
-		return (0);
-	}
-	for (e = b; *e && !is_lws(*e); ++e)
-		if (!is_pfcs(*e))
+	for (p = name; *p != '\0'; ++p)
+		if (!is_pfcs(*p))
 			return (0);
-	if (e == b)
-		return (0);
-	*line = e;
-	*service = b;
-	return (e - b);
+	return (1);
 }
 
 /*
  * Parse the facility name.
  *
- * Returns the corresponding pam_facility_t value, or -1 if the end of the
- * string was reached, a disallowed non-whitespace character was
- * encountered, or the first word was not a recognized facility name.
- *
- * If parse_facility_name() is successful, it updates *line to point one
- * character past the end of the facility name.  If it reaches the end of
- * the string, it updates *line to point to the terminating NUL character.
- * In all other cases, it leaves *line unmodified.
+ * Returns the corresponding pam_facility_t value, or -1 if the argument
+ * is not a valid facility name.
  */
 static pam_facility_t
-parse_facility_name(char **line)
+parse_facility_name(const char *name)
 {
-	char *b, *e;
 	int i;
 
-	for (b = *line; *b && is_lws(*b); ++b)
-		/* nothing */ ;
-	if (!*b) {
-		*line = b;
-		return ((pam_facility_t)-1);
-	}
-	for (e = b; *e && !is_lws(*e); ++e)
-		/* nothing */ ;
-	if (e == b)
-		return ((pam_facility_t)-1);
 	for (i = 0; i < PAM_NUM_FACILITIES; ++i)
-		if (strlcmp(pam_facility_name[i], b, e - b) == 0)
-			break;
-	if (i == PAM_NUM_FACILITIES)
-		return ((pam_facility_t)-1);
-	*line = e;
-	return (i);
-}
-
-/*
- * Parse the word "include".
- *
- * If the next word on the line is "include", parse_include() updates
- * *line to point one character past "include" and returns 1.  Otherwise,
- * it leaves *line unmodified and returns 0.
- */
-static int
-parse_include(char **line)
-{
-	char *b, *e;
-
-	for (b = *line; *b && is_lws(*b); ++b)
-		/* nothing */ ;
-	if (!*b) {
-		*line = b;
-		return (-1);
-	}
-	for (e = b; *e && !is_lws(*e); ++e)
-		/* nothing */ ;
-	if (e == b)
-		return (0);
-	if (strlcmp("include", b, e - b) != 0)
-		return (0);
-	*line = e;
-	return (1);
+		if (strcmp(pam_facility_name[i], name) == 0)
+			return (i);
+	return ((pam_facility_t)-1);
 }
 
 /*
  * Parse the control flag.
  *
- * Returns the corresponding pam_control_t value, or -1 if the end of the
- * string was reached, a disallowed non-whitespace character was
- * encountered, or the first word was not a recognized control flag.
- *
- * If parse_control_flag() is successful, it updates *line to point one
- * character past the end of the control flag.  If it reaches the end of
- * the string, it updates *line to point to the terminating NUL character.
- * In all other cases, it leaves *line unmodified.
+ * Returns the corresponding pam_control_t value, or -1 if the argument is
+ * not a valid control flag name.
  */
 static pam_control_t
-parse_control_flag(char **line)
+parse_control_flag(const char *name)
 {
-	char *b, *e;
 	int i;
 
-	for (b = *line; *b && is_lws(*b); ++b)
-		/* nothing */ ;
-	if (!*b) {
-		*line = b;
-		return ((pam_control_t)-1);
-	}
-	for (e = b; *e && !is_lws(*e); ++e)
-		/* nothing */ ;
-	if (e == b)
-		return ((pam_control_t)-1);
 	for (i = 0; i < PAM_NUM_CONTROL_FLAGS; ++i)
-		if (strlcmp(pam_control_flag_name[i], b, e - b) == 0)
-			break;
-	if (i == PAM_NUM_CONTROL_FLAGS)
-		return ((pam_control_t)-1);
-	*line = e;
-	return (i);
+		if (strcmp(pam_control_flag_name[i], name) == 0)
+			return (i);
+	return ((pam_control_t)-1);
 }
 
 /*
- * Parse a file name.
+ * Validate a file name.
  *
- * Returns the length of the file name, or 0 if the end of the string was
- * reached or a disallowed non-whitespace character was encountered.
- *
- * If parse_filename() is successful, it updates *filename to point to the
- * first character of the filename and *line to point one character past
- * the end.  If it reaches the end of the string, it updates *line to
- * point to the terminating NUL character and leaves *filename unmodified.
- * In all other cases, it leaves both *line and *filename unmodified.
- *
- * Allowed characters are all characters in the POSIX portable filename
- * character set, plus the path separator (forward slash).
+ * Returns a non-zero value if the argument points to a NUL-terminated
+ * string consisting entirely of characters in the POSIX portable filename
+ * character set, including the path separator character.
  */
 static int
-parse_filename(char **line, char **filename)
+valid_filename(const char *name)
 {
-	char *b, *e;
+	const char *p;
 
-	for (b = *line; *b && is_lws(*b); ++b)
-		/* nothing */ ;
-	if (!*b) {
-		*line = b;
-		return (0);
-	}
-	for (e = b; *e && !is_lws(*e); ++e)
-		if (!is_pfcs(*e) && *e != '/')
+	for (p = name; *p != '\0'; ++p)
+		if (!is_pfcs(*p) && *p != '/')
 			return (0);
-	if (e == b)
-		return (0);
-	*line = e;
-	*filename = b;
-	return (e - b);
-}
-
-/*
- * Parse an option.
- *
- * Returns a dynamically allocated string containing the next module
- * option, or NULL if the end of the string was reached or a disallowed
- * non-whitespace character was encountered.
- *
- * If parse_option() is successful, it updates *line to point one
- * character past the end of the option.  If it reaches the end of the
- * string, it updates *line to point to the terminating NUL character.  In
- * all other cases, it leaves *line unmodified.
- *
- * If parse_option() fails to allocate memory, it will return NULL and set
- * errno to a non-zero value.
- *
- * Allowed characters for option names are all characters in the POSIX
- * portable filename character set.  Allowed characters for option values
- * are any printable non-whitespace characters.  The option value may be
- * quoted in either single or double quotes, in which case space
- * characters and whichever quote character was not used are allowed.
- * Note that the entire value must be quoted, not just part of it.
- */
-static char *
-parse_option(char **line)
-{
-	char *nb, *ne, *vb, *ve;
-	unsigned char q = 0;
-	char *option;
-	size_t size;
-
-	errno = 0;
-	for (nb = *line; *nb && is_lws(*nb); ++nb)
-		/* nothing */ ;
-	if (!*nb) {
-		*line = nb;
-		return (NULL);
-	}
-	for (ne = nb; *ne && !is_lws(*ne) && *ne != '='; ++ne)
-		if (!is_pfcs(*ne))
-			return (NULL);
-	if (ne == nb)
-		return (NULL);
-	if (*ne == '=') {
-		vb = ne + 1;
-		if (*vb == '"' || *vb == '\'')
-			q = *vb++;
-		for (ve = vb;
-		     *ve && *ve != q && (is_p(*ve) || (q && is_lws(*ve)));
-		     ++ve)
-			/* nothing */ ;
-		if (q && *ve != q)
-			/* non-printable character or missing endquote */
-			return (NULL);
-		if (q && *(ve + 1) && !is_lws(*(ve + 1)))
-			/* garbage after value */
-			return (NULL);
-	} else {
-		vb = ve = ne;
-	}
-	size = (ne - nb) + 1;
-	if (ve > vb)
-		size += (ve - vb) + 1;
-	if ((option = malloc(size)) == NULL)
-		return (NULL);
-	strncpy(option, nb, ne - nb);
-	if (ve > vb) {
-		option[ne - nb] = '=';
-		strncpy(option + (ne - nb) + 1, vb, ve - vb);
-	}
-	option[size - 1] = '\0';
-	*line = q ? ve + 1 : ve;
-	return (option);
-}
-
-/*
- * Consume trailing whitespace.
- *
- * If there are no non-whitespace characters left on the line, parse_eol()
- * updates *line to point at the terminating NUL character and returns 0.
- * Otherwise, it leaves *line unmodified and returns a non-zero value.
- */
-static int
-parse_eol(char **line)
-{
-	char *p;
-
-	for (p = *line; *p && is_lws(*p); ++p)
-		/* nothing */ ;
-	if (*p)
-		return ((unsigned char)*p);
-	*line = p;
-	return (0);
+	return (1);
 }
 
 typedef enum { pam_conf_style, pam_d_style } openpam_style_t;
@@ -367,68 +145,71 @@ openpam_parse_chain(pam_handle_t *pamh,
 	pam_chain_t *this, **next;
 	pam_facility_t fclt;
 	pam_control_t ctlf;
-	char *line, *str, *name;
-	char *option, **optv;
-	int count, len, lineno, ret, serrno;
+	char *name, *servicename, *modulename;
+	int count, lineno, ret, serrno;
+	char **wordv, *word;
+	int i, wordc;
 
 	count = 0;
 	this = NULL;
 	name = NULL;
 	lineno = 0;
-	while ((line = openpam_readline(f, &lineno, NULL)) != NULL) {
-		/* get service name if necessary */
-		if (style == pam_conf_style) {
-			if ((len = parse_service_name(&line, &str)) == 0) {
-				openpam_log(PAM_LOG_NOTICE,
-				    "%s(%d): invalid service name (ignored)",
-				    filename, lineno);
-				FREE(line);
-				continue;
-			}
-			if (strlcmp(service, str, len) != 0) {
-				FREE(line);
-				continue;
-			}
+	wordc = 0;
+	wordv = NULL;
+	while ((wordv = openpam_readlinev(f, &lineno, &wordc)) != NULL) {
+		/* blank line? */
+		if (wordc == 0) {
+			FREEV(wordc, wordv);
+			continue;
+		}
+		i = 0;
+
+		/* check service name if necessary */
+		if (style == pam_conf_style &&
+		    strcmp(wordv[i++], service) != 0) {
+			FREEV(wordc, wordv);
+			continue;
 		}
 
-		/* get facility name */
-		if ((fclt = parse_facility_name(&line)) == (pam_facility_t)-1) {
+		/* check facility name */
+		if ((word = wordv[i++]) == NULL ||
+		    (fclt = parse_facility_name(word)) == (pam_facility_t)-1) {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): missing or invalid facility",
 			    filename, lineno);
 			goto fail;
 		}
 		if (facility != fclt && facility != PAM_FACILITY_ANY) {
-			FREE(line);
+			FREEV(wordc, wordv);
 			continue;
 		}
 
 		/* check for "include" */
-		if (parse_include(&line)) {
-			if ((len = parse_service_name(&line, &str)) == 0) {
+		if ((word = wordv[i++]) != NULL &&
+		    strcmp(word, "include") == 0) {
+			if ((servicename = wordv[i++]) == NULL ||
+			    !valid_service_name(servicename)) {
 				openpam_log(PAM_LOG_ERROR,
-				    "%s(%d): missing or invalid filename",
+				    "%s(%d): missing or invalid service name",
 				    filename, lineno);
 				goto fail;
 			}
-			if ((name = strndup(str, len)) == NULL)
-				goto syserr;
-			if (parse_eol(&line) != 0) {
+			if (wordv[i] != NULL) {
 				openpam_log(PAM_LOG_ERROR,
 				    "%s(%d): garbage at end of line",
 				    filename, lineno);
 				goto fail;
 			}
-			ret = openpam_load_chain(pamh, name, fclt);
-			FREE(name);
+			ret = openpam_load_chain(pamh, servicename, fclt);
+			FREEV(wordc, wordv);
 			if (ret < 0)
 				goto fail;
-			FREE(line);
 			continue;
 		}
 
 		/* get control flag */
-		if ((ctlf = parse_control_flag(&line)) == (pam_control_t)-1) {
+		if (word == NULL || /* same word we compared to "include" */
+		    (ctlf = parse_control_flag(word)) == (pam_control_t)-1) {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): missing or invalid control flag",
 			    filename, lineno);
@@ -436,45 +217,39 @@ openpam_parse_chain(pam_handle_t *pamh,
 		}
 
 		/* get module name */
-		if ((len = parse_filename(&line, &str)) == 0) {
+		if ((modulename = wordv[i++]) == NULL ||
+		    !valid_filename(modulename)) {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): missing or invalid module name",
 			    filename, lineno);
 			goto fail;
 		}
-		if ((name = strndup(str, len)) == NULL)
-			goto syserr;
 
 		/* allocate new entry */
 		if ((this = calloc(1, sizeof *this)) == NULL)
 			goto syserr;
 		this->flag = ctlf;
 
-		/* get module options */
-		if ((this->optv = malloc(sizeof *optv)) == NULL)
-			goto syserr;
-		this->optc = 0;
-		while ((option = parse_option(&line)) != NULL) {
-			optv = realloc(this->optv,
-			    (this->optc + 2) * sizeof *optv);
-			if (optv == NULL)
-				goto syserr;
-			this->optv = optv;
-			this->optv[this->optc++] = option;
-		}
-		this->optv[this->optc] = NULL;
-		if (*line != '\0') {
-			openpam_log(PAM_LOG_ERROR,
-			    "%s(%d): syntax error in module options",
-			    filename, lineno);
-			goto fail;
-		}
-
 		/* load module */
-		this->module = openpam_load_module(name);
-		FREE(name);
-		if (this->module == NULL)
+		if ((this->module = openpam_load_module(modulename)) == NULL)
 			goto fail;
+
+		/*
+		 * The remaining items in wordv are the module's
+		 * arguments.  We could set this->optv = wordv + i, but
+		 * then free(this->optv) wouldn't work.  Instead, we free
+		 * the words we've already consumed, shift the rest up,
+		 * and clear the tail end of the array.
+		 */
+		this->optc = wordc - i;
+		for (i = 0; i < wordc - this->optc; ++i) {
+			FREE(wordv[i]);
+			wordv[i] = wordv[wordc - this->optc + i];
+			wordv[wordc - this->optc + i] = NULL;
+		}
+		this->optv = wordv;
+		wordv = NULL;
+		wordc = 0;
 
 		/* hook it up */
 		for (next = &pamh->chains[fclt]; *next != NULL;
@@ -483,12 +258,17 @@ openpam_parse_chain(pam_handle_t *pamh,
 		*next = this;
 		this = NULL;
 		++count;
-
-		/* next please... */
-		FREE(line);
 	}
-	if (!feof(f))
+	/*
+	 * The loop ended because openpam_readword() returned NULL, which
+	 * can happen for four different reasons: an I/O error (ferror(f)
+	 * is true), a memory allocation failure (ferror(f) is false,
+	 * errno is non-zero)
+	 */
+	if (ferror(f) || errno != 0)
 		goto syserr;
+	if (!feof(f))
+		goto fail;
 	fclose(f);
 	return (count);
 syserr:
@@ -498,14 +278,13 @@ syserr:
 	/* fall through */
 fail:
 	serrno = errno;
-	if (this && this->optc) {
-		while (this->optc--)
-			FREE(this->optv[this->optc]);
-		FREE(this->optv);
-	}
+	if (this && this->optc && this->optv)
+		FREEV(this->optc, this->optv);
 	FREE(this);
-	FREE(line);
+	FREEV(wordc, wordv);
+	FREE(wordv);
 	FREE(name);
+	fclose(f);
 	errno = serrno;
 	return (-1);
 }
@@ -538,6 +317,11 @@ openpam_load_chain(pam_handle_t *pamh,
 	FILE *f;
 	int ret, serrno;
 
+	if (!valid_service_name(service)) {
+		openpam_log(PAM_LOG_ERROR, "invalid service name");
+		errno = EINVAL;
+		RETURNN(-1);
+	}
 	ENTERS(facility < 0 ? "any" : pam_facility_name[facility]);
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		/* construct filename */

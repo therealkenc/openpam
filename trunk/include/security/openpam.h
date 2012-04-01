@@ -158,12 +158,25 @@ openpam_readline(FILE *_f,
 	size_t *_lenp)
 	OPENPAM_NONNULL((1));
 
+char **
+openpam_readlinev(FILE *_f,
+	int *_lineno,
+	int *_lenp)
+	OPENPAM_NONNULL((1));
+
+char *
+openpam_readword(FILE *_f,
+	int *_lineno,
+	size_t *_lenp)
+	OPENPAM_NONNULL((1));
+#endif
+
 int
 openpam_straddch(char **_str,
-    size_t *_sizep,
-    size_t *_lenp,
-    int ch);
-#endif
+	size_t *_sizep,
+	size_t *_lenp,
+	int ch)
+	OPENPAM_NONNULL((1));
 
 /*
  * Log levels

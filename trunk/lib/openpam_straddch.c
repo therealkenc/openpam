@@ -11,6 +11,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote
+ *    products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -31,6 +34,7 @@
 # include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
@@ -56,6 +60,7 @@ openpam_straddch(char **str, size_t *size, size_t *len, int ch)
 		tmpsize = MIN_STR_SIZE;
 		if ((tmpstr = malloc(tmpsize)) == NULL) {
 			openpam_log(PAM_LOG_ERROR, "malloc(): %m");
+			errno = ENOMEM;
 			return (-1);
 		}
 		*str = tmpstr;
@@ -66,6 +71,7 @@ openpam_straddch(char **str, size_t *size, size_t *len, int ch)
 		tmpsize = *size * 2;
 		if ((tmpstr = realloc(*str, tmpsize)) == NULL) {
 			openpam_log(PAM_LOG_ERROR, "realloc(): %m");
+			errno = ENOMEM;
 			return (-1);
 		}
 		*size = tmpsize;
@@ -99,5 +105,5 @@ openpam_straddch(char **str, size_t *size, size_t *len, int ch)
  * If the =openpam_straddch function is successful, it increments the
  * integer variable pointed to by =len and returns 0.
  * Otherwise, it leaves the variables pointed to by =str, =size and =len
- * unmodified and returns -1.
+ * unmodified, sets :errno to =ENOMEM and returns -1.
  */

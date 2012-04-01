@@ -157,7 +157,20 @@ pam_module_t	*openpam_static(const char *);
 #endif
 pam_module_t	*openpam_dynamic(const char *);
 
-#define	FREE(p) do { free((p)); (p) = NULL; } while (0)
+#define	FREE(p)					\
+	do {					\
+		free(p);			\
+		(p) = NULL;			\
+	} while (0)
+
+#define FREEV(c, v)				\
+	do {					\
+		while (c) {			\
+			--(c);			\
+			FREE((v)[(c)]);		\
+		}				\
+		FREE(v);			\
+	} while (0)
 
 #include "openpam_constants.h"
 #include "openpam_debug.h"
