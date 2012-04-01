@@ -342,6 +342,35 @@ T_FUNC(two_words, "two words")
 }
 
 
+/***************************************************************************
+ * Complex cases
+ */
+
+T_FUNC(empty_single_quotes, "empty single quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("''\n");
+	orw_rewind();
+	ret = orw_expect("", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(empty_double_quotes, "empty double quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\"\n");
+	orw_rewind();
+	ret = orw_expect("", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+
 
 const struct t_test *t_plan[] = {
 	T(empty_input),
@@ -358,6 +387,8 @@ const struct t_test *t_plan[] = {
 	T(comment_after_word),
 	T(word_containing_hash),
 	T(two_words),
+	T(empty_single_quotes),
+	T(empty_double_quotes),
 	NULL
 };
 
