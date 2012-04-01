@@ -118,8 +118,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 		errno = EINVAL;
 		return (NULL);
 	}
-	if (ch == '\n')
-		ungetc(ch, f);
+	ungetc(ch, f);
 	if (lenp != NULL)
 		*lenp = len;
 	return (word);
