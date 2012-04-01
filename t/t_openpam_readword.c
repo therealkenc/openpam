@@ -182,7 +182,19 @@ T_FUNC(empty_line, "empty line")
 	return (ret);
 }
 
-T_FUNC(whitespace_only, "whitespace only")
+T_FUNC(single_whitespace, "single whitespace")
+{
+	int ret;
+
+	orw_open();
+	orw_output(" \n");
+	orw_rewind();
+	ret = orw_expect(NULL, 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(multiple_whitespace, "multiple whitespace")
 {
 	int ret;
 
@@ -194,7 +206,7 @@ T_FUNC(whitespace_only, "whitespace only")
 	return (ret);
 }
 
-T_FUNC(comment_only, "comment only")
+T_FUNC(comment, "comment")
 {
 	int ret;
 
@@ -211,7 +223,7 @@ T_FUNC(whitespace_before_comment, "whitespace before comment")
 	int ret;
 
 	orw_open();
-	orw_output("\t# comment\n");
+	orw_output(" # comment\n");
 	orw_rewind();
 	ret = orw_expect(NULL, 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
@@ -236,7 +248,7 @@ T_FUNC(single_word, "single word")
 	return (ret);
 }
 
-T_FUNC(whitespace_before_word, "whitespace before word")
+T_FUNC(single_whitespace_before_word, "single whitespace before word")
 {
 	const char *word = "hello";
 	int ret;
@@ -249,13 +261,39 @@ T_FUNC(whitespace_before_word, "whitespace before word")
 	return (ret);
 }
 
-T_FUNC(whitespace_after_word, "whitespace after word")
+T_FUNC(double_whitespace_before_word, "double whitespace before word")
+{
+	const char *word = "hello";
+	int ret;
+
+	orw_open();
+	orw_output("  %s\n", word);
+	orw_rewind();
+	ret = orw_expect(word, 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(single_whitespace_after_word, "single whitespace after word")
 {
 	const char *word = "hello";
 	int ret;
 
 	orw_open();
 	orw_output("%s \n", word);
+	orw_rewind();
+	ret = orw_expect(word, 0 /*lines*/, 0 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(double_whitespace_after_word, "double whitespace after word")
+{
+	const char *word = "hello";
+	int ret;
+
+	orw_open();
+	orw_output("%s  \n", word);
 	orw_rewind();
 	ret = orw_expect(word, 0 /*lines*/, 0 /*eof*/, 0 /*eol*/);
 	orw_close();
@@ -276,7 +314,7 @@ T_FUNC(comment_after_word, "comment after word")
 	return (ret);
 }
 
-T_FUNC(word_with_hash, "word with hash")
+T_FUNC(word_containing_hash, "word containing hash")
 {
 	const char *word = "hello#world";
 	int ret;
@@ -308,14 +346,17 @@ T_FUNC(two_words, "two words")
 const struct t_test *t_plan[] = {
 	T(empty_input),
 	T(empty_line),
-	T(whitespace_only),
-	T(comment_only),
+	T(single_whitespace),
+	T(multiple_whitespace),
+	T(comment),
 	T(whitespace_before_comment),
 	T(single_word),
-	T(whitespace_before_word),
-	T(whitespace_after_word),
+	T(single_whitespace_before_word),
+	T(double_whitespace_before_word),
+	T(single_whitespace_after_word),
+	T(double_whitespace_after_word),
 	T(comment_after_word),
-	T(word_with_hash),
+	T(word_containing_hash),
 	T(two_words),
 	NULL
 };
