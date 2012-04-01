@@ -110,19 +110,20 @@ AC_ARG_ENABLE([werror],
     [CFLAGS="${CFLAGS} -Werror"])
 
 AC_CONFIG_FILES([
+    Makefile
     bin/Makefile
     bin/openpam_dump_policy/Makefile
     bin/pamtest/Makefile
     bin/su/Makefile
+    doc/Makefile
+    doc/man/Makefile
     include/Makefile
     include/security/Makefile
     lib/Makefile
     modules/Makefile
-    modules/pam_unix/Makefile
     modules/pam_deny/Makefile
     modules/pam_permit/Makefile
-    doc/Makefile
-    doc/man/Makefile
-    Makefile
+    modules/pam_unix/Makefile
+    t/Makefile
 ])
 AC_OUTPUT
