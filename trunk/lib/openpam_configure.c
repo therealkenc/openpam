@@ -51,7 +51,8 @@
 
 #include "openpam_impl.h"
 #include "openpam_ctype.h"
-#include "openpam_strlcmp.h"
+#include "openpam_strlcat.h"
+#include "openpam_strlcpy.h"
 
 static int openpam_load_chain(pam_handle_t *, const char *, pam_facility_t);
 
