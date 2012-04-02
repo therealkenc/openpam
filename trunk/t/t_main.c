@@ -31,9 +31,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "t.h"
+
+const char *t_progname;
 
 static int verbose;
 
@@ -53,7 +56,7 @@ static void
 usage(void)
 {
 
-	fprintf(stderr, "usage: %s\n", getprogname());
+	fprintf(stderr, "usage: [-v] %s\n", t_progname);
 	exit(1);
 }
 
@@ -64,6 +67,11 @@ main(int argc, char *argv[])
 	const char *desc;
 	int n, pass, fail;
 	int opt;
+
+	if ((t_progname = strrchr(argv[0], '/')) != NULL)
+		t_progname++; /* one past the slash */
+	else
+		t_progname = argv[0];
 
 	while ((opt = getopt(argc, argv, "v")) != -1)
 		switch (opt) {
