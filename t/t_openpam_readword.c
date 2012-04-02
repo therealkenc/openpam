@@ -74,7 +74,7 @@ orw_output(const char *fmt, ...)
 	if (ferror(f))
 		err(1, "%s", filename);
 }
-	
+
 /*
  * Rewind the temp file.
  */
