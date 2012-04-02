@@ -44,6 +44,8 @@ struct t_test {
 #define T(n)					\
 	&t_ ## n
 
+extern const char *t_progname;
+
 const struct t_test **t_prepare(int, char **);
 void t_cleanup(void);
 

@@ -40,7 +40,7 @@
 
 #include "t.h"
 
-static char *filename;
+static char filename[1024];
 static FILE *f;
 
 /*
@@ -398,7 +398,7 @@ t_prepare(int argc, char *argv[])
 
 	(void)argc;
 	(void)argv;
-	asprintf(&filename, "%s.%d.tmp", getprogname(), getpid());
+	snprintf(filename, sizeof filename, "%s.%d.tmp", t_progname, getpid());
 	if (filename == NULL)
 		err(1, "asprintf()");
 	return (t_plan);
