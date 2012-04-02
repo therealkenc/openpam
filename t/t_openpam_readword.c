@@ -27,6 +27,10 @@
  * $Id$
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -117,7 +121,8 @@ orw_expect(const char *expected, int lines, int eof, int eol)
 		return (0);
 	}
 	if (lineno != lines) {
-		t_verbose("expected to advance %d lines, advanced %d lines\n");
+		t_verbose("expected to advance %d lines, advanced %d lines\n",
+		    lines, lineno);
 		return (0);
 	}
 	if (eof && !feof(f)) {
@@ -153,6 +158,7 @@ orw_close(void)
 
 	if (fclose(f) != 0)
 		err(1, "%s(): %s", __func__, filename);
+	f = NULL;
 }
 
 
@@ -343,8 +349,88 @@ T_FUNC(two_words, "two words")
 
 
 /***************************************************************************
- * Complex cases
+ * Escapes
  */
+
+T_FUNC(naked_escape, "naked escape")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\\");
+	orw_rewind();
+	ret = orw_expect(NULL, 0 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_escape, "escaped escape")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\\\\\n");
+	orw_rewind();
+	ret = orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_whitespace, "escape whitespace")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\\  \\\t \\\r \\\n");
+	orw_rewind();
+	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\n", 1 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_letter, "escaped letter")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\\a\n");
+	orw_rewind();
+	ret = orw_expect("a", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+
+/***************************************************************************
+ * Quotes
+ */
+
+T_FUNC(naked_single_quote, "naked single quote")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'");
+	orw_rewind();
+	ret = orw_expect(NULL, 0 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(naked_double_quote, "naked double quote")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"");
+	orw_rewind();
+	ret = orw_expect(NULL, 0 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
 
 T_FUNC(empty_single_quotes, "empty single quotes")
 {
@@ -370,7 +456,112 @@ T_FUNC(empty_double_quotes, "empty double quotes")
 	return (ret);
 }
 
+T_FUNC(quotes_within_quotes, "quotes within quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'\"' \"'\"\n");
+	orw_rewind();
+	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(quoted_whitespace, "quoted whitespace")
+{
+	int ret;
+
+	orw_open();
+	orw_output("' ' '\t' '\r' '\n' \" \" \"\t\" \"\r\" \"\n\"\n");
+	orw_rewind();
+	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\n", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\n", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(quoted_words, "quoted words")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'hello' \"world\"\n");
+	orw_rewind();
+	ret = orw_expect("hello", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
 
+/***************************************************************************
+ * Combinations of escape and quotes
+ */
+
+T_FUNC(escaped_quotes, "escaped quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\\\" \\'\n");
+	orw_rewind();
+	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_letters_within_quotes, "escaped letters within quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\a\" '\\a'\n");
+	orw_rewind();
+	ret = orw_expect("\\a", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\a", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_escapes_within_quotes, "escaped escapes within quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\\\\" '\\\\'\n");
+	orw_rewind();
+	ret = orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_quotes_within_quotes, "escaped quotes within quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\\"\" '\\''\n");
+	orw_rewind();
+	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+
+/***************************************************************************
+ * Boilerplate
+ */
 
 const struct t_test *t_plan[] = {
 	T(empty_input),
@@ -379,6 +570,7 @@ const struct t_test *t_plan[] = {
 	T(multiple_whitespace),
 	T(comment),
 	T(whitespace_before_comment),
+
 	T(single_word),
 	T(single_whitespace_before_word),
 	T(double_whitespace_before_word),
@@ -387,8 +579,25 @@ const struct t_test *t_plan[] = {
 	T(comment_after_word),
 	T(word_containing_hash),
 	T(two_words),
+
+	T(naked_escape),
+	T(escaped_escape),
+	T(escaped_whitespace),
+	T(escaped_letter),
+
+	T(naked_single_quote),
+	T(naked_double_quote),
 	T(empty_single_quotes),
 	T(empty_double_quotes),
+	T(quotes_within_quotes),
+	T(quoted_whitespace),
+	T(quoted_words),
+
+	T(escaped_quotes),
+	T(escaped_letters_within_quotes),
+	T(escaped_escapes_within_quotes),
+	T(escaped_quotes_within_quotes),
+
 	NULL
 };
 
