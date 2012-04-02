@@ -30,6 +30,8 @@
 #ifndef T_H_INCLUDED
 #define T_H_INCLUDED
 
+#include <security/openpam_attr.h>
+
 struct t_test {
 	int (*func)(void);
 	const char *desc;
@@ -49,6 +51,7 @@ extern const char *t_progname;
 const struct t_test **t_prepare(int, char **);
 void t_cleanup(void);
 
-void t_verbose(const char *, ...);
+void t_verbose(const char *, ...)
+	OPENPAM_FORMAT((__printf__, 1, 2));
 
 #endif
