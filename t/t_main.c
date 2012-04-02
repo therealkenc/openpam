@@ -97,6 +97,8 @@ main(int argc, char *argv[])
 	/* run the tests */
 	for (n = pass = fail = 0; t_plan[n] != NULL; ++n) {
 		desc = t_plan[n]->desc ? t_plan[n]->desc : "no description";
+		if (verbose)
+			fprintf(stderr, " %d - %s\r", n + 1, desc);
 		if ((*t_plan[n]->func)()) {
 			printf("ok %d - %s\n", n + 1, desc);
 			++pass;
