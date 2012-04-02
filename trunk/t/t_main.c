@@ -27,6 +27,10 @@
  * $Id$
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <err.h>
 #include <stdarg.h>
 #include <stdio.h>
