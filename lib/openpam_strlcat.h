@@ -27,17 +27,19 @@
  * $Id$
  */
 
-#ifndef OPENPAM_STRLCPY_H_INCLUDED
-#define OPENPAM_STRLCPY_H_INCLUDED
+#ifndef OPENPAM_STRLCAT_H_INCLUDED
+#define OPENPAM_STRLCAT_H_INCLUDED
 
-#ifndef HAVE_STRLCPY
-/* like strcpy(3), but always NUL-terminates; returns strlen(src) */
+#ifndef HAVE_STRLCAT
+/* like strcat(3), but always NUL-terminates; returns strlen(src) */
 static size_t
-strlcpy(char *dst, const char *src, size_t size)
+strlcat(char *dst, const char *src, size_t size)
 {
 	size_t len;
 
-	for (len = 0; *src && size > 1; ++len, --size)
+	for (len = 0; *dst && size > 1; ++len, --size)
+		dst++;
+	for (; *src && size > 1; ++len, --size)
 		*dst++ = *src++;
 	*dst = '\0';
 	while (*src)
