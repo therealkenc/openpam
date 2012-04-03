@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/lib
 
 # tests
-TESTS = t_openpam_readword
+TESTS = t_openpam_readword t_openpam_readlinev
 check_PROGRAMS = $(TESTS)
 
 # libt - common support code

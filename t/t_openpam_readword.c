@@ -188,6 +188,18 @@ T_FUNC(empty_line, "empty line")
 	return (ret);
 }
 
+T_FUNC(unterminated_line, "unterminated line")
+{
+	int ret;
+
+	orw_open();
+	orw_output(" ");
+	orw_rewind();
+	ret = orw_expect(NULL, 0 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
 T_FUNC(single_whitespace, "single whitespace")
 {
 	int ret;
