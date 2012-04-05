@@ -151,4 +151,6 @@ openpam_readlinev(FILE *f, int *lineno, int *lenp)
  *
  *>openpam_readline
  *>openpam_readword
+ *
+ * AUTHOR DES
  */
