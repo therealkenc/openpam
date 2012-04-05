@@ -388,17 +388,28 @@ T_FUNC(escaped_escape, "escaped escape")
 	return (ret);
 }
 
-T_FUNC(escaped_whitespace, "escape whitespace")
+T_FUNC(escaped_whitespace, "escaped whitespace")
 {
 	int ret;
 
 	orw_open();
-	orw_output("\\  \\\t \\\r \\\n");
+	orw_output("\\  \\\t \\\r\n");
 	orw_rewind();
 	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
 	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\n", 1 /*lines*/, 1 /*eof*/, 0 /*eol*/);
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_newline, "escaped newline")
+{
+	int ret;
+
+	orw_open();
+	orw_output("a\\\nb\n");
+	orw_rewind();
+	ret = orw_expect("ab", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -468,31 +479,38 @@ T_FUNC(empty_double_quotes, "empty double quotes")
 	return (ret);
 }
 
-T_FUNC(quotes_within_quotes, "quotes within quotes")
+T_FUNC(single_quotes_within_double_quotes, "single quotes within double quotes")
 {
 	int ret;
 
 	orw_open();
-	orw_output("'\"' \"'\"\n");
+	orw_output("\"' '\"\n");
 	orw_rewind();
-	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("' '", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
 
-T_FUNC(quoted_whitespace, "quoted whitespace")
+T_FUNC(double_quotes_within_single_quotes, "double quotes within single quotes")
 {
 	int ret;
 
 	orw_open();
-	orw_output("' ' '\t' '\r' '\n' \" \" \"\t\" \"\r\" \"\n\"\n");
+	orw_output("'\" \"'\n");
+	orw_rewind();
+	ret = orw_expect("\" \"", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(single_quoted_whitespace, "single-quoted whitespace")
+{
+	int ret;
+
+	orw_open();
+	orw_output("' ' '\t' '\r' '\n'\n");
 	orw_rewind();
 	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\n", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
 	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
 	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
 	    orw_expect("\n", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
@@ -500,15 +518,41 @@ T_FUNC(quoted_whitespace, "quoted whitespace")
 	return (ret);
 }
 
-T_FUNC(quoted_words, "quoted words")
+T_FUNC(double_quoted_whitespace, "double-quoted whitespace")
 {
 	int ret;
 
 	orw_open();
-	orw_output("'hello' \"world\"\n");
+	orw_output("\" \" \"\t\" \"\r\" \"\n\"\n");
 	orw_rewind();
-	ret = orw_expect("hello", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\n", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(single_quoted_words, "single-quoted words")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'hello world'\n");
+	orw_rewind();
+	ret = orw_expect("hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(double_quoted_words, "double-quoted words")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"hello world\"\n");
+	orw_rewind();
+	ret = orw_expect("hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -518,54 +562,132 @@ T_FUNC(quoted_words, "quoted words")
  * Combinations of escape and quotes
  */
 
-T_FUNC(escaped_quotes, "escaped quotes")
+T_FUNC(escaped_single_quote,
+    "escaped single quote")
 {
 	int ret;
 
 	orw_open();
-	orw_output("\\\" \\'\n");
+	orw_output("\\'\n");
 	orw_rewind();
-	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
 
-T_FUNC(escaped_letters_within_quotes, "escaped letters within quotes")
+T_FUNC(escaped_double_quote,
+    "escaped double quote")
 {
 	int ret;
 
 	orw_open();
-	orw_output("\"\\z\" '\\z'\n");
+	orw_output("\\\"\n");
 	orw_rewind();
-	ret = orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
 
-T_FUNC(escaped_escapes_within_quotes, "escaped escapes within quotes")
+T_FUNC(escaped_letter_within_single_quotes,
+    "escaped letter within single quotes")
 {
 	int ret;
 
 	orw_open();
-	orw_output("\"\\\\\" '\\\\'\n");
+	orw_output("'\\z'\n");
 	orw_rewind();
-	ret = orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
 
-T_FUNC(escaped_quotes_within_quotes, "escaped quotes within quotes")
+T_FUNC(escaped_letter_within_double_quotes,
+    "escaped letter within double quotes")
 {
 	int ret;
 
 	orw_open();
-	orw_output("\"\\\"\" '\\''\n");
+	orw_output("\"\\z\"\n");
 	orw_rewind();
-	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_escape_within_single_quotes,
+    "escaped escape within single quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'\\\\'\n");
+	orw_rewind();
+	ret = orw_expect("\\\\", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_escape_within_double_quotes,
+    "escaped escape within double quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\\\\"\n");
+	orw_rewind();
+	ret = orw_expect("\\", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_single_quote_within_single_quotes,
+    "escaped single quote within single quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'\\''\n");
+	orw_rewind();
+	ret = orw_expect(NULL, 1 /*lines*/, 1 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_double_quote_within_single_quotes,
+    "escaped double quote within single quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'\\\"'\n");
+	orw_rewind();
+	ret = orw_expect("\\\"", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_single_quote_within_double_quotes,
+    "escaped single quote within double quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\'\"\n");
+	orw_rewind();
+	ret = orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_double_quote_within_double_quotes,
+    "escaped double quote within double quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\\"\"\n");
+	orw_rewind();
+	ret = orw_expect("\"", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -595,20 +717,30 @@ const struct t_test *t_plan[] = {
 	T(naked_escape),
 	T(escaped_escape),
 	T(escaped_whitespace),
+	T(escaped_newline),
 	T(escaped_letter),
 
 	T(naked_single_quote),
 	T(naked_double_quote),
 	T(empty_single_quotes),
 	T(empty_double_quotes),
-	T(quotes_within_quotes),
-	T(quoted_whitespace),
-	T(quoted_words),
+	T(single_quotes_within_double_quotes),
+	T(double_quotes_within_single_quotes),
+	T(single_quoted_whitespace),
+	T(double_quoted_whitespace),
+	T(single_quoted_words),
+	T(double_quoted_words),
 
-	T(escaped_quotes),
-	T(escaped_letters_within_quotes),
-	T(escaped_escapes_within_quotes),
-	T(escaped_quotes_within_quotes),
+	T(escaped_single_quote),
+	T(escaped_double_quote),
+	T(escaped_letter_within_single_quotes),
+	T(escaped_letter_within_double_quotes),
+	T(escaped_escape_within_single_quotes),
+	T(escaped_escape_within_double_quotes),
+	T(escaped_single_quote_within_single_quotes),
+	T(escaped_double_quote_within_single_quotes),
+	T(escaped_single_quote_within_double_quotes),
+	T(escaped_double_quote_within_double_quotes),
 
 	NULL
 };
