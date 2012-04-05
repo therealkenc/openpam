@@ -73,15 +73,15 @@ GENDOC = $(top_srcdir)/misc/gendoc.pl
 
 SRCDIR = $(top_srcdir)/lib
 
-VPATH = $(SRCDIR)
+VPATH = $(srcdir)
 
 SUFFIXES = .3
 
 .c.3: $(GENDOC)
 	perl -w $(GENDOC) $<
 
-openpam.3: $(OMAN) $(GENDOC) openpam.man
+openpam.3: $(OMAN) $(GENDOC) $(srcdir)/openpam.man
 	perl -w $(GENDOC) -o $(abs_srcdir)/$(OMAN) <$(srcdir)/openpam.man
 
-pam.3: $(PMAN) $(GENDOC) pam.man
+pam.3: $(PMAN) $(GENDOC) $(srcdir)/pam.man
 	perl -w $(GENDOC) -p $(abs_srcdir)/$(PMAN) <$(srcdir)/pam.man
