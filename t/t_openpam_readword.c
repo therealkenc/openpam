@@ -402,14 +402,38 @@ T_FUNC(escaped_whitespace, "escaped whitespace")
 	return (ret);
 }
 
-T_FUNC(escaped_newline, "escaped newline")
+T_FUNC(escaped_newline_before_word, "escaped newline before word")
 {
 	int ret;
 
 	orw_open();
-	orw_output("a\\\nb\n");
+	orw_output("\\\nhello world\n");
 	orw_rewind();
-	ret = orw_expect("ab", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("hello", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_newline_within_word, "escaped newline within word")
+{
+	int ret;
+
+	orw_open();
+	orw_output("hello\\\nworld\n");
+	orw_rewind();
+	ret = orw_expect("helloworld", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_newline_after_word, "escaped newline after word")
+{
+	int ret;
+
+	orw_open();
+	orw_output("hello\\\n world\n");
+	orw_rewind();
+	ret = orw_expect("hello", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -648,7 +672,7 @@ T_FUNC(escaped_single_quote_within_single_quotes,
 	orw_open();
 	orw_output("'\\''\n");
 	orw_rewind();
-	ret = orw_expect(NULL, 1 /*lines*/, 1 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(NULL, 1 /*lines*/, 1 /*eof*/, 0 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -674,7 +698,7 @@ T_FUNC(escaped_single_quote_within_double_quotes,
 	orw_open();
 	orw_output("\"\\'\"\n");
 	orw_rewind();
-	ret = orw_expect("'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("\\'", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -717,7 +741,9 @@ const struct t_test *t_plan[] = {
 	T(naked_escape),
 	T(escaped_escape),
 	T(escaped_whitespace),
-	T(escaped_newline),
+	T(escaped_newline_before_word),
+	T(escaped_newline_within_word),
+	T(escaped_newline_after_word),
 	T(escaped_letter),
 
 	T(naked_single_quote),
