@@ -176,7 +176,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * If =lenp is not =NULL, the length of the word (after quotes and
  * backslashes have been removed) is stored in the variable it points to.
  *
- *RETURN VALUES
+ * RETURN VALUES
  *
  * If successful, the =openpam_readword function returns a pointer to a
  * dynamically allocated NUL-terminated string containing the first word
@@ -193,7 +193,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * backslash escape is in effect, it sets :errno to =EINVAL and returns
  * =NULL.
  *
- *IMPLEMENTATION NOTES
+ * IMPLEMENTATION NOTES
  *
  * The parsing rules are intended to be equivalent to the normal POSIX
  * shell quoting rules.
