@@ -117,7 +117,7 @@ openpam_readlinev(FILE *f, int *lineno, int *lenp)
  * If =lenp is not =NULL, the number of words on the line is stored in the
  * variable to which it points.
  *
- *RETURN VALUES
+ * RETURN VALUES
  *
  * If successful, the =openpam_readlinev function returns a pointer to a
  * dynamically allocated array of pointers to individual dynamically
