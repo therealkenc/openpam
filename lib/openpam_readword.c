@@ -79,7 +79,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 	size = len = 0;
 	escape = quote = 0;
 	while ((ch = fgetc(f)) != EOF && (!is_ws(ch) || quote || escape)) {
-		if (ch == '\\' && !escape) {
+		if (ch == '\\' && !escape && quote != '\'') {
 			/* escape next character */
 			escape = ch;
 		} else if ((ch == '\'' || ch == '"') && !quote && !escape) {
@@ -96,6 +96,9 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 		} else if (ch == quote && !escape) {
 			/* end quote */
 			quote = 0;
+		} else if (ch == '\n' && escape && !quote) {
+			/* line continuation */
+			escape = 0;
 		} else {
 			if (escape && quote && ch != '\\' && ch != quote &&
 			    openpam_straddch(&word, &size, &len, '\\') != 0) {
@@ -141,20 +144,21 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * escaped according to the following rules:
  *
  *  - An unescaped single or double quote introduces a quoted string,
- *    which ends when the same quote character is encountered, unescaped,
- *    a second time.
+ *    which ends when the same quote character is encountered a second
+ *    time.
  *    The quotes themselves are stripped.
  *
  *  - Within a single- or double-quoted string, all whitespace characters,
  *    including the newline character, are preserved as-is.
  *
- *  - Outside a string, a backslash escapes the next character, which is
- *    preserved as-is.
- *    The backslash itself is stripped.
+ *  - Outside a quoted string, a backslash escapes the next character,
+ *    which is preserved as-is, unless that character is a newline, in
+ *    which case it is discarded and reading continues at the beginning of
+ *    the next line as if the backslash and newline had not been there.
+ *    In all cases, the backslash itself is discarded.
  *
- *  - Within a single-quoted string, a double quote is preserved as-is,
- *    and a backslash is preserved as-is unless used to escape a single
- *    quote.
+ *  - Within a single-quoted string, double quotes and backslashes are
+ *    preserved as-is.
  *
  *  - Within a double-quoted string, a single quote is preserved as-is,
  *    and a backslash is preserved as-is unless used to escape a double
@@ -164,6 +168,22 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * hash character (#), the rest of the line is discarded.
  * If a hash character occurs within a word, however, it is preserved
  * as-is.
+ * A backslash at the end of a comment does cause line continuation.
+ *
+ * If =lineno is not =NULL, the integer variable it points to is
+ * incremented every time a quoted or escaped newline character is read.
+ *
+ * If =lenp is not =NULL, the length of the word (after quotes and
+ * backslashes have been removed) is stored in the variable it points to.
+ *
+ *RETURN VALUES
+ *
+ * If successful, the =openpam_readword function returns a pointer to a
+ * dynamically allocated NUL-terminated string containing the first word
+ * encountered on the line.
+ *
+ * The caller is responsible for releasing the returned buffer by passing
+ * it to =!free.
  *
  * If =openpam_readword reaches the end of the line or file before any
  * characters are copied to the word, it returns =NULL.  In the latter
@@ -173,19 +193,10 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * backslash escape is in effect, it sets :errno to =EINVAL and returns
  * =NULL.
  *
- * If =lineno is not =NULL, the integer variable it points to is
- * incremented every time a quoted or escaped newline character is read.
- *
- * If =lenp is not =NULL, the length of the word (after quotes and
- * backslashes have been removed) is stored in the variable it points to.
- *
- * The caller is responsible for releasing the returned buffer by passing
- * it to =!free.
- *
  *IMPLEMENTATION NOTES
  *
- * The parsing rules are intended to be equivalent to those used by the
- * shell to parse a command line when =IFS is unset.
+ * The parsing rules are intended to be equivalent to the normal POSIX
+ * shell quoting rules.
  * Any discrepancy is a bug and should be reported to the author along
  * with sample input that can be used to reproduce the error.
  *
