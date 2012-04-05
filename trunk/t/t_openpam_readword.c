@@ -408,9 +408,9 @@ T_FUNC(escaped_letter, "escaped letter")
 	int ret;
 
 	orw_open();
-	orw_output("\\a\n");
+	orw_output("\\z\n");
 	orw_rewind();
-	ret = orw_expect("a", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("z", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -536,10 +536,10 @@ T_FUNC(escaped_letters_within_quotes, "escaped letters within quotes")
 	int ret;
 
 	orw_open();
-	orw_output("\"\\a\" '\\a'\n");
+	orw_output("\"\\z\" '\\z'\n");
 	orw_rewind();
-	ret = orw_expect("\\a", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\\a", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\z", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
