@@ -106,4 +106,6 @@ openpam_straddch(char **str, size_t *size, size_t *len, int ch)
  * integer variable pointed to by =len and returns 0.
  * Otherwise, it leaves the variables pointed to by =str, =size and =len
  * unmodified, sets :errno to =ENOMEM and returns -1.
+ *
+ * AUTHOR DES
  */
