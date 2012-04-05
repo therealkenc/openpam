@@ -81,12 +81,15 @@ $COPYRIGHT = ".\\\"-
 .\\\"";
 
 %AUTHORS = (
-    THINKSEC => "ThinkSec AS and Network Associates Laboratories, the
+    THINKSEC => "developed for the
+.Fx
+Project by ThinkSec AS and Network Associates Laboratories, the
 Security Research Division of Network Associates, Inc.\\& under
 DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.",
-    DES => ".An Dag-Erling Sm\\(/orgrav Aq des\@FreeBSD.org .",
+    DES => "developed by
+.An Dag-Erling Sm\\(/orgrav Aq des\@des.no .",
 );
 
 %PAMERR = (
@@ -520,9 +523,8 @@ function is an OpenPAM extension.
     $mdoc .= ".Sh AUTHORS
 The
 .Fn $func->{'name'}
-function and this manual page were developed for the
-.Fx
-Project by\n" . $AUTHORS{$func->{'author'} // 'THINKSEC_DARPA'} . "\n";
+function and this manual page were\n";
+    $mdoc .= $AUTHORS{$func->{'author'} // 'THINKSEC_DARPA'} . "\n";
     $fn = "$func->{'name'}.3";
     if (open(FILE, ">", $fn)) {
 	print(FILE $mdoc);
@@ -636,6 +638,9 @@ Security Research Division of Network Associates, Inc.\\& under
 DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
 as part of the DARPA CHATS research program.
+.Pp
+The OpenPAM library is maintained by
+.An Dag-Erling Sm\\(/orgrav Aq des\@des.no .
 ";
     close(FILE);
 }
