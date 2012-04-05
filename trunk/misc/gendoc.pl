@@ -455,13 +455,17 @@ sub gendoc($) {
 .Lb libpam
 .Sh SYNOPSIS
 .In sys/types.h
-.In security/pam_appl.h
+";
+    if ($func->{'args'} =~ m/\bFILE \*\b/) {
+	$mdoc .= ".In stdio.h\n";
+    }
+    $mdoc .= ".In security/pam_appl.h
 ";
     if ($func->{'name'} =~ m/_sm_/) {
-	$mdoc .= ".In security/pam_modules.h\n"
+	$mdoc .= ".In security/pam_modules.h\n";
     }
     if ($func->{'name'} =~ m/openpam/) {
-	$mdoc .= ".In security/openpam.h\n"
+	$mdoc .= ".In security/openpam.h\n";
     }
     $mdoc .= ".Ft \"$func->{'type'}\"
 .Fn $func->{'name'} $func->{'args'}
