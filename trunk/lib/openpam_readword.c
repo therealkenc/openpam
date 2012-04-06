@@ -186,7 +186,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * it to =!free.
  *
  * If =openpam_readword reaches the end of the line or file before any
- * characters are copied to the word, it returns =NULL.  In the latter
+ * characters are copied to the word, it returns =NULL.  In the former
  * case, the newline is pushed back to the file.
  *
  * If =openpam_readword reaches the end of the file while a quote or
