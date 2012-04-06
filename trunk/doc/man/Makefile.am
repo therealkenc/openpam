@@ -71,9 +71,9 @@ CLEANFILES = $(ALLCMAN) openpam.3 pam.3
 
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
-SRCDIR = $(top_srcdir)/lib
+LIBSRCDIR = $(top_srcdir)/lib
 
-VPATH = $(srcdir)
+VPATH = $(LIBSRCDIR) $(srcdir)
 
 SUFFIXES = .3
 
