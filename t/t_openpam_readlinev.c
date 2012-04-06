@@ -168,6 +168,25 @@ orlv_close(void)
 		err(1, "%s(): %s", __func__, filename);
 	f = NULL;
 }
+
+/***************************************************************************
+ * Commonly-used lines
+ */
+
+static const char *empty[] = {
+	NULL
+};
+
+static const char *hello[] = {
+	"hello",
+	NULL
+};
+
+static const char *hello_world[] = {
+	"hello",
+	"world",
+	NULL
+};
 
 
 /***************************************************************************
@@ -191,21 +210,19 @@ T_FUNC(empty_line, "empty line")
 	orlv_open();
 	orlv_output("\n");
 	orlv_rewind();
-	ret = orlv_expect((const char *[]){ NULL },
-	    1 /*lines*/, 0 /*eof*/);
+	ret = orlv_expect(empty, 1 /*lines*/, 0 /*eof*/);
 	orlv_close();
 	return (ret);
 }
 
-T_FUNC(unterminated_line, "unterminated line")
+T_FUNC(unterminated_empty_line, "unterminated empty line")
 {
 	int ret;
 
 	orlv_open();
 	orlv_output(" ");
 	orlv_rewind();
-	ret = orlv_expect((const char *[]){ NULL },
-	    0 /*lines*/, 1 /*eof*/);
+	ret = orlv_expect(empty, 0 /*lines*/, 1 /*eof*/);
 	orlv_close();
 	return (ret);
 }
@@ -217,8 +234,7 @@ T_FUNC(whitespace, "whitespace")
 	orlv_open();
 	orlv_output(" \n");
 	orlv_rewind();
-	ret = orlv_expect((const char *[]){ NULL },
-	    1 /*lines*/, 0 /*eof*/);
+	ret = orlv_expect(empty, 1 /*lines*/, 0 /*eof*/);
 	orlv_close();
 	return (ret);
 }
@@ -230,8 +246,7 @@ T_FUNC(comment, "comment")
 	orlv_open();
 	orlv_output("# comment\n");
 	orlv_rewind();
-	ret = orlv_expect((const char *[]){ NULL },
-	    1 /*lines*/, 0 /*eof*/);
+	ret = orlv_expect(empty, 1 /*lines*/, 0 /*eof*/);
 	orlv_close();
 	return (ret);
 }
@@ -243,8 +258,48 @@ T_FUNC(whitespace_before_comment, "whitespace before comment")
 	orlv_open();
 	orlv_output(" # comment\n");
 	orlv_rewind();
-	ret = orlv_expect((const char *[]){ NULL },
-	    1 /*lines*/, 0 /*eof*/);
+	ret = orlv_expect(empty, 1 /*lines*/, 0 /*eof*/);
+	orlv_close();
+	return (ret);
+}
+
+
+/***************************************************************************
+ * Simple words
+ */
+
+T_FUNC(one_word, "one word")
+{
+	int ret;
+
+	orlv_open();
+	orlv_output("hello\n");
+	orlv_rewind();
+	ret = orlv_expect(hello, 1 /*lines*/, 0 /*eof*/);
+	orlv_close();
+	return (ret);
+}
+
+T_FUNC(two_words, "two words")
+{
+	int ret;
+
+	orlv_open();
+	orlv_output("hello world\n");
+	orlv_rewind();
+	ret = orlv_expect(hello_world, 1 /*lines*/, 0 /*eof*/);
+	orlv_close();
+	return (ret);
+}
+
+T_FUNC(unterminated_line, "unterminated line")
+{
+	int ret;
+
+	orlv_open();
+	orlv_output("hello world");
+	orlv_rewind();
+	ret = orlv_expect(hello_world, 0 /*lines*/, 1 /*eof*/);
 	orlv_close();
 	return (ret);
 }
@@ -257,10 +312,14 @@ T_FUNC(whitespace_before_comment, "whitespace before comment")
 const struct t_test *t_plan[] = {
 	T(empty_input),
 	T(empty_line),
-	T(unterminated_line),
+	T(unterminated_empty_line),
 	T(whitespace),
 	T(comment),
 	T(whitespace_before_comment),
+
+	T(one_word),
+	T(two_words),
+	T(unterminated_line),
 
 	NULL
 };
