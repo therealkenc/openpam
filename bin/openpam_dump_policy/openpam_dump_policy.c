@@ -45,20 +45,24 @@
 #include "openpam_impl.h"
 
 static char *
-openpam_chain_name(const char *service, pam_facility_t facility)
+openpam_chain_name(const char *service, pam_facility_t fclt)
 {
+	const char *facility = pam_facility_name[fclt];
 	char *name;
 
-	asprintf(&name, "pam_%s_%s", service, pam_facility_name[facility]);
+	if (asprintf(&name, "pam_%s_%s", service, facility) == -1)
+		return (NULL);
 	return (name);
 }
 
 static char *
-openpam_facility_index_name(pam_facility_t facility)
+openpam_facility_index_name(pam_facility_t fclt)
 {
+	const char *facility = pam_facility_name[fclt];
 	char *name, *p;
 
-	asprintf(&name, "PAM_%s", pam_facility_name[facility]);
+	if (asprintf(&name, "PAM_%s", facility) == -1)
+		return (NULL);
 	for (p = name + 4; *p; ++p)
 		*p = toupper(*p);
 	return (name);
