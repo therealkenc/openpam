@@ -222,7 +222,7 @@ T_FUNC(unterminated_empty_line, "unterminated empty line")
 	orlv_open();
 	orlv_output(" ");
 	orlv_rewind();
-	ret = orlv_expect(empty, 0 /*lines*/, 1 /*eof*/);
+	ret = orlv_expect(NULL, 0 /*lines*/, 1 /*eof*/);
 	orlv_close();
 	return (ret);
 }
