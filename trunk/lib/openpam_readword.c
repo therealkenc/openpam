@@ -96,7 +96,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 		} else if (ch == quote && !escape) {
 			/* end quote */
 			quote = 0;
-		} else if (ch == '\n' && escape && !quote) {
+		} else if (ch == '\n' && escape && quote != '\'') {
 			/* line continuation */
 			escape = 0;
 		} else {
