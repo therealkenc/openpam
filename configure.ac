@@ -126,4 +126,5 @@ AC_CONFIG_FILES([
     modules/pam_unix/Makefile
     t/Makefile
 ])
+AC_CONFIG_FILES([pamgdb],[chmod +x pamgdb])
 AC_OUTPUT
