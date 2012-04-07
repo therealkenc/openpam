@@ -396,11 +396,13 @@ T_FUNC(escaped_whitespace, "escaped whitespace")
 	int ret;
 
 	orw_open();
-	orw_output("\\  \\\t \\\r\n");
+	orw_output("\\  \\\t \\\r \\\n\n");
 	orw_rewind();
 	ret = orw_expect(" ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
 	    orw_expect("\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	    orw_expect("\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    /* this last one is a line continuation */
+	    orw_expect(NULL, 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	orw_close();
 	return (ret);
 }
@@ -615,6 +617,39 @@ T_FUNC(escaped_double_quote,
 	return (ret);
 }
 
+T_FUNC(escaped_whitespace_within_single_quotes,
+    "escaped whitespace within single quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("'\\ ' '\\\t' '\\\r' '\\\n'\n");
+	orw_rewind();
+	ret = orw_expect("\\ ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\\n", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
+T_FUNC(escaped_whitespace_within_double_quotes,
+    "escaped whitespace within double quotes")
+{
+	int ret;
+
+	orw_open();
+	orw_output("\"\\ \" \"\\\t\" \"\\\r\" \"\\\n\"\n");
+	orw_rewind();
+	ret = orw_expect("\\ ", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\\t", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect("\\\r", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    /* this last one is a line continuation */
+	    orw_expect("", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	orw_close();
+	return (ret);
+}
+
 T_FUNC(escaped_letter_within_single_quotes,
     "escaped letter within single quotes")
 {
@@ -762,6 +797,8 @@ const struct t_test *t_plan[] = {
 
 	T(escaped_single_quote),
 	T(escaped_double_quote),
+	T(escaped_whitespace_within_single_quotes),
+	T(escaped_whitespace_within_double_quotes),
 	T(escaped_letter_within_single_quotes),
 	T(escaped_letter_within_double_quotes),
 	T(escaped_escape_within_single_quotes),
