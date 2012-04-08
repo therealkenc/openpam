@@ -149,8 +149,8 @@ openpam_readlinev(FILE *f, int *lineno, int *lenp)
  *    =!ferror returns a non-zero value, and =!feof may or may not return
  *    a non-zero value.
  *
- *>openpam_readline
- *>openpam_readword
+ * >openpam_readline
+ * >openpam_readword
  *
  * AUTHOR DES
  */

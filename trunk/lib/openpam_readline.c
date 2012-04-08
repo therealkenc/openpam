@@ -133,6 +133,6 @@ fail:
  * The caller is responsible for releasing the returned buffer by passing
  * it to =!free.
  *
- *>openpam_readlinev
- *>openpam_readword
+ * >openpam_readlinev
+ * >openpam_readword
  */
