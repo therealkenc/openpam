@@ -19,13 +19,6 @@ OpenPAM ?????????						2012-04-??
    defined but not equal, use a different default prompt that includes
    PAM_USER and PAM_HOST.
 
- - BUGFIX: A patch incorporated in Lycopsida inadvertantly changed
-   OpenPAM's behavior when several policies exist for the same
-   service, from ignoring all but the first to concatenating them all.
-   Revert to the original behavior.
-
- - BUGFIX: Plug a memory leak in the policy parser.
-
  - ENHANCE: Rewrite the policy parser to used openpam_readlinev(),
    which greatly simplifies the code.
 
@@ -45,6 +38,13 @@ OpenPAM ?????????						2012-04-??
 
  - ENHANCE: Numerous documentation improvements, both in content and
    formatting.
+
+ - BUGFIX: A patch incorporated in Lycopsida inadvertantly changed
+   OpenPAM's behavior when several policies exist for the same
+   service, from ignoring all but the first to concatenating them all.
+   Revert to the original behavior.
+
+ - BUGFIX: Plug a memory leak in the policy parser.
 ============================================================================
 OpenPAM Lycopsida						2011-12-18
 
