@@ -44,6 +44,11 @@ while (<>) {
 	    last if m/^=+$/;
 	    $wikitext .= $_;
 	}
+	$wikitext =~ s/^ - ([A-Z]+): / - '''$1''' /gm;
+	$wikitext =~ s/(\w+\(\d*\))/`$1`/gs;
+	$wikitext =~ s/([^'])\b([A-Z_]{2,})\b([^'])/$1`$2`$3/gs;
+	$wikitext =~ s/([.!?])\n +(\w)/$1  $2/gs;
+	$wikitext =~ s/(\S)\n +(\S)/$1 $2/gs;
 	$wikitext .= "\n" .
 	    "[http://sourceforge.net/projects/openpam/files/openpam/$relname/ Download from Sourceforge]\n";
 	open(my $fh, ">", "$relname.txt")
