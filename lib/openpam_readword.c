@@ -200,8 +200,8 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
  * Any discrepancy is a bug and should be reported to the author along
  * with sample input that can be used to reproduce the error.
  *
- *>openpam_readline
- *>openpam_readlinev
+ * >openpam_readline
+ * >openpam_readlinev
  *
  * AUTHOR DES
  */
