@@ -315,6 +315,53 @@ static const char *openpam_policy_path[] = {
 };
 
 /*
+ * Read the specified chains from the specified file.
+ *
+ * Returns 0 if the file exists but does not contain any matching lines.
+ *
+ * Returns -1 and sets errno to ENOENT if the file does not exist.
+ *
+ * Returns -1 and sets errno to some other non-zero value if the file
+ * exists but is unsafe or unreadable, or an I/O error occurs.
+ */
+static int
+openpam_load_file(pam_handle_t *pamh,
+	const char *service,
+	pam_facility_t facility,
+	const char *filename,
+	openpam_style_t style)
+{
+	FILE *f;
+	int ret, serrno;
+
+	/* attempt to open the file */
+	if ((f = fopen(filename, "r")) == NULL) {
+		serrno = errno;
+		openpam_log(errno == ENOENT ? PAM_LOG_DEBUG : PAM_LOG_ERROR,
+		    "%s: %m", filename);
+		errno = serrno;
+		RETURNN(-1);
+	} else {
+		openpam_log(PAM_LOG_DEBUG, "found %s", filename);
+	}
+
+	/* verify type, ownership and permissions */
+	if (OPENPAM_FEATURE(VERIFY_POLICY_FILE) &&
+	    openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
+		/* already logged the cause */
+		serrno = errno;
+		fclose(f);
+		errno = serrno;
+		RETURNN(-1);
+	}
+
+	/* parse the file */
+	ret = openpam_parse_chain(pamh, service, facility,
+	    f, filename, style);
+	RETURNN(ret);
+}
+
+/*
  * Locates the policy file for a given service and reads the given chains
  * from it.
  *
@@ -327,7 +374,7 @@ openpam_load_chain(pam_handle_t *pamh,
 	const char *service,
 	pam_facility_t facility)
 {
-	const char **path;
+	const char *p, **path;
 	char filename[PATH_MAX];
 	size_t len;
 	openpam_style_t style;
@@ -335,6 +382,19 @@ openpam_load_chain(pam_handle_t *pamh,
 	int ret, serrno;
 
 	ENTERS(facility < 0 ? "any" : pam_facility_name[facility]);
+
+	/* either absolute or relative to cwd */
+	if (strchr(service, '/') != NULL) {
+		if (p = strrchr(service, '.') && strcmp(p, ".conf") == 0)
+			style = pam_conf_style;
+		else
+			style = pam_d_style;
+		ret = openpam_load_file(pamh, service, facility,
+		    service, style);
+		RETURNN(ret);
+	}
+
+	/* search standard locations */
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		/* construct filename */
 		len = strlcpy(filename, *path, sizeof filename);
@@ -348,39 +408,17 @@ openpam_load_chain(pam_handle_t *pamh,
 		} else {
 			style = pam_conf_style;
 		}
-
-		/* attempt to open the file */
-		if ((f = fopen(filename, "r")) == NULL) {
-			if (errno == ENOENT || errno == ENOTDIR) {
-				openpam_log(PAM_LOG_DEBUG, "%s: %m", filename);
-				continue;
-			} else {
-				serrno = errno;
-				openpam_log(PAM_LOG_ERROR, "%s: %m", filename);
-				errno = serrno;
-				RETURNN(-1);
-			}
-		} else {
-			openpam_log(PAM_LOG_DEBUG, "found %s", filename);
-		}
-
-		/* verify type, ownership and permissions */
-		if (OPENPAM_FEATURE(VERIFY_POLICY_FILE) &&
-		    openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
-			serrno = errno;
-			fclose(f);
-			errno = serrno;
-			RETURNN(-1);
-		}
-
-		/* parse the file */
-		ret = openpam_parse_chain(pamh, service, facility,
-		    f, filename, style);
-
+		ret = openpam_load_file(pamh, service, facility,
+		    filename, style);
+		/* the file exists, but an error occurred */
+		if (ret == -1 && errno != ENOENT)
+			RETURNN(ret);
 		/* in pam.d style, an empty file counts as a hit */
-		if (ret != 0 || style == pam_d_style)
+		if (ret == 0 && style == pam_d_style)
 			RETURNN(ret);
 	}
+
+	/* no hit */
 	RETURNN(0);
 }
 
