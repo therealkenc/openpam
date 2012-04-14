@@ -64,7 +64,7 @@ openpam_get_feature(int feature, int *onoff)
 
 /**
  * EXPERIMENTAL
- *
+ 
  * The =openpam_get_feature function stores the current state of the
  * specified feature in the variable pointed to by its =onoff argument.
  *
@@ -72,23 +72,24 @@ openpam_get_feature(int feature, int *onoff)
  *
  *	=OPENPAM_FEATURE_RESTRICT_SERVICE_NAME:
  *		Disallow path separators in service names.
- *		Disabling this feature allows the application
- Restrict service names to sequences of characters from the
- *		POSIX portable filename character set, not including the
- *		path separator.
- 
- *		If this feature is disabled, the application can specifyservice name parameter
- *		can be used to specify a policy file directly.
- 
  *		This feature is enabled by default.
+ *		Disabling it allows the application to specify the path to
+ *		the desired policy file directly.
  *
  *	=OPENPAM_FEATURE_CHECK_POLICY_FILE:
+ *		Verify the ownership and permissions of the policy file
+ *		and the path leading up to it.
  *		This feature is enabled by default.
  *
  *	=OPENPAM_FEATURE_RESTRICT_MODULE_NAME:
+ *		Disallow path separators in module names.
  *		This feature is disabled by default.
+ *		Enabling it prevents the use of modules in non-standard
+ *		locations.
  *
  *	=OPENPAM_FEATURE_CHECK_MODULE_FILE:
+ *		Verify the ownership and permissions of each loadable
+ *		module and the path leading up to it.
  *		This feature is enabled by default.
  *
  *
