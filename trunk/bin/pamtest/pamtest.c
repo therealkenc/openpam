@@ -265,7 +265,7 @@ usage(void)
 {
 
 	fprintf(stderr, "usage: pamtest %s service command ...\n",
-	    "[-dksv] [-H rhost] [-h host] [-t tty] [-U ruser] [-u user]");
+	    "[-dkMPsv] [-H rhost] [-h host] [-t tty] [-U ruser] [-u user]");
 	exit(1);
 }
 
@@ -300,7 +300,7 @@ main(int argc, char *argv[])
 	int pame;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "dH:h:kst:U:u:v")) != -1)
+	while ((opt = getopt(argc, argv, "dH:h:kMPst:U:u:v")) != -1)
 		switch (opt) {
 		case 'd':
 			openpam_debug++;
@@ -313,6 +313,14 @@ main(int argc, char *argv[])
 			break;
 		case 'k':
 			keepatit = 1;
+			break;
+		case 'M':
+			openpam_set_feature(OPENPAM_RESTRICT_MODULE_NAME, 0);
+			openpam_set_feature(OPENPAM_VERIFY_MODULE_FILE, 0);
+			break;
+		case 'P':
+			openpam_set_feature(OPENPAM_RESTRICT_SERVICE_NAME, 0);
+			openpam_set_feature(OPENPAM_VERIFY_POLICY_FILE, 0);
 			break;
 		case 's':
 			silent = PAM_SILENT;
