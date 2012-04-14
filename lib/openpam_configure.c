@@ -378,14 +378,13 @@ openpam_load_chain(pam_handle_t *pamh,
 	char filename[PATH_MAX];
 	size_t len;
 	openpam_style_t style;
-	FILE *f;
-	int ret, serrno;
+	int ret;
 
 	ENTERS(facility < 0 ? "any" : pam_facility_name[facility]);
 
 	/* either absolute or relative to cwd */
 	if (strchr(service, '/') != NULL) {
-		if (p = strrchr(service, '.') && strcmp(p, ".conf") == 0)
+		if ((p = strrchr(service, '.')) != NULL && strcmp(p, ".conf") == 0)
 			style = pam_conf_style;
 		else
 			style = pam_d_style;
