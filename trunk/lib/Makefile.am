@@ -22,9 +22,11 @@ libpam_la_SOURCES = \
 	openpam_constants.c \
 	openpam_dispatch.c \
 	openpam_dynamic.c \
+	openpam_features.c \
 	openpam_findenv.c \
 	openpam_free_data.c \
 	openpam_free_envlist.c \
+	openpam_get_feature.c \
 	openpam_get_option.c \
 	openpam_load.c \
 	openpam_log.c \
@@ -34,6 +36,7 @@ libpam_la_SOURCES = \
 	openpam_readword.c \
 	openpam_restore_cred.c \
 	openpam_set_option.c \
+	openpam_set_feature.c \
 	openpam_static.c \
 	openpam_straddch.c \
 	openpam_subst.c \

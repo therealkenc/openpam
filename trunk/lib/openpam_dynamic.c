@@ -70,7 +70,8 @@ try_dlopen(const char *modfn)
 
 	if ((fd = open(modfn, O_RDONLY)) < 0)
 		return (NULL);
-	if (openpam_check_desc_owner_perms(modfn, fd) != 0) {
+	if (OPENPAM_FEATURE(VERIFY_MODULE_FILE) &&
+	    openpam_check_desc_owner_perms(modfn, fd) != 0) {
 		close(fd);
 		return (NULL);
 	}
@@ -87,9 +88,13 @@ try_dlopen(const char *modfn)
 static void *
 try_dlopen(const char *modfn)
 {
+	int check_module_file;
 	void *dlh;
 
-	if (openpam_check_path_owner_perms(modfn) != 0)
+	openpam_get_feature(OPENPAM_FEATURE_CHECK_MODULE_FILE,
+	    &check_module_file);
+	if (check_module_file &&
+	    openpam_check_path_owner_perms(modfn) != 0)
 		return (NULL);
 	if ((dlh = dlopen(modfn, RTLD_NOW)) == NULL) {
 		openpam_log(PAM_LOG_ERROR, "%s: %s", modfn, dlerror());
