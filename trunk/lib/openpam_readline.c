@@ -111,6 +111,8 @@ fail:
 }
 
 /**
+ * DEPRECATED openpam_readlinev
+ *
  * The =openpam_readline function reads a line from a file, and returns it
  * in a NUL-terminated buffer allocated with =!malloc.
  *

@@ -140,6 +140,8 @@ sub parse_source($) {
     my $intaglist;
     my $inliteral;
     my $customrv;
+    my $deprecated;
+    my $experimental;
     my %xref;
     my @errors;
     my $author;
@@ -158,8 +160,16 @@ sub parse_source($) {
 	if ($source =~ m/^ \* NOPARSE\s*$/m);
 
     $author = 'THINKSEC';
-    if ($source =~ s/^ \* AUTHOR\s+(.*?)\s*$//m) {
+    if ($source =~ s/^ \* AUTHOR\s+(\w*)\s*$//m) {
 	$author = $1;
+    }
+
+    if ($source =~ s/^ \* DEPRECATED\s*(\w*)\s*$//m) {
+	$deprecated = $1 // 0;
+    }
+
+    if ($source =~ s/^ \* EXPERIMENTAL\s*$//m) {
+	$experimental = 1;
     }
 
     $func = $fn;
@@ -352,6 +362,8 @@ sub parse_source($) {
 	'errors'	=> \@errors,
 	'author'	=> $author,
 	'customrv'	=> $customrv,
+	'deprecated'	=> $deprecated,
+	'experimental'	=> $experimental,
     };
     if ($source =~ m/^ \* NODOC\s*$/m) {
 	$FUNCTIONS{$func}->{'nodoc'} = 1;
@@ -473,8 +485,24 @@ sub gendoc($) {
     $mdoc .= ".Ft \"$func->{'type'}\"
 .Fn $func->{'name'} $func->{'args'}
 .Sh DESCRIPTION
-$func->{'man'}
 ";
+    if (defined($func->{'deprecated'})) {
+	$mdoc .= ".Bf Em\n" .
+	    "This function is deprecated and may be removed " .
+	    "in a future release without further warning.\n";
+	if ($func->{'deprecated'}) {
+	    $mdoc .= "The\n.Fn $func->{'deprecated'}\nfunction " .
+		"may be used to achieve similar results.\n";
+	}
+	$mdoc .= ".Ef\n.Pp\n";
+    }
+    if ($func->{'experimental'}) {
+	$mdoc .= ".Bf Em\n" .
+	    "This function is experimental and may be modified or removed" .
+	    "in a future release without further warning.\n";
+	$mdoc .= ".Ef\n.Pp\n";
+    }
+    $mdoc .= "$func->{'man'}\n";
     my @errors = @{$func->{'errors'}};
     if ($func->{'customrv'}) {
 	# leave it
