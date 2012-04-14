@@ -487,7 +487,7 @@ sub gendoc($) {
 .Sh DESCRIPTION
 ";
     if (defined($func->{'deprecated'})) {
-	$mdoc .= ".Bf Em\n" .
+	$mdoc .= ".Bf Sy\n" .
 	    "This function is deprecated and may be removed " .
 	    "in a future release without further warning.\n";
 	if ($func->{'deprecated'}) {
@@ -497,8 +497,8 @@ sub gendoc($) {
 	$mdoc .= ".Ef\n.Pp\n";
     }
     if ($func->{'experimental'}) {
-	$mdoc .= ".Bf Em\n" .
-	    "This function is experimental and may be modified or removed" .
+	$mdoc .= ".Bf Sy\n" .
+	    "This function is experimental and may be modified or removed " .
 	    "in a future release without further warning.\n";
 	$mdoc .= ".Ef\n.Pp\n";
     }
