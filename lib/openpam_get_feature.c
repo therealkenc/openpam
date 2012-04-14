@@ -64,7 +64,7 @@ openpam_get_feature(int feature, int *onoff)
 
 /**
  * EXPERIMENTAL
- 
+ *
  * The =openpam_get_feature function stores the current state of the
  * specified feature in the variable pointed to by its =onoff argument.
  *
