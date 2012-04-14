@@ -63,7 +63,11 @@ openpam_set_feature(int feature, int onoff)
  */
 
 /**
- * The =openpam_set_feature function
+ * EXPERIMENTAL
+ *
+ * The =openpam_set_feature function sets the state of the specified
+ * feature to the value specified by the =onoff argument.
+ * See =openpam_get_feature for a list of recognized features.
  *
  * >openpam_get_feature
  *
