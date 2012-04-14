@@ -179,6 +179,23 @@ openpam_straddch(char **_str,
 	OPENPAM_NONNULL((1));
 
 /*
+ * Enable / disable optional features
+ */
+enum {
+	OPENPAM_RESTRICT_SERVICE_NAME,
+	OPENPAM_VERIFY_POLICY_FILE,
+	OPENPAM_RESTRICT_MODULE_NAME,
+	OPENPAM_VERIFY_MODULE_FILE,
+	OPENPAM_NUM_FEATURES
+};
+
+int
+openpam_set_feature(int _feature, int _onoff);
+
+int
+openpam_get_feature(int _feature, int *_onoff);
+
+/*
  * Log levels
  */
 enum {

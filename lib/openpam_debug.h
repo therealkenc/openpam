@@ -58,6 +58,14 @@
 	else \
 		openpam_log(PAM_LOG_LIBDEBUG, "entering: '%s'", s_); \
 } while (0)
+#define ENTERF(f) do { \
+	int f_ = (f); \
+	if (f_ >= 0 && f_ <= OPENPAM_NUM_FEATURES) \
+		openpam_log(PAM_LOG_LIBDEBUG, "entering: %s", \
+		    openpam_features[f_].name); \
+	else \
+		openpam_log(PAM_LOG_LIBDEBUG, "entering: %d", f_); \
+} while (0)
 #define	RETURNV() openpam_log(PAM_LOG_LIBDEBUG, "returning")
 #define RETURNC(c) do { \
 	int c_ = (c); \
@@ -93,6 +101,7 @@
 #define ENTERI(i)
 #define ENTERN(n)
 #define ENTERS(s)
+#define ENTERF(f)
 #define RETURNV() return
 #define RETURNC(c) return (c)
 #define RETURNN(n) return (n)

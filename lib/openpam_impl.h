@@ -174,5 +174,6 @@ pam_module_t	*openpam_dynamic(const char *);
 
 #include "openpam_constants.h"
 #include "openpam_debug.h"
+#include "openpam_features.h"
 
 #endif

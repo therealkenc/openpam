@@ -38,6 +38,7 @@ OMAN = \
 	openpam_borrow_cred.3 \
 	openpam_free_data.3 \
 	openpam_free_envlist.3 \
+	openpam_get_feature.3 \
 	openpam_get_option.3 \
 	openpam_log.3 \
 	openpam_nullconv.3 \
@@ -45,6 +46,7 @@ OMAN = \
 	openpam_readlinev.3 \
 	openpam_readword.3 \
 	openpam_restore_cred.3 \
+	openpam_set_feature.3 \
 	openpam_set_option.3 \
 	openpam_straddch.3 \
 	openpam_subst.3 \

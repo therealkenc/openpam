@@ -68,9 +68,17 @@ valid_service_name(const char *name)
 {
 	const char *p;
 
-	for (p = name; *p != '\0'; ++p)
-		if (!is_pfcs(*p))
-			return (0);
+	if (OPENPAM_FEATURE(RESTRICT_SERVICE_NAME)) {
+		/* path separator not allowed */
+		for (p = name; *p != '\0'; ++p)
+			if (!is_pfcs(*p))
+				return (0);
+	} else {
+		/* path separator allowed */
+		for (p = name; *p != '\0'; ++p)
+			if (!is_pfcs(*p) && *p != '/')
+				return (0);
+	}
 	return (1);
 }
 
@@ -116,13 +124,21 @@ parse_control_flag(const char *name)
  * character set, including the path separator character.
  */
 static int
-valid_filename(const char *name)
+valid_module_name(const char *name)
 {
 	const char *p;
 
-	for (p = name; *p != '\0'; ++p)
-		if (!is_pfcs(*p) && *p != '/')
-			return (0);
+	if (OPENPAM_FEATURE(RESTRICT_MODULE_NAME)) {
+		/* path separator not allowed */
+		for (p = name; *p != '\0'; ++p)
+			if (!is_pfcs(*p))
+				return (0);
+	} else {
+		/* path separator allowed */
+		for (p = name; *p != '\0'; ++p)
+			if (!is_pfcs(*p) && *p != '/')
+				return (0);
+	}
 	return (1);
 }
 
@@ -219,7 +235,7 @@ openpam_parse_chain(pam_handle_t *pamh,
 
 		/* get module name */
 		if ((modulename = wordv[i++]) == NULL ||
-		    !valid_filename(modulename)) {
+		    !valid_module_name(modulename)) {
 			openpam_log(PAM_LOG_ERROR,
 			    "%s(%d): missing or invalid module name",
 			    filename, lineno);
@@ -318,11 +334,6 @@ openpam_load_chain(pam_handle_t *pamh,
 	FILE *f;
 	int ret, serrno;
 
-	if (!valid_service_name(service)) {
-		openpam_log(PAM_LOG_ERROR, "invalid service name");
-		errno = EINVAL;
-		RETURNN(-1);
-	}
 	ENTERS(facility < 0 ? "any" : pam_facility_name[facility]);
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		/* construct filename */
@@ -354,7 +365,8 @@ openpam_load_chain(pam_handle_t *pamh,
 		}
 
 		/* verify type, ownership and permissions */
-		if (openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
+		if (OPENPAM_FEATURE(VERIFY_POLICY_FILE) &&
+		    openpam_check_desc_owner_perms(filename, fileno(f)) != 0) {
 			serrno = errno;
 			fclose(f);
 			errno = serrno;
@@ -383,13 +395,13 @@ openpam_configure(pam_handle_t *pamh,
 	const char *service)
 {
 	pam_facility_t fclt;
-	const char *p;
 	int serrno;
 
 	ENTERS(service);
-	for (p = service; *p; ++p)
-		if (!is_pfcs(*p))
-			RETURNC(PAM_SYSTEM_ERR);
+	if (!valid_service_name(service)) {
+		openpam_log(PAM_LOG_ERROR, "invalid service name");
+		RETURNC(PAM_SYSTEM_ERR);
+	}
 	if (openpam_load_chain(pamh, service, PAM_FACILITY_ANY) < 0)
 		goto load_err;
 	for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt) {
