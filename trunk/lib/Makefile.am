@@ -10,6 +10,7 @@ noinst_HEADERS = \
 	openpam_constants.h \
 	openpam_ctype.h \
 	openpam_debug.h \
+	openpam_features.h \
 	openpam_impl.h \
 	openpam_strlcat.h \
 	openpam_strlcmp.h \
