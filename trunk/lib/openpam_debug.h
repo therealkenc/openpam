@@ -35,8 +35,8 @@
  * $Id$
  */
 
-#ifndef OPENPAM_DEBUG_INCLUDED
-#define OPENPAM_DEBUG_INCLUDED
+#ifndef OPENPAM_DEBUG_H_INCLUDED
+#define OPENPAM_DEBUG_H_INCLUDED
 
 #ifdef OPENPAM_DEBUG
 #define ENTER() openpam_log(PAM_LOG_LIBDEBUG, "entering")

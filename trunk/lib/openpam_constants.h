@@ -30,8 +30,8 @@
  * $Id$
  */
 
-#ifndef OPENPAM_CONSTANTS_INCLUDED
-#define OPENPAM_CONSTANTS_INCLUDED
+#ifndef OPENPAM_CONSTANTS_H_INCLUDED
+#define OPENPAM_CONSTANTS_H_INCLUDED
 
 extern const char *pam_err_name[PAM_NUM_ERRORS];
 extern const char *pam_item_name[PAM_NUM_ITEMS];

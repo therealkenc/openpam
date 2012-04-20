@@ -30,8 +30,8 @@
  * $Id$
  */
 
-#ifndef OPENPAM_FEATURES_INCLUDED
-#define OPENPAM_FEATURES_INCLUDED
+#ifndef OPENPAM_FEATURES_H_INCLUDED
+#define OPENPAM_FEATURES_H_INCLUDED
 
 struct openpam_feature {
 	const char *name;
