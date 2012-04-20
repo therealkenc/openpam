@@ -233,8 +233,8 @@ _openpam_log(int _level,
 void
 openpam_log(int _level,
 	const char *_format,
- 	...)
- 	OPENPAM_FORMAT ((__printf__, 2, 3))
+	...)
+	OPENPAM_FORMAT ((__printf__, 2, 3))
 	OPENPAM_NONNULL((2));
 #endif
 
