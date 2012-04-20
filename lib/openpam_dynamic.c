@@ -91,7 +91,7 @@ try_dlopen(const char *modfn)
 	int check_module_file;
 	void *dlh;
 
-	openpam_get_feature(OPENPAM_FEATURE_CHECK_MODULE_FILE,
+	openpam_get_feature(OPENPAM_CHECK_MODULE_FILE,
 	    &check_module_file);
 	if (check_module_file &&
 	    openpam_check_path_owner_perms(modfn) != 0)
