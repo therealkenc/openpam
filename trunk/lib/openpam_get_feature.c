@@ -76,7 +76,7 @@ openpam_get_feature(int feature, int *onoff)
  *		Disabling it allows the application to specify the path to
  *		the desired policy file directly.
  *
- *	=OPENPAM_CHECK_POLICY_FILE:
+ *	=OPENPAM_VERIFY_POLICY_FILE:
  *		Verify the ownership and permissions of the policy file
  *		and the path leading up to it.
  *		This feature is enabled by default.
@@ -87,7 +87,7 @@ openpam_get_feature(int feature, int *onoff)
  *		Enabling it prevents the use of modules in non-standard
  *		locations.
  *
- *	=OPENPAM_CHECK_MODULE_FILE:
+ *	=OPENPAM_VERIFY_MODULE_FILE:
  *		Verify the ownership and permissions of each loadable
  *		module and the path leading up to it.
  *		This feature is enabled by default.
