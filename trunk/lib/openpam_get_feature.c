@@ -70,24 +70,24 @@ openpam_get_feature(int feature, int *onoff)
  *
  * The following features are recognized:
  *
- *	=OPENPAM_FEATURE_RESTRICT_SERVICE_NAME:
+ *	=OPENPAM_RESTRICT_SERVICE_NAME:
  *		Disallow path separators in service names.
  *		This feature is enabled by default.
  *		Disabling it allows the application to specify the path to
  *		the desired policy file directly.
  *
- *	=OPENPAM_FEATURE_CHECK_POLICY_FILE:
+ *	=OPENPAM_CHECK_POLICY_FILE:
  *		Verify the ownership and permissions of the policy file
  *		and the path leading up to it.
  *		This feature is enabled by default.
  *
- *	=OPENPAM_FEATURE_RESTRICT_MODULE_NAME:
+ *	=OPENPAM_RESTRICT_MODULE_NAME:
  *		Disallow path separators in module names.
  *		This feature is disabled by default.
  *		Enabling it prevents the use of modules in non-standard
  *		locations.
  *
- *	=OPENPAM_FEATURE_CHECK_MODULE_FILE:
+ *	=OPENPAM_CHECK_MODULE_FILE:
  *		Verify the ownership and permissions of each loadable
  *		module and the path leading up to it.
  *		This feature is enabled by default.
