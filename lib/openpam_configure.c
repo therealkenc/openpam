@@ -261,6 +261,8 @@ openpam_parse_chain(pam_handle_t *pamh,
 		this->optc = wordc - i;
 		for (i = 0; i < wordc - this->optc; ++i) {
 			FREE(wordv[i]);
+		}
+		for (i = 0; i < this->optc; ++i) {
 			wordv[i] = wordv[wordc - this->optc + i];
 			wordv[wordc - this->optc + i] = NULL;
 		}
