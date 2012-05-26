@@ -1,4 +1,4 @@
-OpenPAM ?????????						2012-04-??
+OpenPAM Micrampelis						2012-05-26
 
  - FEATURE: Add an openpam_readword(3) function which reads the next
    word from an input stream, applying shell quoting and escaping
