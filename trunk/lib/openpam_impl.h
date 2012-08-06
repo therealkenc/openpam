@@ -122,19 +122,6 @@ struct pam_handle {
 	int		 env_size;
 };
 
-#ifdef NGROUPS_MAX
-/*
- * Saved credentials
- */
-#define PAM_SAVED_CRED "pam_saved_cred"
-struct pam_saved_cred {
-	uid_t	 euid;
-	gid_t	 egid;
-	gid_t	 groups[NGROUPS_MAX];
-	int	 ngroups;
-};
-#endif
-
 /*
  * Default policy
  */
