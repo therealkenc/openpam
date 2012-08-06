@@ -50,6 +50,7 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+#include "openpam_cred.h"
 
 /*
  * OpenPAM extension
