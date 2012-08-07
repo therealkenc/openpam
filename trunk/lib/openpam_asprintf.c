@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2011 Dag-Erling Smørgrav
+ * Copyright (c) 2012 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,29 @@
  * $Id$
  */
 
-#ifndef OPENPAM_STRLCPY_H_INCLUDED
-#define OPENPAM_STRLCPY_H_INCLUDED
-
-#ifndef HAVE_STRLCPY
-size_t openpam_strlcpy(char *, const char *, size_t);
-#undef strlcpy
-#define strlcpy(arg, ...) openpam_strlcpy(arg, __VA_ARGS__)
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
+
+#ifndef HAVE_ASPRINTF
+
+#include <stdarg.h>
+#include <stdio.h>
+
+#include "openpam_asprintf.h"
+#include "openpam_vasprintf.h"
+
+/* like sprintf(3), but allocates memory for the result. */
+int
+openpam_asprintf(char **str, const char *fmt, ...)
+{
+        va_list ap;
+        int ret;
+
+        va_start(ap, fmt);
+        ret = vasprintf(str, fmt, ap);
+        va_end(ap);
+        return (ret);
+}
 
 #endif

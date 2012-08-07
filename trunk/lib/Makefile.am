@@ -7,6 +7,7 @@ INCLUDES = -I$(top_srcdir)/include
 lib_LTLIBRARIES = libpam.la
 
 noinst_HEADERS = \
+	openpam_asprintf.h \
 	openpam_constants.h \
 	openpam_cred.h \
 	openpam_ctype.h \
@@ -15,9 +16,11 @@ noinst_HEADERS = \
 	openpam_impl.h \
 	openpam_strlcat.h \
 	openpam_strlcmp.h \
-	openpam_strlcpy.h
+	openpam_strlcpy.h \
+	openpam_vasprintf.h
 
 libpam_la_SOURCES = \
+	openpam_asprintf.c \
 	openpam_borrow_cred.c \
 	openpam_check_owner_perms.c \
 	openpam_configure.c \
@@ -40,8 +43,11 @@ libpam_la_SOURCES = \
 	openpam_set_option.c \
 	openpam_set_feature.c \
 	openpam_static.c \
+	openpam_strlcat.c \
+	openpam_strlcpy.c \
 	openpam_straddch.c \
 	openpam_subst.c \
+	openpam_vasprintf.c \
 	openpam_ttyconv.c \
 	pam_acct_mgmt.c \
 	pam_authenticate.c \
