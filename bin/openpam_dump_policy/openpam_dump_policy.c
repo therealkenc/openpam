@@ -43,6 +43,7 @@
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
+#include "openpam_asprintf.h"
 
 static char *
 openpam_chain_name(const char *service, pam_facility_t fclt)

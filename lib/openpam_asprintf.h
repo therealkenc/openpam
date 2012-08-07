@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2011 Dag-Erling Smørgrav
+ * Copyright (c) 2012 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,13 @@
  * $Id$
  */
 
-#ifndef OPENPAM_STRLCPY_H_INCLUDED
-#define OPENPAM_STRLCPY_H_INCLUDED
+#ifndef OPENPAM_ASPRINTF_H_INCLUDED
+#define OPENPAM_ASPRINTF_H_INCLUDED
 
-#ifndef HAVE_STRLCPY
-size_t openpam_strlcpy(char *, const char *, size_t);
-#undef strlcpy
-#define strlcpy(arg, ...) openpam_strlcpy(arg, __VA_ARGS__)
+#ifndef HAVE_ASPRINTF
+int openpam_asprintf(char **, const char *, ...);
+#undef asprintf
+#define asprintf(arg, ...) openpam_asprintf(arg, __VA_ARGS__)
 #endif
 
 #endif

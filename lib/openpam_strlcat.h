@@ -34,21 +34,9 @@
 #define OPENPAM_STRLCAT_H_INCLUDED
 
 #ifndef HAVE_STRLCAT
-/* like strcat(3), but always NUL-terminates; returns strlen(src) */
-static size_t
-strlcat(char *dst, const char *src, size_t size)
-{
-	size_t len;
-
-	for (len = 0; *dst && size > 1; ++len, --size)
-		dst++;
-	for (; *src && size > 1; ++len, --size)
-		*dst++ = *src++;
-	*dst = '\0';
-	while (*src)
-		++len, ++src;
-	return (len);
-}
+size_t openpam_strlcat(char *, const char *, size_t);
+#undef strlcat
+#define strlcat(arg, ...) openpam_strlcat(arg, __VA_ARGS__)
 #endif
 
 #endif

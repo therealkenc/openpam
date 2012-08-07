@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2011 Dag-Erling Smørgrav
+ * Copyright (c) 2011-2012 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,30 @@
  * $Id$
  */
 
-#ifndef OPENPAM_STRLCPY_H_INCLUDED
-#define OPENPAM_STRLCPY_H_INCLUDED
-
-#ifndef HAVE_STRLCPY
-size_t openpam_strlcpy(char *, const char *, size_t);
-#undef strlcpy
-#define strlcpy(arg, ...) openpam_strlcpy(arg, __VA_ARGS__)
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
+
+#ifndef HAVE_STRLCAT
+
+#include <stddef.h>
+
+#include "openpam_strlcat.h"
+
+/* like strcat(3), but always NUL-terminates; returns strlen(src) */
+size_t
+openpam_strlcat(char *dst, const char *src, size_t size)
+{
+	size_t len;
+
+	for (len = 0; *dst && size > 1; ++len, --size)
+		dst++;
+	for (; *src && size > 1; ++len, --size)
+		*dst++ = *src++;
+	*dst = '\0';
+	while (*src)
+		++len, ++src;
+	return (len);
+}
 
 #endif
