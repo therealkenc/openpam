@@ -75,6 +75,8 @@ main(int argc, char *argv[])
 	int n, pass, fail;
 	int opt;
 
+	atexit(t_fcloseall);
+
 	if ((t_progname = strrchr(argv[0], '/')) != NULL)
 		t_progname++; /* one past the slash */
 	else
