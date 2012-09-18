@@ -57,4 +57,21 @@ void t_cleanup(void);
 void t_verbose(const char *, ...)
 	OPENPAM_FORMAT((__printf__, 1, 2));
 
+/*
+ * Convenience functions for temp files
+ */
+struct t_file {
+	char *name;
+	FILE *file;
+	struct t_file *prev, *next;
+};
+
+struct t_file *t_fopen(const char *);
+int t_fprintf(struct t_file *, const char *, ...);
+int t_ferror(struct t_file *);
+int t_feof(struct t_file *);
+void t_frewind(struct t_file *);
+void t_fclose(struct t_file *);
+void t_fcloseall(void);
+
 #endif
