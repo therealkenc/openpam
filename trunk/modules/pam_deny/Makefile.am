@@ -1,7 +1,7 @@
 # $Id$
 
 pkglibdir = @OPENPAM_MODULES_DIR@
-INCLUDES = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include
 
 pkglib_LTLIBRARIES = pam_deny.la
 
