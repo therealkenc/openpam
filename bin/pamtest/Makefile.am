@@ -1,6 +1,6 @@
 # $Id$
 
-INCLUDES = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include
 
 bin_PROGRAMS = pamtest
 pamtest_SOURCES = pamtest.c

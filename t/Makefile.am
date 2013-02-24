@@ -1,6 +1,6 @@
 # $Id$
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib
 
 noinst_HEADERS = t.h
 

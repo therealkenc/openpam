@@ -1,6 +1,6 @@
 # $Id$
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib
 
 noinst_PROGRAMS = openpam_dump_policy
 openpam_dump_policy_SOURCES = openpam_dump_policy.c
