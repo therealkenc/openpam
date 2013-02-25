@@ -64,10 +64,16 @@ AC_ARG_WITH([doc],
 AM_CONDITIONAL([WITH_DOC], [test x"$with_doc" = x"yes"])
 
 AC_ARG_WITH([pam-unix],
-    AC_HELP_STRING([--with-pam-unix], [compile sample pam_unix(8) implementation]),
+    AC_HELP_STRING([--with-pam-unix], [compile sample pam_unix(8) module]),
     [],
     [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
+
+AC_ARG_WITH([pam-oath],
+    AC_HELP_STRING([--with-pam-oath], [compile pam_oath(8) module]),
+    [],
+    [with_pam_oath=no])
+AM_CONDITIONAL([WITH_PAM_OATH], [test x"$with_pam_oath" = x"yes"])
 
 AC_ARG_WITH(pamtest,
     AC_HELP_STRING([--with-pamtest], [compile test application]),
@@ -99,6 +105,13 @@ CRYPT_LIBS="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(CRYPT_LIBS)
 
+saved_LIBS="${LIBS}"
+LIBS=""
+AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms])
+CRYPTO_LIBS="${LIBS}"
+LIBS="${saved_LIBS}"
+AC_SUBST(CRYPTO_LIBS)
+
 AC_ARG_ENABLE([developer-warnings],
     AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
     [CFLAGS="${CFLAGS} -Wall -Wextra"])
@@ -124,6 +137,7 @@ AC_CONFIG_FILES([
     modules/pam_deny/Makefile
     modules/pam_permit/Makefile
     modules/pam_unix/Makefile
+    modules/pam_oath/Makefile
     t/Makefile
 ])
 AC_CONFIG_FILES([pamgdb],[chmod +x pamgdb])
