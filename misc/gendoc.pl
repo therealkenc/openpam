@@ -499,7 +499,7 @@ sub gendoc($) {
     if ($func->{'experimental'}) {
 	$mdoc .= ".Bf Sy\n" .
 	    "This function is experimental and may be modified or removed " .
-	    "in a future release without further warning.\n";
+	    "in a future release without prior warning.\n";
 	$mdoc .= ".Ef\n.Pp\n";
     }
     $mdoc .= "$func->{'man'}\n";
