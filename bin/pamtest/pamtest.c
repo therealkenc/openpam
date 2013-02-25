@@ -351,6 +351,8 @@ main(int argc, char *argv[])
 	++argv;
 
 	/* defaults */
+	if (service == NULL)
+		service = "pamtest";
 	if (rhost == NULL) {
 		if (gethostname(hostname, sizeof(hostname)) == -1)
 			err(1, "gethostname()");
