@@ -33,12 +33,14 @@
 # include "config.h"
 #endif
 
+#include <sys/types.h>
+
 #include <errno.h>
 #include <stdint.h>
 
 #include "oath.h"
 
-static const char b32 =
+static const char b32[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 /*
