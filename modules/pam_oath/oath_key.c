@@ -33,129 +33,201 @@
 # include "config.h"
 #endif
 
+#include <sys/types.h>
+
 #include <errno.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <security/pam_appl.h>
+#include <security/openpam.h>
+#include "openpam_strlcmp.h"
 
 #include "oath.h"
 
-/* amount of space necessary to store base32-encoded data */
-#define base32_enclen(l) (((l + 4) / 5) * 8)
-
-/* maximum decoded length of base32-encoded data */
-#define base32_declen(l) (((l + 7) / 8) * 5)
-
-static const char b32 =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-
 /*
- * Encode data in RFC 3548 base 32 representation.  The target buffer must
- * have room for base32_enclen(len) characters and a terminating NUL.
+ * Allocate a struct oath_key with sufficient additional space for the
+ * label and key.
  */
-static int
-base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
+struct oath_key *
+oath_key_alloc(size_t extra)
 {
-	uint64_t bits;
+	struct oath_key *key;
 
-	if (*olen <= base32_enclen(ilen))
-		return (-1);
-	*olen = 0;
-	while (ilen >= 5) {
-		bits = 0;
-		bits = bits << 8 | in[0];
-		bits = bits << 8 | in[1];
-		bits = bits << 8 | in[2];
-		bits = bits << 8 | in[3];
-		bits = bits << 8 | in[4];
-		ilen -= 5;
-		in += 5;
-		out[0] = b32[bits >> 5*7 & 0x1f];
-		out[1] = b32[bits >> 5*6 & 0x1f];
-		out[2] = b32[bits >> 5*5 & 0x1f];
-		out[3] = b32[bits >> 5*4 & 0x1f];
-		out[4] = b32[bits >> 5*3 & 0x1f];
-		out[5] = b32[bits >> 5*2 & 0x1f];
-		out[6] = b32[bits >> 5*1 & 0x1f];
-		out[7] = b32[bits >> 5*0 & 0x1f];
-		olen += 8;
-		out += 8;
+	if ((key = calloc(1, sizeof *key + extra)) == NULL) {
+		openpam_log(PAM_LOG_ERROR, "malloc(): %s", strerror(errno));
+		return (NULL);
 	}
-	if (ilen > 0) {
-		bits = 0;
-		switch (ilen) {
-		case 4:
-			bits |= (uint64_t)in[3] << 8;
-		case 3:
-			bits |= (uint64_t)in[2] << 16;
-		case 2:
-			bits |= (uint64_t)in[1] << 24;
-		case 1:
-			bits |= (uint64_t)in[1] << 32;
-		}
-		out[0] = b32[bits >> 5*7 & 0x1f];
-		out[1] = b32[bits >> 5*6 & 0x1f];
-		out[2] = ilen > 1 ? b32[bits >> 5*5 & 0x1f] : '=';
-		out[3] = ilen > 1 ? b32[bits >> 5*4 & 0x1f] : '=';
-		out[4] = ilen > 2 ? b32[bits >> 5*3 & 0x1f] : '=';
-		out[5] = ilen > 3 ? b32[bits >> 5*2 & 0x1f] : '=';
-		out[6] = ilen > 3 ? b32[bits >> 5*1 & 0x1f] : '=';
-		out[7] = '=';
-		olen += 8;
-		out += 8;
-	}
-	out[0] = '\0';
-	return (0);
+	key->datalen = extra;
+	/* XXX should try to wire */
+	return (key);
 }
 
 /*
- * Decode data in RFC 2548 base 32 representation, stopping at the
- * terminating NUL, the first invalid (non-base32, non-whitespace)
- * character or after len characters, whichever comes first.
- *
- * The olen argument is used by the caller to pass the size of the buffer
- * and by base32_dec() to return the amount of data successfully decoded.
- * If the buffer is too small, base32_dec() discards the excess data, but
- * returns the total amount.
+ * Wipe and free a struct oath_key
  */
-static int
-base32_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
+void
+oath_key_free(struct oath_key *key)
 {
-	size_t len;
-	uint64_t bits;
-	int shift;
 
-	for (len = 0, bits = 0, shift = 40; ilen && *in; --ilen, ++in) {
-		if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n') {
-			continue;
-		} else if (*in >= 'A' && *in <= 'Z') {
-			shift -= 5;
-			bits |= (uint64_t)(*in - 'A') << shift;
-		} else if (*in >= 'a' && *in <= 'z') {
-			shift -= 5;
-			bits |= (uint64_t)(*in - 'a') << shift;
-		} else if (*in >= '2' && *in <= '7') {	
-			shift -= 5;
-			bits |= (uint64_t)(*in - '2' + 26) << shift;
+	if (key != NULL) {
+		memset(key, 0, sizeof *key + key->datalen);
+		free(key);
+	}
+}
+
+/*
+ * Allocate a struct oath_key and populate it from a Google Authenticator
+ * otpauth URI
+ */
+struct oath_key *
+oath_key_from_uri(const char *uri)
+{
+	struct oath_key *key;
+	const char *p, *q, *r;
+	uintmax_t n;
+	char *e;
+
+	/*
+	 * The URI string contains the label, the base32-encoded key and
+	 * some fluff, so the combined length of the label and key can
+	 * never exceed the length of the URI string.
+	 */
+	if ((key = oath_key_alloc(strlen(uri))) == NULL)
+		return (NULL);
+
+	/* check method */
+	p = uri;
+	if (strlcmp("otpauth://", p, 10) != 0)
+		goto invalid;
+	p += 10;
+
+	/* check mode (hotp = event, totp = time-sync) */
+	if ((q = strchr(p, '/')) == NULL)
+		goto invalid;
+	if (strlcmp("hotp", p, q - p) == 0) {
+		openpam_log(PAM_LOG_DEBUG, "OATH mode: HOTP");
+		key->mode = om_hotp;
+	} else if (strlcmp("totp", p, q - p) == 0) {
+		openpam_log(PAM_LOG_DEBUG, "OATH mode: TOTP");
+		key->mode = om_totp;
+	} else {
+		goto invalid;
+	}
+	p = q + 1;
+
+	/* extract label */
+	if ((q = strchr(p, '?')) == NULL)
+		goto invalid;
+	key->label = (char *)key->data;
+	key->labellen = (q - p) + 1;
+	/* assert: key->labellen < key->datalen */
+	memcpy(key->label, p, q - p);
+	key->label[q - p] = '\0';
+	p = q + 1;
+
+	/* extract parameters */
+	key->counter = UINTMAX_MAX;
+	while (*p != '\0') {
+		if ((q = strchr(p, '=')) == NULL)
+			goto invalid;
+		q = q + 1;
+		if ((r = strchr(p, '&')) == NULL)
+			r = strchr(p, '\0');
+		if (r < q)
+			/* & before = */
+			goto invalid;
+		/* p points to key, q points to value, r points to & or NUL */
+		if (strlcmp("secret=", p, q - p) == 0) {
+			if (key->keylen != 0)
+				/* dupe */
+				goto invalid;
+			/* base32-encoded key - multiple of 40 bits */
+			if ((r - q) % 8 != 0 ||
+			    base32_declen(r - q) > OATH_MAX_KEYLEN)
+				goto invalid;
+			key->key = key->data + key->labellen;
+			if (base32_dec(q, r - q, key->key, &key->keylen) != 0)
+				goto invalid;
+			if (base32_enclen(key->keylen) != (size_t)(r - q))
+				goto invalid;
+		} else if (strlcmp("algorithm=", p, q - p) == 0) {
+			if (key->hash != oh_undef)
+				/* dupe */
+				goto invalid;
+			if (strlcmp("SHA1", q, r - q) == 0)
+				key->hash = oh_sha1;
+			else if (strlcmp("SHA256", q, r - q) == 0)
+				key->hash = oh_sha256;
+			else if (strlcmp("SHA512", q, r - q) == 0)
+				key->hash = oh_sha512;
+			else if (strlcmp("MD5", q, r - q) == 0)
+				key->hash = oh_md5;
+			else
+				goto invalid;
+		} else if (strlcmp("digits=", p, q - p) == 0) {
+			if (key->digits != 0)
+				/* dupe */
+				goto invalid;
+			/* only 6 or 8 */
+			if (r - q != 1 || (*q != '6' && *q != '8'))
+				goto invalid;
+			key->digits = *q - '0';
+		} else if (strlcmp("counter=", p, q - p) == 0) {
+			if (key->counter != UINTMAX_MAX)
+				/* dupe */
+				goto invalid;
+			n = strtoumax(q, &e, 10);
+			if (e != r || n >= UINTMAX_MAX)
+				goto invalid;
+			key->counter = (uint64_t)n;
+		} else if (strlcmp("period=", p, q - p) == 0) {
+			if (key->timestep != 0)
+				/* dupe */
+				goto invalid;
+			n = strtoumax(q, &e, 10);
+			if (e != r || n > OATH_MAX_TIMESTEP)
+				goto invalid;
+			key->timestep = n;
 		} else {
-			*olen = 0;
-			return (-1);
+			goto invalid;
 		}
-		if (shift == 0) {
-			if ((len += 5) <= *olen) {
-				out[0] = (bits >> 32) & 0xff;
-				out[1] = (bits >> 24) & 0xff;
-				out[2] = (bits >> 16) & 0xff;
-				out[3] = (bits >> 8) & 0xff;
-				out[4] = bits & 0xff;
-				out += 5;
-			}
-			bits = 0;
-			shift = 40;
-		}
+		/* final parameter? */
+		if (*r == '\0')
+			break;
+		/* skip & and continue */
+		p = r + 1;
 	}
-	if (len > *olen) {
-		*olen = len;
-		return (-1);
+
+invalid:
+	openpam_log(PAM_LOG_NOTICE, "invalid OATH URI: %s", uri);
+	oath_key_free(key);
+	return (NULL);
+}
+
+struct oath_key *
+oath_key_from_file(const char *filename)
+{
+	struct oath_key *key;
+	FILE *f;
+	char *line;
+	size_t len;
+
+	if ((f = fopen(filename, "r")) == NULL)
+		return (NULL);
+	/* get first non-empty non-comment line */
+	line = openpam_readline(f, NULL, &len);
+	if (strlcmp("otpauth://", line, len) == 0) {
+		key = oath_key_from_uri(line);
+	} else {
+		openpam_log(PAM_LOG_ERROR,
+		    "unrecognized key file format: %s", filename);
+		key = NULL;
 	}
-	*olen = len;
-	return (0);
+	fclose(f);
+	return (key);
 }
