@@ -45,6 +45,7 @@
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
+
 #include "openpam_strlcmp.h"
 
 #include "oath.h"
@@ -125,7 +126,6 @@ oath_key_from_uri(const char *uri)
 		goto invalid;
 	key->label = (char *)key->data;
 	key->labellen = (q - p) + 1;
-	/* assert: key->labellen < key->datalen */
 	memcpy(key->label, p, q - p);
 	key->label[q - p] = '\0';
 	p = q + 1;
@@ -202,6 +202,29 @@ oath_key_from_uri(const char *uri)
 		/* skip & and continue */
 		p = r + 1;
 	}
+
+	/* sanity checks and default values */
+	if (key->mode == om_hotp) {
+		if (key->timestep != 0)
+			goto invalid;
+		if (key->counter == UINTMAX_MAX)
+			key->counter = 0;
+	} else if (key->mode == om_totp) {
+		if (key->counter != UINTMAX_MAX)
+			goto invalid;
+		if (key->timestep == 0)
+			key->timestep = OATH_DEF_TIMESTEP;
+	} else {
+		/* unreachable */
+		oath_key_free(key);
+		return (NULL);
+	}
+	if (key->hash == oh_undef)
+		key->hash = oh_sha1;
+	if (key->digits == 0)
+		key->digits = 6;
+	if (key->keylen == 0)
+		goto invalid;
 
 invalid:
 	openpam_log(PAM_LOG_NOTICE, "invalid OATH URI: %s", uri);
