@@ -46,6 +46,7 @@
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
+#include "openpam_asprintf.h"
 #include "openpam_strlcmp.h"
 
 #include "oath.h"
@@ -253,4 +254,57 @@ oath_key_from_file(const char *filename)
 	}
 	fclose(f);
 	return (key);
+}
+
+char *
+oath_key_to_uri(const struct oath_key *key)
+{
+	const char *hash;
+	char *tmp, *uri;
+	size_t kslen, urilen;
+
+	switch (key->hash) {
+	case oh_sha1:
+		hash = "SHA1";
+		break;
+	case oh_sha256:
+		hash = "SHA256";
+		break;
+	case oh_sha512:
+		hash = "SHA512";
+		break;
+	case oh_md5:
+		hash = "MD5";
+		break;
+	default:
+		return (NULL);
+	}
+
+	if (key->mode == om_hotp) {
+		urilen = asprintf(&uri, "otpauth://"
+		    "%s/%s?algorithm=%s&digits=%d&counter=%ju&secret=",
+		    "hotp", key->label, hash, key->digits,
+		    (uintmax_t)key->counter);
+	} else if (key->mode == om_totp) {
+		urilen = asprintf(&uri, "otpauth://"
+		    "%s/%s?algorithm=%s&digits=%d&period=%u&secret=",
+		    "totp", key->label, hash, key->digits, key->timestep);
+	} else {
+		/* unreachable */
+		return (NULL);
+	}
+
+	/* compute length of base32-encoded key and append it */
+	kslen = base32_enclen(key->keylen);
+	if ((tmp = realloc(uri, urilen + kslen + 1)) == NULL) {
+		free(uri);
+		return (NULL);
+	}
+	uri = tmp;
+	if (base32_enc(key->key, key->keylen, uri + urilen, &kslen) != 0) {
+		free(uri);
+		return (NULL);
+	}
+
+	return (uri);
 }
