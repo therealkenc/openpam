@@ -33,6 +33,11 @@
 #define OATH_H_INCLUDED
 
 /*
+ * Default time step for TOTP: 30 seconds.
+ */
+#define OATH_DEF_TIMESTEP	30
+
+/*
  * Maximum time step for TOTP: 10 minutes, which RFC 6238 cites as an
  * example of an unreasonably large time step.
  */
