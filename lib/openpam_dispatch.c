@@ -179,6 +179,7 @@ openpam_check_error_code(int primitive, int r)
 {
 	/* common error codes */
 	if (r == PAM_SUCCESS ||
+	    r == PAM_SYSTEM_ERR ||
 	    r == PAM_SERVICE_ERR ||
 	    r == PAM_BUF_ERR ||
 	    r == PAM_CONV_ERR ||
