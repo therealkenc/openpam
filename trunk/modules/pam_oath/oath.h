@@ -95,6 +95,12 @@ struct oath_key {
 	uint8_t		 data[];
 };
 
+struct oath_key *oath_key_alloc(size_t);
+void oath_key_free(struct oath_key *);
+struct oath_key *oath_key_from_uri(const char *);
+struct oath_key *oath_key_from_file(const char *);
+char *oath_key_to_uri(const struct oath_key *);
+
 unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
 unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
 
