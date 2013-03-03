@@ -113,9 +113,9 @@ pam_get_authtok(pam_handle_t *pamh,
 		if (r == PAM_SUCCESS && prevauthtok != NULL) {
 			*authtok = prevauthtok;
 			RETURNC(PAM_SUCCESS);
-		}
-		else if (openpam_get_option(pamh, "use_first_pass"))
+		} else if (openpam_get_option(pamh, "use_first_pass")) {
 			RETURNC(r == PAM_SUCCESS ? PAM_AUTH_ERR : r);
+		}
 	}
 	/* pam policy overrides the module's choice */
 	if ((promptp = openpam_get_option(pamh, prompt_option)) != NULL)
