@@ -557,6 +557,89 @@ T_FUNC(double_quoted_words, "double-quoted words")
 
 
 /***************************************************************************
+ * Combinations of quoted and unquoted text
+ */
+
+T_FUNC(single_quote_before_word, "single quote before word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "'hello 'world\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(double_quote_before_word, "double quote before word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "\"hello \"world\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(single_quote_within_word, "single quote within word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "hello' 'world\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(double_quote_within_word, "double quote within word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "hello\" \"world\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(single_quote_after_word, "single quote after word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "hello' world'\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(double_quote_after_word, "double quote after word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "hello\" world\"\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "hello world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+
+/***************************************************************************
  * Combinations of escape and quotes
  */
 
@@ -775,6 +858,13 @@ const struct t_test *t_plan[] = {
 	T(double_quoted_whitespace),
 	T(single_quoted_words),
 	T(double_quoted_words),
+
+	T(single_quote_before_word),
+	T(double_quote_before_word),
+	T(single_quote_within_word),
+	T(double_quote_within_word),
+	T(single_quote_after_word),
+	T(double_quote_after_word),
 
 	T(escaped_single_quote),
 	T(escaped_double_quote),
