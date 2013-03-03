@@ -62,7 +62,7 @@ static void
 usage(void)
 {
 
-	fprintf(stderr, "usage: [-v] %s\n", t_progname);
+	fprintf(stderr, "usage: %s [-v]\n", t_progname);
 	exit(1);
 }
 
