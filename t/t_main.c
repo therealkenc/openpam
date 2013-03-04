@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
 #include <unistd.h>
 
 #include "t.h"
@@ -74,6 +75,12 @@ main(int argc, char *argv[])
 	int n, pass, fail;
 	int opt;
 
+#ifdef HAVE_SETLOGMASK
+	/* suppress openpam_log() */
+	setlogmask(LOG_UPTO(0));
+#endif
+
+	/* clean up temp files in case of premature exit */
 	atexit(t_fcloseall);
 
 	if ((t_progname = strrchr(argv[0], '/')) != NULL)
