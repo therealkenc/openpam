@@ -92,6 +92,7 @@ AC_CHECK_HEADERS([crypt.h])
 AC_CHECK_FUNCS([asprintf vasprintf])
 AC_CHECK_FUNCS([fdlopen])
 AC_CHECK_FUNCS([fpurge])
+AC_CHECK_FUNCS([setlogmask])
 AC_CHECK_FUNCS([strlcat strlcmp strlcpy])
 
 saved_LIBS="${LIBS}"
