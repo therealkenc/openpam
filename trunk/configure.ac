@@ -89,7 +89,10 @@ AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
 
 AC_CHECK_HEADERS([crypt.h])
 
-AC_CHECK_FUNCS([asprintf fdlopen fpurge strlcat strlcmp strlcpy vasprintf])
+AC_CHECK_FUNCS([asprintf vasprintf])
+AC_CHECK_FUNCS([fdlopen])
+AC_CHECK_FUNCS([fpurge])
+AC_CHECK_FUNCS([strlcat strlcmp strlcpy])
 
 saved_LIBS="${LIBS}"
 LIBS=""
