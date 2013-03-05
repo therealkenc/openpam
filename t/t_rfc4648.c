@@ -41,129 +41,152 @@
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
-
-#include "oath.h"
+#include <security/oath.h>
 
 #include "t.h"
 
-struct test_vector {
-	const uint8_t *in;
-	size_t ilen;
-	const char *out;
-	size_t olen;
-};
-
-#define TV(i, o) \
-	{ (const uint8_t *)i, sizeof i - 1, (const char *)o, sizeof o }
-#define TV_ZERO \
-	{ NULL, 0, NULL, 0 }
-
-static struct test_vector base64_vectors[] = {
-	TV("", ""),
-	TV("f", "Zg=="),
-	TV("fo", "Zm8="),
-	TV("foo", "Zm9v"),
-	TV("foob", "Zm9vYg=="),
-	TV("fooba", "Zm9vYmE="),
-	TV("foobar", "Zm9vYmFy"),
-	TV_ZERO
-};
-
-static struct test_vector base32_vectors[] = {
-	TV("", ""),
-	TV("f", "MY======"),
-	TV("fo", "MZXQ===="),
-	TV("foo", "MZXW6==="),
-	TV("foob", "MZXW6YQ="),
-	TV("fooba", "MZXW6YTB"),
-	TV("foobar", "MZXW6YTBOI======"),
-	TV_ZERO
-};
-
-
-/***************************************************************************
- * Base 64
+/*
+ * Test vectors from RFC 4648
  */
+static struct t_vector {
+	const char *plain;
+/*	const char *base16; */
+	const char *base32;
+	const char *base64;
+} t_vectors[] = {
+	{
+		.plain	= "",
+		.base32	= "",
+		.base64	= "",
+	},
+	{
+		.plain	= "f",
+		.base32	= "MY======",
+		.base64	= "Zg=="
+	},
+	{
+		.plain	= "fo",
+		.base32	= "MZXQ====",
+		.base64	= "Zm8=",
+	},
+	{
+		.plain	= "foo",
+		.base32	= "MZXW6===",
+		.base64	= "Zm9v",
+	},
+	{
+		.plain	= "foob",
+		.base32	= "MZXW6YQ=",
+		.base64	= "Zm9vYg==",
+	},
+	{
+		.plain	= "fooba",
+		.base32	= "MZXW6YTB",
+		.base64	= "Zm9vYmE=",
+	},
+	{
+		.plain	= "foobar",
+		.base32	= "MZXW6YTBOI======",
+		.base64	= "Zm9vYmFy",
+	},
+};
 
-T_FUNC(base_64, "RFC 4648 base 64 test vectors")
+/*
+ * Encoding test function
+ */
+static int
+t_rfc4648_enc(const char *plain, const char *encoded,
+    int (*enc)(const uint8_t *, size_t, char *, size_t *))
 {
-	struct test_vector *tv;
 	char buf[64];
-	size_t buflen;
+	size_t blen, ilen, olen;
 
-	for (tv = base64_vectors; tv->in != NULL; ++tv) {
-		buflen = tv->olen;
-		t_verbose("BASE64(\"%s\") = \"%s\"\n", tv->in, tv->out);
-		if (base64_enc(tv->in, tv->ilen, buf, &buflen) != 0) {
-			t_verbose("BASE64(\"%s\") failed\n", tv->in);
-			return (0);
-		}
-		if (buflen != tv->olen) {
-			t_verbose("BASE64(\"%s\") expected %zu B got %zu B\n",
-			    tv->in, tv->olen, buflen);
-			return (0);
-		}
-		if (strcmp(buf, tv->out) != 0) {
-			t_verbose("BASE64(\"%s\") expected \"%s\" got \"%s\"\n",
-			    tv->in, tv->out, buf);
-			return (0);
-		}
+	blen = sizeof buf;
+	ilen = strlen(plain);
+	olen = strlen(encoded) + 1;
+	if (enc((const uint8_t *)plain, ilen, buf, &blen) != 0) {
+		t_verbose("encoding failed\n");
+		return (0);
+	}
+	if (blen != olen) {
+		t_verbose("expected %zu B got %zu B\n", olen, blen);
+		return (0);
+	}
+	if (strcmp(buf, encoded) != 0) {
+		t_verbose("expected \"%s\" got \"%s\"\n", encoded, buf);
+		return (0);
 	}
 	return (1);
 }
 
-
-/***************************************************************************
- * Base 32
+/*
+ * Encoding test wrapper for base 32
  */
-
-T_FUNC(base_32, "RFC 4648 base 32 test vectors")
+static int
+t_base32(void *arg)
 {
-	struct test_vector *tv;
-	char buf[64];
-	size_t buflen;
+	struct t_vector *tv = (struct t_vector *)arg;
 
-	for (tv = base32_vectors; tv->in != NULL; ++tv) {
-		buflen = tv->olen;
-		t_verbose("BASE32(\"%s\") = \"%s\"\n", tv->in, tv->out);
-		if (base32_enc(tv->in, tv->ilen, buf, &buflen) != 0) {
-			t_verbose("BASE32(\"%s\") failed\n", tv->in);
-			return (0);
-		}
-		if (buflen != tv->olen) {
-			t_verbose("BASE32(\"%s\") expected %zu B got %zu B\n",
-			    tv->in, tv->olen, buflen);
-			return (0);
-		}
-		if (strcmp(buf, tv->out) != 0) {
-			t_verbose("BASE32(\"%s\") expected \"%s\" got \"%s\"\n",
-			    tv->in, tv->out, buf);
-			return (0);
-		}
-	}
-	return (1);
+	return (t_rfc4648_enc(tv->plain, tv->base32, base32_enc));
 }
 
-
-/***************************************************************************
- * Boilerplate
+/*
+ * Encoding test wrapper for base 64
  */
+static int
+t_base64(void *arg)
+{
+	struct t_vector *tv = (struct t_vector *)arg;
 
-const struct t_test *t_plan[] = {
-	T(base_64),
-	T(base_32),
-	NULL
-};
+	return (t_rfc4648_enc(tv->plain, tv->base64, base64_enc));
+}
 
+/*
+ * Generate a test case for a given test vector
+ */
+static struct t_test *
+t_create_test(int (*func)(void *), const char *name, struct t_vector *tv)
+{
+	struct t_test *test;
+	char *desc;
+
+	if ((test = calloc(1, sizeof *test)) == NULL)
+		return (NULL);
+	test->func = func;
+	if ((desc = calloc(1, strlen(name) + strlen(tv->plain) + 5)) == NULL)
+		return (NULL);
+	sprintf(desc, "%s(\"%s\")", name, tv->plain);
+	test->desc = desc;
+	test->arg = tv;
+	return (test);
+}
+
+/*
+ * Generate the test plan
+ */
 const struct t_test **
 t_prepare(int argc, char *argv[])
 {
+	struct t_test **plan, **test;
+	int n;
 
 	(void)argc;
 	(void)argv;
-	return (t_plan);
+	n = sizeof t_vectors / sizeof t_vectors[0];
+	plan = calloc(n * 2 + 1, sizeof *plan);
+	if (plan == NULL)
+		return (NULL);
+	test = plan;
+	for (int i = 0; i < n; ++i) {
+		*test++ = t_create_test(t_base32, "BASE32", &t_vectors[i]);
+		*test++ = t_create_test(t_base64, "BASE64", &t_vectors[i]);
+	}
+	return ((const struct t_test **)plan);
 }
 
+/*
+ * Cleanup
+ */
 void
 t_cleanup(void)
 {
