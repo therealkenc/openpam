@@ -72,7 +72,7 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		out[5] = b32[bits >> 10 & 0x1f];
 		out[6] = b32[bits >> 5 & 0x1f];
 		out[7] = b32[bits & 0x1f];
-		olen += 8;
+		*olen += 8;
 		out += 8;
 	}
 	if (ilen > 0) {
@@ -95,10 +95,11 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		out[5] = ilen > 3 ? b32[bits >> 10 & 0x1f] : '=';
 		out[6] = ilen > 3 ? b32[bits >> 5 & 0x1f] : '=';
 		out[7] = '=';
-		olen += 8;
+		*olen += 8;
 		out += 8;
 	}
 	out[0] = '\0';
+	++*olen;
 	return (0);
 }
 
