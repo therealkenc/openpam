@@ -34,6 +34,7 @@
 #endif
 
 #include <stdint.h>
+#include <string.h>
 #include <time.h>
 
 #include "oath.h"
@@ -47,4 +48,46 @@ oath_totp(const uint8_t *K, size_t Klen, unsigned int Digit)
 
 	time(&now);
 	return (oath_hotp(K, Klen, now / TOTP_TIME_STEP, Digit));
+}
+
+unsigned int
+oath_totp_current(const struct oath_key *k)
+{
+	unsigned int code;
+	uint64_t seq;
+
+	if (k == NULL)
+		return (-1);
+	if (k->mode != om_totp)
+		return (-1);
+	if (k->timestep == 0)
+		return (-1);
+	seq = time(NULL) / k->timestep;
+	code = oath_hotp(k->key, k->keylen, seq, k->digits);
+	return (code);
+}
+
+int
+oath_totp_match(const struct oath_key *k, unsigned int response, int window)
+{
+	unsigned int code;
+	uint64_t seq;
+	int dummy;
+
+	if (k == NULL)
+		return (-1);
+	if (window < 1)
+		return (-1);
+	if (k->mode != om_totp)
+		return (-1);
+	if (k->timestep == 0)
+		return (-1);
+	seq = time(NULL) / k->timestep;
+	dummy = (memcmp(k->label, DUMMY_LABEL, DUMMY_LABELLEN) == 0);
+	for (int i = -window; i <= window; ++i) {
+		code = oath_hotp(k->key, k->keylen, seq + i, k->digits);
+		if (code == response && !dummy)
+			return (1);
+	}
+	return (0);
 }

@@ -112,10 +112,8 @@ oath_key_from_uri(const char *uri)
 	if ((q = strchr(p, '/')) == NULL)
 		goto invalid;
 	if (strlcmp("hotp", p, q - p) == 0) {
-		openpam_log(PAM_LOG_DEBUG, "OATH mode: HOTP");
 		key->mode = om_hotp;
 	} else if (strlcmp("totp", p, q - p) == 0) {
-		openpam_log(PAM_LOG_DEBUG, "OATH mode: TOTP");
 		key->mode = om_totp;
 	} else {
 		goto invalid;
@@ -132,7 +130,7 @@ oath_key_from_uri(const char *uri)
 	p = q + 1;
 
 	/* extract parameters */
-	key->counter = UINTMAX_MAX;
+	key->counter = UINT64_MAX;
 	while (*p != '\0') {
 		if ((q = strchr(p, '=')) == NULL)
 			goto invalid;
@@ -152,6 +150,7 @@ oath_key_from_uri(const char *uri)
 			    base32_declen(r - q) > OATH_MAX_KEYLEN)
 				goto invalid;
 			key->key = key->data + key->labellen;
+			key->keylen = key->datalen - key->labellen;
 			if (base32_dec(q, r - q, key->key, &key->keylen) != 0)
 				goto invalid;
 			if (base32_enclen(key->keylen) != (size_t)(r - q))
@@ -179,11 +178,11 @@ oath_key_from_uri(const char *uri)
 				goto invalid;
 			key->digits = *q - '0';
 		} else if (strlcmp("counter=", p, q - p) == 0) {
-			if (key->counter != UINTMAX_MAX)
+			if (key->counter != UINT64_MAX)
 				/* dupe */
 				goto invalid;
 			n = strtoumax(q, &e, 10);
-			if (e != r || n >= UINTMAX_MAX)
+			if (e != r || n >= UINT64_MAX)
 				goto invalid;
 			key->counter = (uint64_t)n;
 		} else if (strlcmp("period=", p, q - p) == 0) {
@@ -226,6 +225,7 @@ oath_key_from_uri(const char *uri)
 		key->digits = 6;
 	if (key->keylen == 0)
 		goto invalid;
+	return (key);
 
 invalid:
 	openpam_log(PAM_LOG_NOTICE, "invalid OATH URI: %s", uri);
@@ -295,8 +295,8 @@ oath_key_to_uri(const struct oath_key *key)
 	}
 
 	/* compute length of base32-encoded key and append it */
-	kslen = base32_enclen(key->keylen);
-	if ((tmp = realloc(uri, urilen + kslen + 1)) == NULL) {
+	kslen = base32_enclen(key->keylen) + 1;
+	if ((tmp = realloc(uri, urilen + kslen)) == NULL) {
 		free(uri);
 		return (NULL);
 	}
@@ -307,4 +307,23 @@ oath_key_to_uri(const struct oath_key *key)
 	}
 
 	return (uri);
+}
+
+struct oath_key *
+oath_dummy_key(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
+{
+	struct oath_key *key;
+
+	if ((key = oath_key_alloc(DUMMY_LABELLEN + DUMMY_KEYLEN)) == NULL)
+		return (NULL);
+	key->mode = mode;
+	key->digits = digits;
+	key->counter = 0;
+	key->timestep = 30;
+	key->hash = hash;
+	key->label = (char *)key->data;
+	memcpy(key->label, DUMMY_LABEL, DUMMY_LABELLEN);
+	key->key = key->data + DUMMY_LABELLEN;
+	key->keylen = DUMMY_KEYLEN;
+	return (key);
 }
