@@ -111,7 +111,7 @@ AC_SUBST(CRYPT_LIBS)
 
 saved_LIBS="${LIBS}"
 LIBS=""
-AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms])
+AC_CHECK_LIB([crypto], [HMAC_CTX_init])
 CRYPTO_LIBS="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(CRYPTO_LIBS)
