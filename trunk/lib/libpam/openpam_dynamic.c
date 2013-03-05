@@ -162,7 +162,7 @@ openpam_dynamic(const char *path)
 			 */
 #if 0
 			if (module->func[i] == NULL)
-				openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
+				openpam_log(PAM_LOG_LIBDEBUG, "%s: %s(): %s",
 				    path, pam_sm_func_name[i], dlerror());
 #endif
 		}
