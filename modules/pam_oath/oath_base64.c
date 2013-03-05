@@ -68,7 +68,7 @@ base64_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		out[1] = b64[bits >> 12 & 0x3f];
 		out[2] = b64[bits >> 6 & 0x3f];
 		out[3] = b64[bits & 0x3f];
-		olen += 4;
+		*olen += 4;
 		out += 4;
 	}
 	if (ilen > 0) {
@@ -79,14 +79,15 @@ base64_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		case 1:
 			bits |= (uint32_t)in[0] << 16;
 		}
-		out[0] = b64[bits >> 18 & 0x1f];
-		out[1] = b64[bits >> 12 & 0x1f];
-		out[2] = ilen > 1 ? b64[bits >> 6 & 0x1f] : '=';
+		out[0] = b64[bits >> 18 & 0x3f];
+		out[1] = b64[bits >> 12 & 0x3f];
+		out[2] = ilen > 1 ? b64[bits >> 6 & 0x3f] : '=';
 		out[3] = '=';
-		olen += 4;
+		*olen += 4;
 		out += 4;
 	}
 	out[0] = '\0';
+	++*olen;
 	return (0);
 }
 
