@@ -1,4 +1,4 @@
-# $Id: Makefile.am 429 2010-03-09 17:51:29Z des $
+# $Id$
 
 pkglibdir = @OPENPAM_MODULES_DIR@
 AM_CPPFLAGS = -I$(top_srcdir)/include
