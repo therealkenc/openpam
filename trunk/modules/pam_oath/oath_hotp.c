@@ -37,6 +37,7 @@
 #include <openssl/hmac.h>
 
 #include <stdint.h>
+#include <string.h>
 
 #include "oath.h"
 
@@ -86,4 +87,53 @@ oath_hotp(const uint8_t *K, size_t Klen, uint64_t seq, unsigned int Digit)
 		mod *= 10;
 	D = Snum % mod;
 	return (D);
+}
+
+/*
+ * Computes the current code for the given key and advances the counter.
+ */
+int
+oath_hotp_current(struct oath_key *k)
+{
+	unsigned int code;
+
+	if (k == NULL)
+		return (-1);
+	if (k->mode != om_hotp)
+		return (-1);
+	if (k->counter == UINT64_MAX)
+		return (-1);
+	code = oath_hotp(k->key, k->keylen, k->counter, k->digits);
+	k->counter += 1;
+	return (code);
+}
+
+/*
+ * Compares the code provided by the user with expected values within a
+ * given window.  Returns 1 if there was a match, 0 if not, and -1 if an
+ * error occurred.
+ */
+int
+oath_hotp_match(struct oath_key *k, unsigned int response, int window)
+{
+	unsigned int code;
+	int dummy;
+
+	if (k == NULL)
+		return (-1);
+	if (window < 1)
+		return (-1);
+	if (k->mode != om_hotp)
+		return (-1);
+	if (k->counter >= UINT64_MAX - window)
+		return (-1);
+	dummy = (memcmp(k->label, DUMMY_LABEL, DUMMY_LABELLEN) == 0);
+	for (int i = 0; i < window; ++i) {
+		code = oath_hotp(k->key, k->keylen, k->counter + i, k->digits);
+		if (code == response && !dummy) {
+			k->counter = k->counter + i;
+			return (1);
+		}
+	}
+	return (0);
 }
