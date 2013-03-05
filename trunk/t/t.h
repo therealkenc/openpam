@@ -35,15 +35,22 @@
 #include <security/openpam_attr.h>
 
 struct t_test {
-	int (*func)(void);
+	int (*func)(void *);
 	const char *desc;
+	void *arg;
 };
 
 #define T_FUNC(n, d)				\
-	static int t_ ## n ## _func(void);	\
+	static int t_ ## n ## _func(void *);	\
 	static const struct t_test t_ ## n =	\
-	    { t_ ## n ## _func, d };		\
-	static int t_ ## n ## _func(void)
+	    { t_ ## n ## _func, d, NULL };	\
+	static int t_ ## n ## _func(void *arg __unused)
+
+#define T_FUNC_ARG(n, d, a)			\
+	static int t_ ## n ## _func(void *);	\
+	static const struct t_test t_ ## n =	\
+	    { t_ ## n ## _func, d, a };		\
+	static int t_ ## n ## _func(void *arg)
 
 #define T(n)					\
 	&t_ ## n
