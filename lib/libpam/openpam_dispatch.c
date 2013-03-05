@@ -112,12 +112,12 @@ openpam_dispatch(pam_handle_t *pamh,
 			debug = (openpam_get_option(pamh, "debug") != NULL);
 			if (debug)
 				++openpam_debug;
-			openpam_log(PAM_LOG_DEBUG, "calling %s() in %s",
+			openpam_log(PAM_LOG_LIBDEBUG, "calling %s() in %s",
 			    pam_sm_func_name[primitive], chain->module->path);
 			r = (chain->module->func[primitive])(pamh, flags,
 			    chain->optc, (const char **)chain->optv);
 			pamh->current = NULL;
-			openpam_log(PAM_LOG_DEBUG, "%s: %s(): %s",
+			openpam_log(PAM_LOG_LIBDEBUG, "%s: %s(): %s",
 			    chain->module->path, pam_sm_func_name[primitive],
 			    pam_strerror(pamh, r));
 			if (debug)
@@ -152,7 +152,7 @@ openpam_dispatch(pam_handle_t *pamh,
 			err = r;
 		if ((chain->flag == PAM_REQUIRED ||
 		    chain->flag == PAM_BINDING) && !fail) {
-			openpam_log(PAM_LOG_DEBUG, "required module failed");
+			openpam_log(PAM_LOG_LIBDEBUG, "required module failed");
 			fail = 1;
 			err = r;
 		}
@@ -162,7 +162,7 @@ openpam_dispatch(pam_handle_t *pamh,
 		 * immediately.
 		 */
 		if (chain->flag == PAM_REQUISITE) {
-			openpam_log(PAM_LOG_DEBUG, "requisite module failed");
+			openpam_log(PAM_LOG_LIBDEBUG, "requisite module failed");
 			fail = 1;
 			break;
 		}
