@@ -49,7 +49,7 @@
 #include "openpam_asprintf.h"
 #include "openpam_strlcmp.h"
 
-#include "oath.h"
+#include <security/oath.h>
 
 /*
  * Allocate a struct oath_key with sufficient additional space for the

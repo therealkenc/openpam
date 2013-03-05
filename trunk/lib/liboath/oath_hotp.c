@@ -39,7 +39,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "oath.h"
+#include <security/oath.h>
 
 #define StToNum(St) (St)
 

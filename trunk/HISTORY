@@ -3,18 +3,20 @@ OpenPAM ??????????						2013-??-??
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
 
+ - ENHANCE: Allow openpam_straddch(3) to be called without a character
+   so it can be used to preallocate a string.
+
+ - ENHANCE: Improve portability by adding simple asprintf(3) and
+   vasprintf(3) implementations for platforms that don't have them.
+
+ - ENHANCE: Move the libpam sources into a separate subdirectory.
+
  - BUGFIX: When openpam_readword(3) encountered an opening quote, it
    would set the first byte in the buffer to '\0', discarding all
    existing text and, unless the buffer was empty to begin with, all
    subsequent text as well.  This went unnoticed because none of the
    unit tests for quoted strings had any text preceding the opening
    quote.
-
- - ENHANCE: Allow openpam_straddch(3) to be called without a character
-   so it can be used to preallocate a string.
-
- - ENHANCE: Improve portability by adding simple asprintf(3) and
-   vasprintf(3) implementations for platforms that don't have them.
 ============================================================================
 OpenPAM Micrampelis						2012-05-26
 

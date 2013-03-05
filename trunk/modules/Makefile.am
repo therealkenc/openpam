@@ -6,6 +6,6 @@ if WITH_PAM_UNIX
 SUBDIRS += pam_unix
 endif
 
-if WITH_PAM_OATH
+if WITH_OATH
 SUBDIRS += pam_oath
 endif

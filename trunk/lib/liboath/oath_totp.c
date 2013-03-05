@@ -37,7 +37,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "oath.h"
+#include <security/oath.h>
 
 #define TOTP_TIME_STEP 30
 

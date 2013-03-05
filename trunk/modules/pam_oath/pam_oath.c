@@ -45,8 +45,7 @@
 
 #include <security/pam_modules.h>
 #include <security/pam_appl.h>
-
-#include "oath.h"
+#include <security/oath.h>
 
 PAM_EXTERN int
 pam_sm_authenticate(pam_handle_t *pamh, int flags,

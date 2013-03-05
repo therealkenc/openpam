@@ -38,7 +38,7 @@
 #include <errno.h>
 #include <stdint.h>
 
-#include "oath.h"
+#include <security/oath.h>
 
 static const char b32[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
