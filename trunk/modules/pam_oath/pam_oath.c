@@ -33,7 +33,12 @@
 # include "config.h"
 #endif
 
+#include <limits.h>
 #include <pwd.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define PAM_SM_AUTH
 #define PAM_SM_ACCOUNT
@@ -41,14 +46,19 @@
 #include <security/pam_modules.h>
 #include <security/pam_appl.h>
 
+#include "oath.h"
+
 PAM_EXTERN int
 pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	int argc, const char *argv[])
 {
 	struct passwd *pwd;
 	const char *user;
-	char *password;
-	int pam_err;
+	char *keyfile;
+	struct oath_key *key;
+	unsigned long code;
+	char *password, *end;
+	int pam_err, ret;
 
 	(void)flags;
 	(void)argc;
@@ -60,6 +70,19 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	if ((pwd = getpwnam(user)) == NULL)
 		return (PAM_USER_UNKNOWN);
 
+	/* load key */
+	keyfile = calloc(1, strlen(pwd->pw_dir) + sizeof "/.otpauth");
+	if (keyfile == NULL)
+		return (PAM_SYSTEM_ERR);
+	sprintf(keyfile, "%s/.otpauth", pwd->pw_dir);
+	free(keyfile);
+	if ((key = oath_key_from_file(keyfile)) == NULL) {
+		/* no key, fake it? */
+		if (openpam_get_option(pamh, "fakeauth") == NULL)
+			return (PAM_AUTHINFO_UNAVAIL);
+		key = oath_dummy_key(om_hotp, oh_sha1, 6);
+	}
+
 	/* get code */
 	pam_err = pam_get_authtok(pamh, PAM_AUTHTOK,
 	    (const char **)&password, NULL);
@@ -68,8 +91,22 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	if (pam_err != PAM_SUCCESS)
 		return (PAM_AUTH_ERR);
 
-	pam_err = PAM_AUTH_ERR;
-	return (pam_err);
+	/* convert to number */
+	code = strtoul(password, &end, 10);
+	if (end == password || *end != '\0')
+		code = ULONG_MAX;
+
+	/* verify response */
+	if (key->mode == om_hotp)
+		ret = oath_hotp_match(key, code, 1);
+	else
+		ret = oath_totp_match(key, code, 1);
+	oath_key_free(key);
+	if (ret != 0)
+		return (PAM_AUTH_ERR);
+
+	/* XXX write back */
+	return (PAM_SUCCESS);
 }
 
 PAM_EXTERN int
