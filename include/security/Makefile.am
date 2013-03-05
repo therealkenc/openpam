@@ -1,8 +1,8 @@
 # $Id$
 
-openpamdir = $(includedir)/security
+securitydir = $(includedir)/security
 
-openpam_HEADERS = \
+security_HEADERS = \
 	openpam.h \
 	openpam_attr.h \
 	openpam_version.h \
@@ -10,3 +10,7 @@ openpam_HEADERS = \
 	pam_constants.h \
 	pam_modules.h \
 	pam_types.h
+
+if WITH_OATH
+security_HEADERS += oath.h
+endif

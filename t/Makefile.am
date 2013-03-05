@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam
 
 noinst_HEADERS = t.h
 
@@ -15,4 +15,4 @@ check_LIBRARIES = libt.a
 libt_a_SOURCES = t_main.c t_file.c
 
 # link with libpam and libt
-LDADD = libt.a $(top_builddir)/lib/libpam.la
+LDADD = libt.a $(top_builddir)/lib/libpam/libpam.la
