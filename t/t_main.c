@@ -112,7 +112,7 @@ main(int argc, char *argv[])
 	/* run the tests */
 	for (n = pass = fail = 0; t_plan[n] != NULL; ++n) {
 		desc = t_plan[n]->desc ? t_plan[n]->desc : "no description";
-		if ((*t_plan[n]->func)()) {
+		if ((*t_plan[n]->func)(t_plan[n]->arg)) {
 			printf("ok %d - %s\n", n + 1, desc);
 			++pass;
 		} else {
