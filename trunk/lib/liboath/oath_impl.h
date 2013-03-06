@@ -29,31 +29,14 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
+#ifndef OATH_IMPL_H_INCLUDED
+#define OATH_IMPL_H_INCLUDED
 
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc4648.h>
-
-struct oath_key *oath_key_alloc(size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
-
-#define DUMMY_LABEL	("oath-dummy-key")
-#define DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define DUMMY_KEYLEN	80
-
-struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
-
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-int oath_totp_match(const struct oath_key *, unsigned int, int);
-unsigned int oath_totp_current(const struct oath_key *);
+/*
+ * Dummy key parameters
+ */
+#define OATH_DUMMY_LABEL	("oath-dummy-key")
+#define OATH_DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
+#define OATH_DUMMY_KEYLEN	80
 
 #endif

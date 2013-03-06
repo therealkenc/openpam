@@ -29,31 +29,33 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
+#ifndef OATH_TYPES_H_INCLUDED
+#define OATH_TYPES_H_INCLUDED
 
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc4648.h>
+/*
+ * OATH key and associated parameters
+ */
+struct oath_key {
+	/* mode and parameters */
+	enum oath_mode	 mode;
+	unsigned int	 digits;
+	uint64_t	 counter;
+	unsigned int	 timestep; /* in seconds */
 
-struct oath_key *oath_key_alloc(size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
+	/* hash algorithm */
+	enum oath_hash	 hash;
 
-#define DUMMY_LABEL	("oath-dummy-key")
-#define DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define DUMMY_KEYLEN	80
+	/* label */
+	size_t		 labellen; /* bytes incl. NUL */
+	char		*label;
 
-struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
+	/* key */
+	size_t		 keylen; /* bytes */
+	uint8_t		*key;
 
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-int oath_totp_match(const struct oath_key *, unsigned int, int);
-unsigned int oath_totp_current(const struct oath_key *);
+	/* buffer for label + NUL + key */
+	size_t		 datalen; /* bytes */
+	uint8_t		 data[];
+};
 
 #endif
