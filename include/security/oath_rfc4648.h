@@ -29,31 +29,23 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
+#ifndef OATH_RFC4648_H_INCLUDED
+#define OATH_RFC4648_H_INCLUDED
 
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc4648.h>
+/* estimate of output length for base32 encoding / decoding */
+#define base32_enclen(l) (size_t)(((l + 4) / 5) * 8)
+#define base32_declen(l) (size_t)(((l + 7) / 8) * 5)
 
-struct oath_key *oath_key_alloc(size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
+/* base32 encoding / decoding */
+int base32_enc(const uint8_t *, size_t, char *, size_t *);
+int base32_dec(const char *, size_t, uint8_t *, size_t *);
 
-#define DUMMY_LABEL	("oath-dummy-key")
-#define DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define DUMMY_KEYLEN	80
+/* estimate of output length for base64 encoding / decoding */
+#define base64_enclen(l) (size_t)(((l + 2) / 3) * 4)
+#define base64_declen(l) (size_t)(((l + 3) / 4) * 3)
 
-struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
-
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-int oath_totp_match(const struct oath_key *, unsigned int, int);
-unsigned int oath_totp_current(const struct oath_key *);
+/* base64 encoding / decoding */
+int base64_enc(const uint8_t *, size_t, char *, size_t *);
+int base64_dec(const char *, size_t, uint8_t *, size_t *);
 
 #endif

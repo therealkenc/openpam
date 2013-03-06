@@ -29,31 +29,46 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
+#ifndef OATH_CONSTANTS_H_INCLUDED
+#define OATH_CONSTANTS_H_INCLUDED
 
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc4648.h>
+/*
+ * OATH modes
+ */
+enum oath_mode {
+	om_undef,		/* not set / default */
+	om_hotp,		/* RFC 4226 HOTP */
+	om_totp,		/* RFC 6238 TOTP */
+	om_max
+};
 
-struct oath_key *oath_key_alloc(size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
+/*
+ * Hash functions
+ */
+enum oath_hash {
+	oh_undef,		/* not set / default */
+	oh_md5,			/* RFC 1321 MD5 */
+	oh_sha1,		/* FIPS 180 SHA-1 */
+	oh_sha256,		/* FIPS 180 SHA-256 */
+	oh_sha512,		/* FIPS 180 SHA-512 */
+	oh_max
+};
 
-#define DUMMY_LABEL	("oath-dummy-key")
-#define DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define DUMMY_KEYLEN	80
+/*
+ * Default time step for TOTP: 30 seconds.
+ */
+#define OATH_DEF_TIMESTEP	30
 
-struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
+/*
+ * Maximum time step for TOTP: 10 minutes, which RFC 6238 cites as an
+ * example of an unreasonably large time step.
+ */
+#define OATH_MAX_TIMESTEP	600
 
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-int oath_totp_match(const struct oath_key *, unsigned int, int);
-unsigned int oath_totp_current(const struct oath_key *);
+/*
+ * Maximum key length in bytes.  HMAC has a 64-byte block size; if the key
+ * K is longer than that, HMAC derives a new key K' = H(K).
+ */
+#define OATH_MAX_KEYLEN		64
 
 #endif
