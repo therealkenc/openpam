@@ -44,7 +44,7 @@ struct t_test {
 	static int t_ ## n ## _func(void *);	\
 	static const struct t_test t_ ## n =	\
 	    { t_ ## n ## _func, d, NULL };	\
-	static int t_ ## n ## _func(void *arg __unused)
+	static int t_ ## n ## _func(OPENPAM_UNUSED(void *arg))
 
 #define T_FUNC_ARG(n, d, a)			\
 	static int t_ ## n ## _func(void *);	\
