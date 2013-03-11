@@ -90,7 +90,7 @@ AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
 AC_CHECK_HEADERS([crypt.h])
 
 AC_CHECK_FUNCS([asprintf vasprintf])
-AC_CHECK_FUNCS([fdlopen])
+AC_CHECK_FUNCS([dlfunc fdlopen])
 AC_CHECK_FUNCS([fpurge])
 AC_CHECK_FUNCS([setlogmask])
 AC_CHECK_FUNCS([strlcat strlcmp strlcpy])

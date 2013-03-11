@@ -51,6 +51,7 @@
 
 #include "openpam_impl.h"
 #include "openpam_asprintf.h"
+#include "openpam_dlfunc.h"
 
 #ifndef RTLD_NOW
 #define RTLD_NOW RTLD_LAZY
@@ -150,15 +151,15 @@ openpam_dynamic(const char *path)
 			module->func[i] = dlmodule->func[i];
 		} else {
 			module->func[i] =
-			    (pam_func_t)dlsym(dlh, pam_sm_func_name[i]);
+			    (pam_func_t)dlfunc(dlh, pam_sm_func_name[i]);
 			/*
 			 * This openpam_log() call is a major source of
 			 * log spam, and the cases that matter are caught
 			 * and logged in openpam_dispatch().  This would
 			 * be less problematic if dlerror() returned an
 			 * error code so we could log an error only when
-			 * dlsym() failed for a reason other than "no such
-			 * symbol".
+			 * dlfunc() failed for a reason other than "no
+			 * such symbol".
 			 */
 #if 0
 			if (module->func[i] == NULL)
