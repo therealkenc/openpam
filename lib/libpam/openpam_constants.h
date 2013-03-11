@@ -39,4 +39,7 @@ extern const char *pam_control_flag_name[PAM_NUM_CONTROL_FLAGS];
 extern const char *pam_func_name[PAM_NUM_PRIMITIVES];
 extern const char *pam_sm_func_name[PAM_NUM_PRIMITIVES];
 
+extern const char *openpam_policy_path[];
+extern const char *openpam_module_path[];
+
 #endif
