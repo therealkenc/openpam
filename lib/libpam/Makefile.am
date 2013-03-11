@@ -12,6 +12,7 @@ noinst_HEADERS = \
 	openpam_cred.h \
 	openpam_ctype.h \
 	openpam_debug.h \
+	openpam_dlfunc.h \
 	openpam_features.h \
 	openpam_impl.h \
 	openpam_strlcat.h \
