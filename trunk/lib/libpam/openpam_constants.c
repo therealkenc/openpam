@@ -125,3 +125,17 @@ const char *pam_sm_func_name[PAM_NUM_PRIMITIVES] = {
 	"pam_sm_close_session",
 	"pam_sm_chauthtok"
 };
+
+const char *openpam_policy_path[] = {
+	"/etc/pam.d/",
+	"/etc/pam.conf",
+	"/usr/local/etc/pam.d/",
+	"/usr/local/etc/pam.conf",
+	NULL
+};
+
+const char *openpam_module_path[] = {
+	"/usr/lib",
+	"/usr/local/lib",
+	NULL
+};

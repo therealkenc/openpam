@@ -308,14 +308,6 @@ fail:
 	return (-1);
 }
 
-static const char *openpam_policy_path[] = {
-	"/etc/pam.d/",
-	"/etc/pam.conf",
-	"/usr/local/etc/pam.d/",
-	"/usr/local/etc/pam.conf",
-	NULL
-};
-
 /*
  * Read the specified chains from the specified file.
  *
