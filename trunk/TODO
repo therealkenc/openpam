@@ -2,8 +2,6 @@ Before the next release:
 
  - Rewrite openpam_ttyconv(3).
 
-Whenever:
-
- - Rewrite the module-loading code.
+ - Finish pam_oath(8) and oathkey(1).
 
 $Id$
