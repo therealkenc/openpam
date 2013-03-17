@@ -11,6 +11,8 @@ OpenPAM ??????????						2013-??-??
 
  - ENHANCE: Move the libpam sources into a separate subdirectory.
 
+ - ENHANCE: Substantial documentation improvements.
+
  - BUGFIX: When openpam_readword(3) encountered an opening quote, it
    would set the first byte in the buffer to '\0', discarding all
    existing text and, unless the buffer was empty to begin with, all
