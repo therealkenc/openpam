@@ -3,6 +3,11 @@ OpenPAM ??????????						2013-??-??
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
 
+ - ENHANCE: Rewrite the dynamic loader to improve readability and
+   reliability.  Modules can now be listed without the ".so" suffix in
+   the policy file; OpenPAM will automatically add it, just like it
+   will automatically add the version number if required.
+
  - ENHANCE: Allow openpam_straddch(3) to be called without a character
    so it can be used to preallocate a string.
 
