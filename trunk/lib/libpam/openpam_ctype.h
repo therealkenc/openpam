@@ -33,6 +33,30 @@
 #define OPENPAM_CTYPE_H_INCLUDED
 
 /*
+ * Evaluates to non-zero if the argument is a digit.
+ */
+#define is_digit(ch)				\
+	(ch >= '0' && ch <= '9')
+
+/*
+ * Evaluates to non-zero if the argument is an uppercase letter.
+ */
+#define is_upper(ch)				\
+	(ch >= 'A' && ch <= 'A')
+
+/*
+ * Evaluates to non-zero if the argument is a lowercase letter.
+ */
+#define is_lower(ch)				\
+	(ch >= 'a' && ch <= 'z')
+
+/*
+ * Evaluates to non-zero if the argument is a letter.
+ */
+#define is_letter(ch)				\
+	(is_upper(ch) || is_lower(ch))
+
+/*
  * Evaluates to non-zero if the argument is a linear whitespace character.
  * For the purposes of this macro, the definition of linear whitespace is
  * extended to include the form feed and carraige return characters.
@@ -59,9 +83,7 @@
  * of ASCII.
  */
 #define is_pfcs(ch)				\
-	((ch >= '0' && ch <= '9') ||		\
-	 (ch >= 'A' && ch <= 'Z') ||		\
-	 (ch >= 'a' && ch <= 'z') ||		\
+	(is_digit(ch) || is_letter(ch)  ||	\
 	 ch == '.' || ch == '_' || ch == '-')
 
 #endif
