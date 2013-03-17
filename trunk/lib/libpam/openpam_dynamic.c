@@ -187,7 +187,8 @@ openpam_dynamic(const char *modname)
 	if (strchr(modname, '/') != NULL) {
 		/*
 		 * Absolute paths are not allowed if RESTRICT_MODULE_NAME
-		 * is in effect.  Relative paths are never allowed.
+		 * is in effect (default off).  Relative paths are never
+		 * allowed.
 		 */
 		if (OPENPAM_FEATURE(RESTRICT_MODULE_NAME) ||
 		    modname[0] != '/') {
