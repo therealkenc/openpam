@@ -115,6 +115,7 @@ pt_authenticate(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_authenticate()");
 	if ((pame = pam_authenticate(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_authenticate()");
 	return (pame);
@@ -129,6 +130,7 @@ pt_acct_mgmt(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_acct_mgmt()");
 	if ((pame = pam_acct_mgmt(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_acct_mgmt()");
 	return (pame);
@@ -143,6 +145,7 @@ pt_chauthtok(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_chauthtok()");
 	if ((pame = pam_chauthtok(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_chauthtok()");
 	return (pame);
@@ -157,6 +160,7 @@ pt_setcred(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_setcred()");
 	if ((pame = pam_setcred(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_setcred()");
 	return (pame);
@@ -171,6 +175,7 @@ pt_open_session(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_open_session()");
 	if ((pame = pam_open_session(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_open_session()");
 	return (pame);
@@ -185,6 +190,7 @@ pt_close_session(int flags)
 	int pame;
 
 	flags |= silent;
+	pt_verbose("pam_close_session()");
 	if ((pame = pam_close_session(pamh, flags)) != PAM_SUCCESS)
 		pt_error(pame, "pam_close_session()");
 	return (pame);
