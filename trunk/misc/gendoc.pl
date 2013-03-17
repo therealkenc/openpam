@@ -290,7 +290,7 @@ sub parse_source($) {
 		$man .= ".Bl -tag -width 18n\n";
 		$intaglist = 1;
 	    }
-	    s/^\.It =([A-Z][A-Z_]+)$/.It Dv $1/gs;
+	    s/^\.It [=;]([A-Za-z][A-Za-z_]+)$/.It Dv $1/gs;
 	    $man .= "$_\n";
 	    next;
 	} elsif (($inlist || $intaglist) && m/^\S/) {
