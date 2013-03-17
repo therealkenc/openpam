@@ -87,7 +87,14 @@ Project by ThinkSec AS and Network Associates Laboratories, the
 Security Research Division of Network Associates, Inc.\\& under
 DARPA/SPAWAR contract N66001-01-C-8035
 .Pq Dq CBOSS ,
-as part of the DARPA CHATS research program.",
+as part of the DARPA CHATS research program.
+.Pp
+The OpenPAM library is maintained by
+.An Dag-Erling Sm\\(/orgrav Aq des\@des.no .
+",
+    UIO => "developed for the University of Oslo by
+.An Dag-Erling Sm\\(/orgrav Aq des\@des.no .
+",
     DES => "developed by
 .An Dag-Erling Sm\\(/orgrav Aq des\@des.no .",
 );
