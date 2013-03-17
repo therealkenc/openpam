@@ -62,8 +62,8 @@ openpam_load_module(const char *modulename)
 
 #ifdef OPENPAM_STATIC_MODULES
 	/* look for a static module */
-	if (module == NULL && strchr(path, '/') == NULL) {
-		module = openpam_static(path);
+	if (module == NULL && strchr(modulename, '/') == NULL) {
+		module = openpam_static(modulename);
 		openpam_log(PAM_LOG_DEBUG, "%s static %s",
 		    (module == NULL) ? "no" : "using", modulename);
 	}
