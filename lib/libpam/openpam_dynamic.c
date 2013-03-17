@@ -53,6 +53,7 @@
 
 #include "openpam_impl.h"
 #include "openpam_asprintf.h"
+#include "openpam_ctype.h"
 #include "openpam_dlfunc.h"
 
 #ifndef RTLD_NOW
@@ -176,7 +177,8 @@ openpam_dynamic(const char *modname)
 {
 	pam_module_t *module;
 	char modpath[PATH_MAX];
-	const char **path;
+	const char **path, *p;
+	int has_so, has_ver;
 	int dot, len;
 
 	/*
@@ -197,6 +199,24 @@ openpam_dynamic(const char *modname)
 	}
 
 	/*
+	 * Check for .so and version sufixes
+	 */
+	p = strchr(modname, '\0');
+	has_ver = has_so = 1;
+	while (is_digit(*p))
+		--p;
+	if (*p == '.' && *++p != '\0') {
+		/* found a numeric suffix */
+		has_ver = 1;
+		/* assume that .so is either present or unneeded */
+		has_so = 1;
+	} else if (*p == '\0' && p >= modname + sizeof PAM_SOEXT &&
+	    strcmp(p - sizeof PAM_SOEXT + 1, PAM_SOEXT) == 0) {
+		/* found .so suffix */
+		has_so = 1;
+	}
+
+	/*
 	 * Complicated case: search for the module in the usual places.
 	 */
 	for (path = openpam_module_path; *path != NULL; ++path) {
@@ -204,8 +224,16 @@ openpam_dynamic(const char *modname)
 		 * Assemble the full path, including the version suffix.  Take
 		 * note of where the suffix begins so we can cut it off later.
 		 */
-		len = snprintf(modpath, sizeof modpath, "%s/%s%n.%d",
-		    *path, modname, &dot, LIB_MAJ);
+		if (has_ver)
+			len = snprintf(modpath, sizeof modpath, "%s/%s%n",
+			    *path, modname, &dot);
+		else if (has_so)
+			len = snprintf(modpath, sizeof modpath, "%s/%s%n.%d",
+			    *path, modname, &dot, LIB_MAJ);
+		else
+			len = snprintf(modpath, sizeof modpath, "%s/%s%s%n.%d",
+			    *path, modname, PAM_SOEXT, &dot, LIB_MAJ);
+		/* check for overflow */
 		if (len < 0 || (unsigned int)len >= sizeof modpath) {
 			errno = ENOENT;
 			continue;
@@ -213,7 +241,7 @@ openpam_dynamic(const char *modname)
 		/* try the versioned path */
 		if ((module = try_module(modpath)) != NULL)
 			return (module);
-		if (errno == ENOENT) {
+		if (errno == ENOENT && modpath[dot] != '\0') {
 			/* no luck, try the unversioned path */
 			modpath[dot] = '\0';
 			if ((module = try_module(modpath)) != NULL)
