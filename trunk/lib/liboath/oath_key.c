@@ -56,15 +56,14 @@
  * label and key.
  */
 struct oath_key *
-oath_key_alloc(size_t extra)
+oath_key_alloc(void)
 {
 	struct oath_key *key;
 
-	if ((key = calloc(1, sizeof *key + extra)) == NULL) {
+	if ((key = calloc(1, sizeof *key)) == NULL) {
 		openpam_log(PAM_LOG_ERROR, "malloc(): %s", strerror(errno));
 		return (NULL);
 	}
-	key->datalen = extra;
 	/* XXX should try to wire */
 	return (key);
 }
@@ -77,7 +76,7 @@ oath_key_free(struct oath_key *key)
 {
 
 	if (key != NULL) {
-		memset(key, 0, sizeof *key + key->datalen);
+		memset(key, 0, sizeof *key);
 		free(key);
 	}
 }
@@ -94,12 +93,7 @@ oath_key_from_uri(const char *uri)
 	uintmax_t n;
 	char *e;
 
-	/*
-	 * The URI string contains the label, the base32-encoded key and
-	 * some fluff, so the combined length of the label and key can
-	 * never exceed the length of the URI string.
-	 */
-	if ((key = oath_key_alloc(strlen(uri))) == NULL)
+	if ((key = oath_key_alloc()) == NULL)
 		return (NULL);
 
 	/* check method */
@@ -123,8 +117,8 @@ oath_key_from_uri(const char *uri)
 	/* extract label */
 	if ((q = strchr(p, '?')) == NULL)
 		goto invalid;
-	key->label = (char *)key->data;
-	key->labellen = (q - p) + 1;
+	if ((key->labellen = q - p + 1) > sizeof key->label)
+		goto invalid;
 	memcpy(key->label, p, q - p);
 	key->label[q - p] = '\0';
 	p = q + 1;
@@ -145,12 +139,7 @@ oath_key_from_uri(const char *uri)
 			if (key->keylen != 0)
 				/* dupe */
 				goto invalid;
-			/* base32-encoded key - multiple of 40 bits */
-			if ((r - q) % 8 != 0 ||
-			    base32_declen(r - q) > OATH_MAX_KEYLEN)
-				goto invalid;
-			key->key = key->data + key->labellen;
-			key->keylen = key->datalen - key->labellen;
+			key->keylen = sizeof key->key;
 			if (base32_dec(q, r - q, key->key, &key->keylen) != 0)
 				goto invalid;
 			if (base32_enclen(key->keylen) != (size_t)(r - q))
@@ -314,16 +303,15 @@ oath_dummy_key(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
 {
 	struct oath_key *key;
 
-	if ((key = oath_key_alloc(DUMMY_LABELLEN + DUMMY_KEYLEN)) == NULL)
+	if ((key = oath_key_alloc()) == NULL)
 		return (NULL);
 	key->mode = mode;
 	key->digits = digits;
 	key->counter = 0;
 	key->timestep = 30;
 	key->hash = hash;
-	key->label = (char *)key->data;
 	memcpy(key->label, DUMMY_LABEL, DUMMY_LABELLEN);
-	key->key = key->data + DUMMY_LABELLEN;
+	key->labellen = DUMMY_LABELLEN;
 	key->keylen = DUMMY_KEYLEN;
 	return (key);
 }

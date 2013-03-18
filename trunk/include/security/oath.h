@@ -36,7 +36,7 @@
 #include <security/oath_types.h>
 #include <security/oath_rfc4648.h>
 
-struct oath_key *oath_key_alloc(size_t);
+struct oath_key *oath_key_alloc(void);
 void oath_key_free(struct oath_key *);
 struct oath_key *oath_key_from_uri(const char *);
 struct oath_key *oath_key_from_file(const char *);
