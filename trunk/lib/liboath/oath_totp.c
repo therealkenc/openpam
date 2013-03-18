@@ -83,7 +83,7 @@ oath_totp_match(const struct oath_key *k, unsigned int response, int window)
 	if (k->timestep == 0)
 		return (-1);
 	seq = time(NULL) / k->timestep;
-	dummy = (memcmp(k->label, DUMMY_LABEL, DUMMY_LABELLEN) == 0);
+	dummy = (strcmp(k->label, OATH_DUMMY_LABEL) == 0);
 	for (int i = -window; i <= window; ++i) {
 		code = oath_hotp(k->key, k->keylen, seq + i, k->digits);
 		if (code == response && !dummy)

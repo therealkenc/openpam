@@ -76,4 +76,9 @@ enum oath_hash {
  */
 #define OATH_MAX_LABELLEN	64
 
+/*
+ * Label to use for dummy keys
+ */
+#define OATH_DUMMY_LABEL	"oath-dummy-key"
+
 #endif

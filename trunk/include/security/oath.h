@@ -42,10 +42,6 @@ struct oath_key *oath_key_from_uri(const char *);
 struct oath_key *oath_key_from_file(const char *);
 char *oath_key_to_uri(const struct oath_key *);
 
-#define DUMMY_LABEL	("oath-dummy-key")
-#define DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define DUMMY_KEYLEN	64
-
 struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
 
 unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
