@@ -310,8 +310,8 @@ oath_dummy_key(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
 	key->counter = 0;
 	key->timestep = 30;
 	key->hash = hash;
-	memcpy(key->label, DUMMY_LABEL, DUMMY_LABELLEN);
-	key->labellen = DUMMY_LABELLEN;
-	key->keylen = DUMMY_KEYLEN;
+	strcpy(key->label, "oath-dummy-key");
+	key->labellen = strlen(key->label);
+	key->keylen = sizeof key->key;
 	return (key);
 }
