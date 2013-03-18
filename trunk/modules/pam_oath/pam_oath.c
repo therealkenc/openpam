@@ -47,21 +47,50 @@
 #include <security/pam_appl.h>
 #include <security/oath.h>
 
+#define PAM_OATH_PROMPT "Verification code: "
+
+enum pam_oath_nokey { nokey_error = -1, nokey_fail, nokey_fake, nokey_ignore };
+
+static enum pam_oath_nokey
+get_nokey_option(pam_handle_t *pamh, const char *option)
+{
+	const char *value;
+
+	if ((value = openpam_get_option(pamh, option)) == NULL)
+		return (nokey_fail);
+	else if (strcmp(value, "fail") == 0)
+		return (nokey_fail);
+	else if (strcmp(value, "fake") == 0)
+		return (nokey_fake);
+	else if (strcmp(value, "ignore") == 0)
+		return (nokey_ignore);
+	openpam_log(PAM_LOG_ERROR, "the value of the %s option "
+	    "must be either 'fail', 'fake' or 'ignore'", option);
+	return (nokey_error);
+}
+
 PAM_EXTERN int
 pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	int argc, const char *argv[])
 {
+	enum pam_oath_nokey nokey, badkey;
 	struct passwd *pwd;
 	const char *user;
 	char *keyfile;
 	struct oath_key *key;
-	unsigned long code;
+	unsigned long response;
 	char *password, *end;
 	int pam_err, ret;
 
+	/* unused */
 	(void)flags;
 	(void)argc;
 	(void)argv;
+
+	/* check how to behave if the user does not have a valid key */
+	if ((nokey = get_nokey_option(pamh, "nokey")) == nokey_error ||
+	    (badkey = get_nokey_option(pamh, "badkey")) == nokey_error)
+		return (PAM_SERVICE_ERR);
 
 	/* identify user */
 	if ((pam_err = pam_get_user(pamh, &user, NULL)) != PAM_SUCCESS)
@@ -70,38 +99,56 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		return (PAM_USER_UNKNOWN);
 
 	/* load key */
+	/* XXX implement additional schemes */
 	keyfile = calloc(1, strlen(pwd->pw_dir) + sizeof "/.otpauth");
 	if (keyfile == NULL)
 		return (PAM_SYSTEM_ERR);
 	sprintf(keyfile, "%s/.otpauth", pwd->pw_dir);
+	key = oath_key_from_file(keyfile);
 	free(keyfile);
-	if ((key = oath_key_from_file(keyfile)) == NULL) {
-		/* no key, fake it? */
-		if (openpam_get_option(pamh, "fakeauth") == NULL)
+
+	/*
+	 * The user doesn't have a key, should we fake it?
+	 *
+	 * XXX implement badkey - currently, oath_key_from_file() doesn't
+	 * provide enough information for us to tell the difference
+	 * between a bad key and no key at all.
+	 */
+	if (key == NULL) {
+		switch (nokey) {
+		case nokey_fail:
 			return (PAM_AUTHINFO_UNAVAIL);
-		key = oath_dummy_key(om_hotp, oh_sha1, 6);
+		case nokey_fake:
+			key = oath_dummy_key(om_hotp, oh_sha1, 6);
+			break;
+		case nokey_ignore:
+			return (PAM_IGNORE);
+		default:
+			/* can't happen */
+			return (PAM_SERVICE_ERR);
+		}
 	}
 
-	/* get code */
+	/* get user's response */
 	pam_err = pam_get_authtok(pamh, PAM_AUTHTOK,
-	    (const char **)&password, NULL);
-	if (pam_err == PAM_CONV_ERR)
+	    (const char **)&password, PAM_OATH_PROMPT);
+	if (pam_err != PAM_SUCCESS) {
+		oath_key_free(key);
 		return (pam_err);
-	if (pam_err != PAM_SUCCESS)
-		return (PAM_AUTH_ERR);
+	}
 
 	/* convert to number */
-	code = strtoul(password, &end, 10);
+	response = strtoul(password, &end, 10);
 	if (end == password || *end != '\0')
-		code = ULONG_MAX;
+		response = ULONG_MAX;
 
 	/* verify response */
 	if (key->mode == om_hotp)
-		ret = oath_hotp_match(key, code, 1);
+		ret = oath_hotp_match(key, response, 1);
 	else
-		ret = oath_totp_match(key, code, 1);
+		ret = oath_totp_match(key, response, 1);
 	oath_key_free(key);
-	if (ret != 0)
+	if (ret != 1)
 		return (PAM_AUTH_ERR);
 
 	/* XXX write back */
@@ -113,6 +160,7 @@ pam_sm_setcred(pam_handle_t *pamh, int flags,
 	int argc, const char *argv[])
 {
 
+	/* unused */
 	(void)pamh;
 	(void)flags;
 	(void)argc;
@@ -125,6 +173,7 @@ pam_sm_acct_mgmt(pam_handle_t *pamh, int flags,
 	int argc, const char *argv[])
 {
 
+	/* unused */
 	(void)pamh;
 	(void)flags;
 	(void)argc;
