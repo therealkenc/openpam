@@ -71,4 +71,9 @@ enum oath_hash {
  */
 #define OATH_MAX_KEYLEN		64
 
+/*
+ * Maximum label length in characters, including terminating NUL.
+ */
+#define OATH_MAX_LABELLEN	64
+
 #endif

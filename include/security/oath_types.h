@@ -47,15 +47,11 @@ struct oath_key {
 
 	/* label */
 	size_t		 labellen; /* bytes incl. NUL */
-	char		*label;
+	char		 label[OATH_MAX_LABELLEN];
 
 	/* key */
 	size_t		 keylen; /* bytes */
-	uint8_t		*key;
-
-	/* buffer for label + NUL + key */
-	size_t		 datalen; /* bytes */
-	uint8_t		 data[];
+	uint8_t		 key[OATH_MAX_KEYLEN];
 };
 
 #endif
