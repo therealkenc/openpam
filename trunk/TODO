@@ -4,4 +4,6 @@ Before the next release:
 
  - Finish pam_oath(8) and oathkey(1).
 
+ - Add loop detection to openpam_load_chain().
+
 $Id$
