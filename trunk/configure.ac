@@ -31,8 +31,8 @@ AC_DEFINE_UNQUOTED(LIB_MAJ, $LIB_MAJ, [OpenPAM library major number])
 
 AC_ARG_ENABLE([debug],
     AC_HELP_STRING([--enable-debug],
-	[turn debugging on by default]),
-    AC_DEFINE(OPENPAM_DEBUG, 1, [Turn debugging on by default]))
+	[turn debugging macros on]),
+    AC_DEFINE(OPENPAM_DEBUG, 1, [Turn debugging macros on]))
 
 AC_ARG_ENABLE([unversioned-modules],
     AC_HELP_STRING([--disable-unversioned-modules],
