@@ -17,6 +17,7 @@ export CONFIG_SHELL=/bin/sh
 	--with-pamtest \
 	--with-su \
 	--with-modules-dir=/usr/lib \
+	--enable-debug \
 	--enable-developer-warnings \
 	--enable-werror \
 	"$@"
