@@ -69,6 +69,7 @@ openpam_log(int level, const char *fmt, ...)
 {
 	va_list ap;
 	int priority;
+	int serrno;
 
 	switch (level) {
 	case PAM_LOG_LIBDEBUG:
@@ -88,9 +89,11 @@ openpam_log(int level, const char *fmt, ...)
 		priority = LOG_ERR;
 		break;
 	}
+	serrno = errno;
 	va_start(ap, fmt);
 	vsyslog(priority, fmt, ap);
 	va_end(ap);
+	errno = serrno;
 }
 
 #else
@@ -121,8 +124,8 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 		priority = LOG_ERR;
 		break;
 	}
-	va_start(ap, fmt);
 	serrno = errno;
+	va_start(ap, fmt);
 	if (asprintf(&format, "in %s(): %s", func, fmt) > 0) {
 		errno = serrno;
 		vsyslog(priority, format, ap);
@@ -132,6 +135,7 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
 		vsyslog(priority, fmt, ap);
 	}
 	va_end(ap);
+	errno = serrno;
 }
 
 #endif
