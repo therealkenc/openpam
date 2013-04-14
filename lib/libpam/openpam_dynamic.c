@@ -74,8 +74,11 @@ try_dlopen(const char *modfn)
 	int fd;
 
 	openpam_log(PAM_LOG_LIBDEBUG, "dlopen(%s)", modfn);
-	if ((fd = open(modfn, O_RDONLY)) < 0)
+	if ((fd = open(modfn, O_RDONLY)) < 0) {
+		if (errno != ENOENT)
+			openpam_log(PAM_LOG_ERROR, "%s: %m", modfn);
 		return (NULL);
+	}
 	if (OPENPAM_FEATURE(VERIFY_MODULE_FILE) &&
 	    openpam_check_desc_owner_perms(modfn, fd) != 0) {
 		close(fd);
