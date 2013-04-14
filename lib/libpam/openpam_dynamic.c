@@ -203,7 +203,7 @@ openpam_dynamic(const char *modname)
 	 * Check for .so and version sufixes
 	 */
 	p = strchr(modname, '\0');
-	has_ver = has_so = 1;
+	has_ver = has_so = 0;
 	while (is_digit(*p))
 		--p;
 	if (*p == '.' && *++p != '\0') {
