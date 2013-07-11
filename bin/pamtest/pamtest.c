@@ -34,6 +34,7 @@
 #endif
 
 #include <err.h>
+#include <limits.h>
 #include <pwd.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -275,6 +276,24 @@ usage(void)
 }
 
 /*
+ * Handle an option that takes an int argument and can be used only once
+ */
+static void
+opt_num_once(int opt, long *num, const char *arg)
+{
+	char *end;
+	long l;
+
+	l = strtol(arg, &end, 0);
+	if (end == optarg || *end != '\0') {
+		fprintf(stderr,
+		    "The -%c option expects a numeric argument\n", opt);
+		usage();
+	}
+	*num = l;
+}
+
+/*
  * Handle an option that takes a string argument and can be used only once
  */
 static void
@@ -301,11 +320,12 @@ main(int argc, char *argv[])
 	const char *user = NULL;
 	const char *service = NULL;
 	const char *tty = NULL;
+	long timeout = 0;
 	int keepatit = 0;
 	int pame;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "dH:h:kMPst:U:u:v")) != -1)
+	while ((opt = getopt(argc, argv, "dH:h:kMPsT:t:U:u:v")) != -1)
 		switch (opt) {
 		case 'd':
 			openpam_debug++;
@@ -329,6 +349,15 @@ main(int argc, char *argv[])
 			break;
 		case 's':
 			silent = PAM_SILENT;
+			break;
+		case 'T':
+			opt_num_once(opt, &timeout, optarg);
+			if (timeout < 0 || timeout > INT_MAX) {
+				fprintf(stderr,
+				    "Invalid conversation timeout\n");
+				usage();
+			}
+			openpam_ttyconv_timeout = (int)timeout;
 			break;
 		case 't':
 			opt_str_once(opt, &tty, optarg);
