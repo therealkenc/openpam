@@ -168,4 +168,6 @@ _openpam_log(int level, const char *func, const char *fmt, ...)
  *
  * The remaining arguments are a =printf format string and the
  * corresponding arguments.
+ *
+ * The =openpam_log function does not modify the value of :errno.
  */
