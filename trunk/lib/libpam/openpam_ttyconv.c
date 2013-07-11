@@ -152,7 +152,7 @@ prompt_tty(int ifd, int ofd, const char *message, char *response, int echo)
 			remaining_ms = remaining.tv_sec * 1000 +
 			    remaining.tv_usec / 1000;
 		} else {
-			remaining_ms = INFTIM;
+			remaining_ms = -1;
 		}
 		if ((ret = poll(&pfd, 1, remaining_ms)) < 0) {
 			serrno = errno;
@@ -250,7 +250,7 @@ prompt_notty(const char *message, char *response)
 			remaining_ms = remaining.tv_sec * 1000 +
 			    remaining.tv_usec / 1000;
 		} else {
-			remaining_ms = INFTIM;
+			remaining_ms = -1;
 		}
 		if ((ret = poll(&pfd, 1, remaining_ms)) < 0) {
 			/* interrupt is ok, everything else -> bail */
