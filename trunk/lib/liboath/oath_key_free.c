@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Universitetet i Oslo
+ * Copyright (c) 2013 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,33 +29,50 @@
  * $Id$
  */
 
-#ifndef OATH_TYPES_H_INCLUDED
-#define OATH_TYPES_H_INCLUDED
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <sys/mman.h>
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <security/pam_appl.h>
+#include <security/openpam.h>
+#include <security/oath.h>
 
 /*
- * OATH key and associated parameters
+ * OATH
+ *
+ * Wipes and frees an OATH key structure
  */
-struct oath_key {
-	/* mode and parameters */
-	enum oath_mode	 mode;
-	unsigned int	 digits;
-	uint64_t	 counter;
-	unsigned int	 timestep; /* in seconds */
 
-	/* housekeeping */
-	unsigned int	 mapped:1;
-	unsigned int	 locked:1;
+void
+oath_key_free(struct oath_key *key)
+{
+	int mapped, locked;
 
-	/* hash algorithm */
-	enum oath_hash	 hash;
+	if (key != NULL) {
+		mapped = key->mapped;
+		locked = key->locked;
+		memset(key, 0, sizeof *key);
+		if (mapped) {
+			if (locked)
+				munlock(key, sizeof *key);
+			munmap(key, sizeof *key);
+		} else {
+			free(key);
+		}
+	}
+}
 
-	/* label */
-	size_t		 labellen; /* bytes incl. NUL */
-	char		 label[OATH_MAX_LABELLEN];
-
-	/* key */
-	size_t		 keylen; /* bytes */
-	uint8_t		 key[OATH_MAX_KEYLEN];
-};
-
-#endif
+/**
+ * The =oath_key_free function wipes and frees an OATH key structure which
+ * was previously allocated using the =oath_key_alloc function.
+ *
+ * >oath_key_alloc
+ *
+ * AUTHOR UIO
+ */
