@@ -38,7 +38,6 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,36 +49,6 @@
 #include "openpam_strlcmp.h"
 
 #include <security/oath.h>
-
-/*
- * Allocate a struct oath_key with sufficient additional space for the
- * label and key.
- */
-struct oath_key *
-oath_key_alloc(void)
-{
-	struct oath_key *key;
-
-	if ((key = calloc(1, sizeof *key)) == NULL) {
-		openpam_log(PAM_LOG_ERROR, "malloc(): %s", strerror(errno));
-		return (NULL);
-	}
-	/* XXX should try to wire */
-	return (key);
-}
-
-/*
- * Wipe and free a struct oath_key
- */
-void
-oath_key_free(struct oath_key *key)
-{
-
-	if (key != NULL) {
-		memset(key, 0, sizeof *key);
-		free(key);
-	}
-}
 
 /*
  * Allocate a struct oath_key and populate it from a Google Authenticator

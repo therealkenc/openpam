@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Universitetet i Oslo
+ * Copyright (c) 2013 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,33 +29,52 @@
  * $Id$
  */
 
-#ifndef OATH_TYPES_H_INCLUDED
-#define OATH_TYPES_H_INCLUDED
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <sys/mman.h>
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <security/pam_appl.h>
+#include <security/openpam.h>
+#include <security/oath.h>
 
 /*
- * OATH key and associated parameters
+ * OATH
+ *
+ * Allocates an OATH key structure
  */
-struct oath_key {
-	/* mode and parameters */
-	enum oath_mode	 mode;
-	unsigned int	 digits;
-	uint64_t	 counter;
-	unsigned int	 timestep; /* in seconds */
 
-	/* housekeeping */
-	unsigned int	 mapped:1;
-	unsigned int	 locked:1;
+struct oath_key *
+oath_key_alloc(void)
+{
+	struct oath_key *key;
 
-	/* hash algorithm */
-	enum oath_hash	 hash;
+	if ((key = mmap(NULL, sizeof *key, PROT_READ|PROT_WRITE,
+	    MAP_ANON|MAP_NOCORE, -1, 0)) == NULL) {
+		memset(key, 0, sizeof *key);
+		key->mapped = 1;
+		if (mlock(key, sizeof *key) == 0)
+			key->locked = 1;
+	} else {
+		openpam_log(PAM_LOG_ERROR, "mmap(): %m");
+		if ((key = calloc(sizeof *key, 1)) == NULL)
+			openpam_log(PAM_LOG_ERROR, "malloc(): %m");
+	}
+	return (key);
+}
 
-	/* label */
-	size_t		 labellen; /* bytes incl. NUL */
-	char		 label[OATH_MAX_LABELLEN];
-
-	/* key */
-	size_t		 keylen; /* bytes */
-	uint8_t		 key[OATH_MAX_KEYLEN];
-};
-
-#endif
+/**
+ * The =oath_key_alloc function allocates and initializes an OATH key
+ * structure.
+ *
+ * Keys allocated with =oath_key_alloc must be freed using =oath_key_free.
+ *
+ * >oath_key_free
+ *
+ * AUTHOR UIO
+ */

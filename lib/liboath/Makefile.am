@@ -9,6 +9,8 @@ liboath_la_SOURCES = \
 	oath_base64.c \
 	oath_hotp.c \
 	oath_totp.c \
+	oath_key_alloc.c \
+	oath_key_free.c \
 	oath_key.c
 
 liboath_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
