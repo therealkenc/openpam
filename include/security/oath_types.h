@@ -41,6 +41,7 @@ struct oath_key {
 	unsigned int	 digits;
 	uint64_t	 counter;
 	unsigned int	 timestep; /* in seconds */
+	uint64_t	 lastuse;
 
 	/* housekeeping */
 	unsigned int	 mapped:1;
