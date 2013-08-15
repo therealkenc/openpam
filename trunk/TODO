@@ -1,6 +1,11 @@
 Before the next release:
 
  - Rewrite openpam_ttyconv(3).
+   - mostly done, needs review,
+
+ - Fix try_first_pass / use_first_pass (pam_get_authtok() code &
+   documentation are slightly incorrect, OpenPAM's pam_unix(8) is
+   incorrect, all FreeBSD modules are broken)
 
  - Finish pam_oath(8) and oathkey(1).
 
