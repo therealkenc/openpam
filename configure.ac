@@ -2,7 +2,7 @@ dnl $Id$
 
 AC_PREREQ([2.62])
 AC_REVISION([$Id$])
-AC_INIT([OpenPAM], [trunk], [des@des.no])
+AC_INIT([OpenPAM], [trunk], [des@des.no], [openpam], [http://www.openpam.org/])
 AC_CONFIG_SRCDIR([lib/libpam/pam_start.c])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
@@ -145,4 +145,5 @@ AC_CONFIG_FILES([
     t/Makefile
 ])
 AC_CONFIG_FILES([pamgdb],[chmod +x pamgdb])
+AC_CONFIG_FILES([mkpkgng],[chmod +x mkpkgng])
 AC_OUTPUT
