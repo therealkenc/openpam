@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Universitetet i Oslo
+ * Copyright (c) 2013 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,48 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
-
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc4648.h>
-
-struct oath_key *oath_key_alloc(void);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
-
-struct oath_key *oath_key_dummy(enum oath_mode, enum oath_hash, unsigned int);
-
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-unsigned int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-unsigned int oath_totp_current(const struct oath_key *);
-int oath_totp_match(struct oath_key *, unsigned int, int);
-
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
+
+#include <inttypes.h>
+#include <string.h>
+
+#include <security/oath.h>
+
+/*
+ * OATH
+ *
+ * Creates a dummy OATH key structure
+ */
+
+struct oath_key *
+oath_key_dummy(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
+{
+	struct oath_key *key;
+
+	if ((key = oath_key_alloc()) == NULL)
+		return (NULL);
+	key->mode = mode;
+	key->digits = digits;
+	key->counter = 0;
+	key->timestep = 30;
+	key->hash = hash;
+	strcpy(key->label, "oath-dummy-key");
+	key->labellen = strlen(key->label);
+	key->keylen = sizeof key->key;
+	return (key);
+}
+
+/**
+ * The =oath_key_dummy function allocates and initializes a dummy OATH key
+ * structure.
+ * Authentication attempts using a dummy key will always fail.
+ *
+ * Keys allocated with =oath_key_dummy must be freed using =oath_key_free.
+ *
+ * >oath_key_alloc
+ * >oath_key_free
+ *
+ * AUTHOR UIO
+ */
