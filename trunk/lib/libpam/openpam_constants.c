@@ -135,7 +135,11 @@ const char *openpam_policy_path[] = {
 };
 
 const char *openpam_module_path[] = {
+#ifdef OPENPAM_MODULES_DIRECTORY
+	OPENPAM_MODULES_DIRECTORY,
+#else
 	"/usr/lib",
 	"/usr/local/lib",
+#endif
 	NULL
 };
