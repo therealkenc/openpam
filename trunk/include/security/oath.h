@@ -45,11 +45,11 @@ char *oath_key_to_uri(const struct oath_key *);
 struct oath_key *oath_dummy_key(enum oath_mode, enum oath_hash, unsigned int);
 
 unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-int oath_hotp_current(struct oath_key *);
+unsigned int oath_hotp_current(struct oath_key *);
 int oath_hotp_match(struct oath_key *, unsigned int, int);
 
 unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-int oath_totp_match(const struct oath_key *, unsigned int, int);
 unsigned int oath_totp_current(const struct oath_key *);
+int oath_totp_match(struct oath_key *, unsigned int, int);
 
 #endif

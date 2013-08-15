@@ -67,8 +67,13 @@ oath_totp_current(const struct oath_key *k)
 	return (code);
 }
 
+/*
+ * Compares the code provided by the user with expected values within a
+ * given window.  Returns 1 if there was a match, 0 if not, and -1 if an
+ * error occurred.
+ */
 int
-oath_totp_match(const struct oath_key *k, unsigned int response, int window)
+oath_totp_match(struct oath_key *k, unsigned int response, int window)
 {
 	unsigned int code;
 	uint64_t seq;
@@ -85,9 +90,16 @@ oath_totp_match(const struct oath_key *k, unsigned int response, int window)
 	seq = time(NULL) / k->timestep;
 	dummy = (strcmp(k->label, OATH_DUMMY_LABEL) == 0);
 	for (int i = -window; i <= window; ++i) {
+#if OATH_TOTP_PREVENT_REUSE
+		/* XXX disabled for now, should be a key parameter? */
+		if (seq + i <= k->lastuse)
+			continue;
+#endif
 		code = oath_hotp(k->key, k->keylen, seq + i, k->digits);
-		if (code == response && !dummy)
+		if (code == response && !dummy) {
+			k->lastuse = seq;
 			return (1);
+		}
 	}
 	return (0);
 }
