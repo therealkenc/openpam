@@ -51,8 +51,14 @@
 
 enum pam_oath_nokey { nokey_error = -1, nokey_fail, nokey_fake, nokey_ignore };
 
+static const char *pam_oath_default_keyfile = "/var/oath/%u.otpauth";
+
+/*
+ * Parse the nokey or badkey option, which indicates how we should act if
+ * the user has no keyfile or the keyfile is invalid.
+ */
 static enum pam_oath_nokey
-get_nokey_option(pam_handle_t *pamh, const char *option)
+pam_oath_nokey_option(pam_handle_t *pamh, const char *option)
 {
 	const char *value;
 
@@ -67,6 +73,54 @@ get_nokey_option(pam_handle_t *pamh, const char *option)
 	openpam_log(PAM_LOG_ERROR, "the value of the %s option "
 	    "must be either 'fail', 'fake' or 'ignore'", option);
 	return (nokey_error);
+}
+
+/*
+ * Determine the location of the user's keyfile.
+ */
+static char *
+pam_oath_keyfile(pam_handle_t *pamh)
+{
+	const char *keyfile;
+	char *path;
+	size_t size;
+
+	if ((keyfile = openpam_get_option(pamh, "keyfile")) == NULL)
+		keyfile = pam_oath_default_keyfile;
+	size = 0;
+	if (openpam_subst(pamh, NULL, &size, keyfile) != PAM_TRY_AGAIN)
+		return (NULL);
+	if ((path = malloc(size)) == NULL)
+		return (NULL);
+	if (openpam_subst(pamh, path, &size, keyfile) != PAM_SUCCESS) {
+		free(path);
+		return (NULL);
+	}
+	return (path);
+}
+
+/*
+ * Load the user's key.
+ */
+static struct oath_key *
+pam_oath_load_key(const char *keyfile)
+{
+
+	/* XXX should check ownership and permissions */
+	return (oath_key_from_file(keyfile));
+}
+
+/*
+ * Save the user's key.
+ */
+static int
+pam_oath_save_key(const struct oath_key *key, const char *keyfile)
+{
+
+	/* not implemented */
+	(void)key;
+	(void)keyfile;
+	return (0);
 }
 
 PAM_EXTERN int
@@ -87,25 +141,35 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	(void)argc;
 	(void)argv;
 
+	keyfile = NULL;
+	key = NULL;
+
+	openpam_log(PAM_LOG_VERBOSE, "attempting OATH authentication");
+
 	/* check how to behave if the user does not have a valid key */
-	if ((nokey = get_nokey_option(pamh, "nokey")) == nokey_error ||
-	    (badkey = get_nokey_option(pamh, "badkey")) == nokey_error)
-		return (PAM_SERVICE_ERR);
+	if ((nokey = pam_oath_nokey_option(pamh, "nokey")) == nokey_error ||
+	    (badkey = pam_oath_nokey_option(pamh, "badkey")) == nokey_error) {
+		pam_err = PAM_SERVICE_ERR;
+		goto done;
+	}
 
 	/* identify user */
 	if ((pam_err = pam_get_user(pamh, &user, NULL)) != PAM_SUCCESS)
-		return (pam_err);
-	if ((pwd = getpwnam(user)) == NULL)
-		return (PAM_USER_UNKNOWN);
+		goto done;
+	if ((pwd = getpwnam(user)) == NULL) {
+		pam_err = PAM_USER_UNKNOWN;
+		goto done;
+	}
+
+	openpam_log(PAM_LOG_VERBOSE, "authenticating user %s", user);
 
 	/* load key */
-	/* XXX implement additional schemes */
-	keyfile = calloc(1, strlen(pwd->pw_dir) + sizeof "/.otpauth");
-	if (keyfile == NULL)
-		return (PAM_SYSTEM_ERR);
-	sprintf(keyfile, "%s/.otpauth", pwd->pw_dir);
-	key = oath_key_from_file(keyfile);
-	free(keyfile);
+	if ((keyfile = pam_oath_keyfile(pamh)) == NULL) {
+		pam_err = PAM_SYSTEM_ERR;
+		goto done;
+	}
+	openpam_log(PAM_LOG_VERBOSE, "attempting to load %s for %s", keyfile, user);
+	key = pam_oath_load_key(keyfile);
 
 	/*
 	 * The user doesn't have a key, should we fake it?
@@ -113,19 +177,25 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	 * XXX implement badkey - currently, oath_key_from_file() doesn't
 	 * provide enough information for us to tell the difference
 	 * between a bad key and no key at all.
+	 *
+	 * XXX move this into pam_oath_load_key()
 	 */
 	if (key == NULL) {
+		openpam_log(PAM_LOG_VERBOSE, "no key found for %s", user);
 		switch (nokey) {
 		case nokey_fail:
-			return (PAM_AUTHINFO_UNAVAIL);
+			pam_err = PAM_AUTHINFO_UNAVAIL;
+			goto done;
 		case nokey_fake:
 			key = oath_key_dummy(om_hotp, oh_sha1, 6);
 			break;
 		case nokey_ignore:
-			return (PAM_IGNORE);
+			pam_err = PAM_IGNORE;
+			goto done;
 		default:
 			/* can't happen */
-			return (PAM_SERVICE_ERR);
+			pam_err = PAM_SERVICE_ERR;
+			goto done;
 		}
 	}
 
@@ -133,8 +203,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	pam_err = pam_get_authtok(pamh, PAM_AUTHTOK,
 	    (const char **)&password, PAM_OATH_PROMPT);
 	if (pam_err != PAM_SUCCESS) {
-		oath_key_free(key);
-		return (pam_err);
+		openpam_log(PAM_LOG_VERBOSE, "conversation failure");
+		goto done;
 	}
 
 	/* convert to number */
@@ -147,12 +217,25 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		ret = oath_hotp_match(key, response, 1);
 	else
 		ret = oath_totp_match(key, response, 1);
-	oath_key_free(key);
-	if (ret != 1)
-		return (PAM_AUTH_ERR);
+	openpam_log(PAM_LOG_VERBOSE, "verification code %s",
+	    ret ? "matched" : "did not match");
+	if (ret == 0) {
+		pam_err = PAM_AUTH_ERR;
+		goto done;
+	}
 
-	/* XXX write back */
-	return (PAM_SUCCESS);
+	/* write back (update counter for HOTP etc) */
+	if (pam_oath_save_key(key, keyfile) != 0) {
+		pam_err = PAM_SYSTEM_ERR;
+		goto done;
+	}
+
+	openpam_log(PAM_LOG_VERBOSE, "OATH authentication succeeded");
+	pam_err = PAM_SUCCESS;
+done:
+	oath_key_free(key);
+	free(keyfile);
+	return (pam_err);
 }
 
 PAM_EXTERN int
