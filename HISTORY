@@ -24,6 +24,9 @@ OpenPAM ??????????						2013-??-??
    subsequent text as well.  This went unnoticed because none of the
    unit tests for quoted strings had any text preceding the opening
    quote.
+
+ - BUGFIX: make --with-modules-dir work the way it was meant to work
+   (but never did).
 ============================================================================
 OpenPAM Micrampelis						2012-05-26
 

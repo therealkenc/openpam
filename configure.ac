@@ -48,14 +48,12 @@ AC_ARG_WITH([modules-dir],
 	[OpenPAM modules directory]),
     [AS_IF([test x"$withval" != x"no"], [
 	OPENPAM_MODULES_DIR="$withval"
-    ], [
-	OPENPAM_MODULES_DIR="$libdir"
-    ])],
-    [OPENPAM_MODULES_DIR="$libdir"])
-AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR,
-    "${OPENPAM_MODULES_DIR%/}/",
-    [OpenPAM modules directory])
+	AC_DEFINE_UNQUOTED(OPENPAM_MODULES_DIR, 
+	    "${OPENPAM_MODULES_DIR%/}",
+	    [OpenPAM modules directory])
+    ])])
 AC_SUBST(OPENPAM_MODULES_DIR)
+AM_CONDITIONAL([CUSTOM_MODULES_DIR], [test x"$OPENPAM_MODULES_DIR" != x""])
 
 AC_ARG_WITH([doc],
     AC_HELP_STRING([--without-doc], [do not build documentation]),
