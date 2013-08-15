@@ -119,7 +119,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		case nokey_fail:
 			return (PAM_AUTHINFO_UNAVAIL);
 		case nokey_fake:
-			key = oath_dummy_key(om_hotp, oh_sha1, 6);
+			key = oath_key_dummy(om_hotp, oh_sha1, 6);
 			break;
 		case nokey_ignore:
 			return (PAM_IGNORE);
