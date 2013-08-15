@@ -10,6 +10,7 @@ liboath_la_SOURCES = \
 	oath_hotp.c \
 	oath_totp.c \
 	oath_key_alloc.c \
+	oath_key_dummy.c \
 	oath_key_free.c \
 	oath_key.c
 

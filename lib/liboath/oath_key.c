@@ -266,21 +266,3 @@ oath_key_to_uri(const struct oath_key *key)
 
 	return (uri);
 }
-
-struct oath_key *
-oath_dummy_key(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
-{
-	struct oath_key *key;
-
-	if ((key = oath_key_alloc()) == NULL)
-		return (NULL);
-	key->mode = mode;
-	key->digits = digits;
-	key->counter = 0;
-	key->timestep = 30;
-	key->hash = hash;
-	strcpy(key->label, "oath-dummy-key");
-	key->labellen = strlen(key->label);
-	key->keylen = sizeof key->key;
-	return (key);
-}
