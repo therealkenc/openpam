@@ -1,7 +1,10 @@
 Before the next release:
 
+ - Add oath_alloc_secure() which allocates memory using mmap() +
+   mlock() and oath_free_secure() which wipes and frees it.
+
  - Rewrite openpam_ttyconv(3).
-   - mostly done, needs review,
+   - mostly done, needs review.
 
  - Fix try_first_pass / use_first_pass (pam_get_authtok() code &
    documentation are slightly incorrect, OpenPAM's pam_unix(8) is
