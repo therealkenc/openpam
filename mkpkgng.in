@@ -3,34 +3,96 @@
 # $Id$
 #
 
-srcdir="@abs_top_srcdir@"
-builddir="@abs_top_builddir@"
+# Print an informational message
+info() {
+	echo "mkpkgng: $@"
+}
 
-pkgabi=$(pkg -vv | awk '$1 == "ABI:" { print $2 }')
-
+# Print an error message and exit
 error() {
-	echo "$@" 1>&2
+	echo "mkpkgng: $@" 1>&2
 	exit 1
 }
 
+# Ask a yes / no question
+yesno() {
+        while :; do
+                echo -n "mkpkgng: $@ (yes/no) "
+                read answer
+                case $answer in
+                [Yy]|[Yy][Ee][Ss])
+                        return 0
+                        ;;
+                [Nn]|[Nn][Oo])
+                        return 1
+                        ;;
+                esac
+        done
+}
+
+#
+# Locate source and build directory
+#
+srcdir="@abs_top_srcdir@"
+[ -f "$srcdir/include/security/openpam.h" ] || \
+    error "Unable to locate source directory."
+builddir="@abs_top_builddir@"
+cd "$srcdir"
+
+#
+# Determine pkgng version and ABI
+#
+pkgver=$(pkg query %v pkg)
+[ -n "$pkgver" ] || error "Unable to determine pkgng version."
+pkgabi=$(pkg -vv | awk '$1 == "ABI:" { print $2 }')
+[ -n "$pkgabi" ] || error "Unable to determine package ABI."
+
+#
+# Determine package name and version
+#
+package="@PACKAGE@"
+version="@PACKAGE_VERSION@"
+if [ "$version" = "trunk" ] ; then
+	svnversion="$(svnversion 2>&1)"
+	svnversion=$(expr "$svnversion" : '\([0-9][0-9]*\)[A-Z]\{0,1\}$')
+	if [ -n "$svnversion" ] ; then
+		version="$version-r${svnversion}"
+	fi
+fi
+
+#
+# Locate GNU make
+#
 if which gmake >/dev/null ; then
 	make=gmake
 else
 	make=make
 fi
+make="$make --no-print-directory --quiet V=0"
 
-tmproot=$(mktemp -d)
+#
+# Create temporary directory
+#
+info "Creating temporary directory."
+tmproot=$(mktemp -d "${TMPDIR:-/tmp}/$package-$version.XXXXXX")
 [ -n "$tmproot" -a -d "$tmproot" ] || error "unable to create temporary directory"
-trap "echo deleting temporary directory ; rm -rf '$tmproot'" EXIT
+trap "info Deleting temporary directory. ; rm -rf '$tmproot'" EXIT
 set -e
 
+#
+# Install into tmproot
+#
+info "Installing into temporary directory."
 $make install DESTDIR="$tmproot"
 
+#
+# Generate stub manifest
+#
+info "Generating stub manifest."
 manifest="$tmproot/+MANIFEST"
-
 cat >"$manifest" <<EOF
-name: @PACKAGE@
-version: @PACKAGE_VERSION@
+name: $package
+version: $version
 origin: local/openpam
 comment: BSD-licensed PAM implementation
 arch: $pkgabi
@@ -49,6 +111,8 @@ desc:
 categories: local, security
 EOF
 
+# Generate file list
+info "Generating file list."
 (
 	echo "files:"
 	find "$tmproot" -type f | while read file ; do
@@ -59,4 +123,18 @@ EOF
 	done
 )>>"$manifest"
 
-pkg create -r "$tmproot" -m "$tmproot" -o "$builddir"
+# As of pkg 1.1.4, the shlib detection logic in "pkg create" only
+# works when tmproot == "/", so instead of creating a package directly
+# from the contents of $tmproot, we have to install to / and package
+# that.
+info "Packaging."
+if [ "$pkgver" \< "1.1.5" ] ; then
+	info "pkg 1.1.4 or older detected."
+	yesno "We must now install to /.  Proceed?" || error "Chicken."
+	$make install
+	pkg create -m "$tmproot" -o "$builddir"
+else
+	pkg create -r "$tmproot" -m "$tmproot" -o "$builddir"
+fi
+
+echo "Package created for $package-$version."
