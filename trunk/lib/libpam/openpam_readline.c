@@ -100,7 +100,6 @@ openpam_readline(FILE *f, int *lineno, size_t *lenp)
 		goto fail;
 	if (lenp != NULL)
 		*lenp = len;
-	openpam_log(PAM_LOG_LIBDEBUG, "returning '%s'", line);
 	return (line);
 fail:
 	FREE(line);
