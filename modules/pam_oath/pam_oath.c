@@ -50,6 +50,8 @@
 #include <security/oath.h>
 
 #define PAM_OATH_PROMPT "Verification code: "
+#define PAM_OATH_HOTP_WINDOW 3
+#define PAM_OATH_TOTP_WINDOW 3
 
 enum pam_oath_nokey { nokey_error = -1, nokey_fail, nokey_fake, nokey_ignore };
 
@@ -75,6 +77,28 @@ pam_oath_nokey_option(pam_handle_t *pamh, const char *option)
 	openpam_log(PAM_LOG_ERROR, "the value of the %s option "
 	    "must be either 'fail', 'fake' or 'ignore'", option);
 	return (nokey_error);
+}
+
+/*
+ * Parse a numeric option.  Returns -1 if the option is not set or its
+ * value is not an integer in the range [0, INT_MAX].
+ */
+static int
+pam_oath_int_option(pam_handle_t *pamh, const char *option)
+{
+	const char *value;
+	char *end;
+	long num;
+
+	if ((value = openpam_get_option(pamh, option)) == NULL)
+		return (-1);
+	num = strtol(value, &end, 10);
+	if (*value == '\0' || *end != '\0' || num < 0 || num > INT_MAX) {
+		openpam_log(PAM_LOG_ERROR, "the value of the %s option "
+		    "is invalid.", option);
+		return (-1);
+	}
+	return (num);
 }
 
 /*
@@ -155,7 +179,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 	struct oath_key *key;
 	unsigned long response;
 	char *password, *end;
-	int pam_err, ret;
+	int pam_err, ret, window;
 
 	/* unused */
 	(void)flags;
@@ -234,10 +258,17 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		response = ULONG_MAX;
 
 	/* verify response */
-	if (key->mode == om_hotp)
-		ret = oath_hotp_match(key, response, 1);
-	else
-		ret = oath_totp_match(key, response, 1);
+	if (key->mode == om_hotp) {
+		if ((window = pam_oath_int_option(pamh, "hotp_window")) < 0 &&
+		    (window = pam_oath_int_option(pamh, "window")) < 0)
+			window = PAM_OATH_HOTP_WINDOW;
+		ret = oath_hotp_match(key, response, window);
+	} else {
+		if ((window = pam_oath_int_option(pamh, "totp_window")) < 0 &&
+		    (window = pam_oath_int_option(pamh, "window")) < 0)
+			window = PAM_OATH_TOTP_WINDOW;
+		ret = oath_totp_match(key, response, window);
+	}
 	openpam_log(PAM_LOG_VERBOSE, "verification code %s",
 	    ret ? "matched" : "did not match");
 	if (ret == 0) {
