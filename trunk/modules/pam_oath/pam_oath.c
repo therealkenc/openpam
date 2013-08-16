@@ -33,12 +33,14 @@
 # include "config.h"
 #endif
 
+#include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define PAM_SM_AUTH
 #define PAM_SM_ACCOUNT
@@ -116,11 +118,30 @@ pam_oath_load_key(const char *keyfile)
 static int
 pam_oath_save_key(const struct oath_key *key, const char *keyfile)
 {
+	char *keyuri;
+	int fd, len, pam_err;
 
-	/* not implemented */
-	(void)key;
-	(void)keyfile;
-	return (0);
+	keyuri = NULL;
+	len = 0;
+	fd = -1;
+	pam_err = PAM_SYSTEM_ERR;
+	if ((keyuri = oath_key_to_uri(key)) == NULL)
+		goto done;
+	len = strlen(keyuri);
+	if ((fd = open(keyfile, O_WRONLY|O_CREAT|O_TRUNC, 0600)) < 0 ||
+	    write(fd, keyuri, len) != len || write(fd, "\n", 1) != 1) {
+		openpam_log(PAM_LOG_ERROR, "%s: %m", keyfile);
+		goto done;
+	}
+	pam_err = PAM_SUCCESS;
+done:
+	if (fd >= 0)
+		close(fd);
+	if (keyfile != NULL) {
+		memset(keyuri, 0, len);
+		free(keyuri);
+	}
+	return (pam_err);
 }
 
 PAM_EXTERN int
@@ -226,7 +247,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 
 	/* write back (update counter for HOTP etc) */
 	if (pam_oath_save_key(key, keyfile) != 0) {
-		pam_err = PAM_SYSTEM_ERR;
+		pam_err = PAM_SERVICE_ERR;
 		goto done;
 	}
 
