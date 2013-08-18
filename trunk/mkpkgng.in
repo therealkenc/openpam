@@ -52,7 +52,7 @@ pkgabi=$(pkg -vv | awk '$1 == "ABI:" { print $2 }')
 #
 package="@PACKAGE@"
 version="@PACKAGE_VERSION@"
-if [ "$version" = "trunk" ] ; then
+if ! expr "$version" : "[0-9]{1,}$" >/dev/null ; then
 	svnversion="$(svnversion 2>&1)"
 	svnversion=$(expr "$svnversion" : '\([0-9][0-9]*\)[A-Z]\{0,1\}$')
 	if [ -n "$svnversion" ] ; then
@@ -76,6 +76,7 @@ make="$make --no-print-directory --quiet V=0"
 info "Creating temporary directory."
 tmproot=$(mktemp -d "${TMPDIR:-/tmp}/$package-$version.XXXXXX")
 [ -n "$tmproot" -a -d "$tmproot" ] || error "unable to create temporary directory"
+trap "exit 1" INT
 trap "info Deleting temporary directory. ; rm -rf '$tmproot'" EXIT
 set -e
 
