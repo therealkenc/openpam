@@ -462,6 +462,9 @@ sub gendoc($) {
     $mdoc .= ".Sh SYNOPSIS
 .In sys/types.h
 ";
+    if ($$func{name} =~ m/^oath/) {
+	$mdoc .= ".In stdint.h\n";
+    }
     if ($$func{args} =~ m/\bFILE \*\b/) {
 	$mdoc .= ".In stdio.h\n";
     }
@@ -618,6 +621,8 @@ sub gensummary($) {
 .Sh SYNOPSIS\n";
     if ($page eq 'pam') {
 	print FILE ".In security/pam_appl.h\n";
+    } elsif ($page eq 'oath') {
+	print FILE ".In security/oath.h\n";
     } else {
 	print FILE ".In security/openpam.h\n";
     }
