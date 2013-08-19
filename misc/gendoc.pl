@@ -203,7 +203,7 @@ sub parse_source($) {
 	    next unless (m/^ \*\s+(!?PAM_[A-Z_]+|=[a-z_]+)\s*$/);
 	    push(@errors, $1);
 	}
-	++$xref{3}->{'pam_strerror'};
+	++$xref{3}->{pam_strerror};
     }
 
     $argnames = $args;
@@ -373,10 +373,10 @@ sub parse_source($) {
 	'experimental'	=> $experimental,
     };
     if ($source =~ m/^ \* NODOC\s*$/m) {
-	$FUNCTIONS{$func}->{'nodoc'} = 1;
+	$FUNCTIONS{$func}->{nodoc} = 1;
     }
     if ($source !~ m/^ \* XSSO \d/m) {
-	$FUNCTIONS{$func}->{'openpam'} = 1;
+	$FUNCTIONS{$func}->{openpam} = 1;
     }
     expand_errors($FUNCTIONS{$func});
     return $FUNCTIONS{$func};
@@ -390,16 +390,16 @@ sub expand_errors($) {
     my $ref;
     my $fn;
 
-    if (defined($func->{'recursed'})) {
-	warn("$func->{'name'}(): loop in error spec\n");
+    if (defined($$func{recursed})) {
+	warn("$$func{name}(): loop in error spec\n");
 	return qw();
     }
-    $func->{'recursed'} = 1;
+    $$func{recursed} = 1;
 
-    foreach (@{$func->{'errors'}}) {
+    foreach (@{$$func{errors}}) {
 	if (m/^(PAM_[A-Z_]+)$/) {
 	    if (!defined($PAMERR{$1})) {
-		warn("$func->{'name'}(): unrecognized error: $1\n");
+		warn("$$func{name}(): unrecognized error: $1\n");
 		next;
 	    }
 	    $errors{$1} = 1;
@@ -408,28 +408,28 @@ sub expand_errors($) {
 	} elsif (m/^=([a-z_]+)$/) {
 	    $ref = $1;
 	    if (!defined($FUNCTIONS{$ref})) {
-		$fn = $func->{'source'};
-		$fn =~ s/$func->{'name'}/$ref/;
+		$fn = $$func{source};
+		$fn =~ s/$$func{name}/$ref/;
 		parse_source($fn);
 	    }
 	    if (!defined($FUNCTIONS{$ref})) {
-		warn("$func->{'name'}(): reference to unknown $ref()\n");
+		warn("$$func{name}(): reference to unknown $ref()\n");
 		next;
 	    }
-	    foreach (@{$FUNCTIONS{$ref}->{'errors'}}) {
+	    foreach (@{$FUNCTIONS{$ref}->{errors}}) {
 		$errors{$_} = 1;
 	    }
 	} else {
-	    warn("$func->{'name'}(): invalid error specification: $_\n");
+	    warn("$$func{name}(): invalid error specification: $_\n");
 	}
     }
-    foreach (@{$func->{'errors'}}) {
+    foreach (@{$$func{errors}}) {
 	if (m/^!(PAM_[A-Z_]+)$/) {
 	    delete($errors{$1});
 	}
     }
-    delete($func->{'recursed'});
-    $func->{'errors'} = [ sort(keys(%errors)) ];
+    delete($$func{recursed});
+    $$func{errors} = [ sort(keys(%errors)) ];
 }
 
 sub dictionary_order($$) {
@@ -464,59 +464,59 @@ sub gendoc($) {
     my $mdoc;
     my $fn;
 
-    return if defined($func->{'nodoc'});
+    return if defined($$func{nodoc});
 
     $mdoc = "$COPYRIGHT
 .Dd $TODAY
-.Dt " . uc($func->{'name'}) . " 3
+.Dt " . uc($$func{name}) . " 3
 .Os
 .Sh NAME
-.Nm $func->{'name'}
-.Nd $func->{'descr'}
+.Nm $$func{name}
+.Nd $$func{descr}
 .Sh LIBRARY
 .Lb libpam
 .Sh SYNOPSIS
 .In sys/types.h
 ";
-    if ($func->{'args'} =~ m/\bFILE \*\b/) {
+    if ($$func{args} =~ m/\bFILE \*\b/) {
 	$mdoc .= ".In stdio.h\n";
     }
     $mdoc .= ".In security/pam_appl.h
 ";
-    if ($func->{'name'} =~ m/_sm_/) {
+    if ($$func{name} =~ m/_sm_/) {
 	$mdoc .= ".In security/pam_modules.h\n";
     }
-    if ($func->{'name'} =~ m/openpam/) {
+    if ($$func{name} =~ m/openpam/) {
 	$mdoc .= ".In security/openpam.h\n";
     }
-    $mdoc .= ".Ft \"$func->{'type'}\"
-.Fn $func->{'name'} $func->{'args'}
+    $mdoc .= ".Ft \"$$func{type}\"
+.Fn $$func{name} $$func{args}
 .Sh DESCRIPTION
 ";
-    if (defined($func->{'deprecated'})) {
+    if (defined($$func{deprecated})) {
 	$mdoc .= ".Bf Sy\n" .
 	    "This function is deprecated and may be removed " .
 	    "in a future release without further warning.\n";
-	if ($func->{'deprecated'}) {
-	    $mdoc .= "The\n.Fn $func->{'deprecated'}\nfunction " .
+	if ($$func{deprecated}) {
+	    $mdoc .= "The\n.Fn $$func{deprecated}\nfunction " .
 		"may be used to achieve similar results.\n";
 	}
 	$mdoc .= ".Ef\n.Pp\n";
     }
-    if ($func->{'experimental'}) {
+    if ($$func{experimental}) {
 	$mdoc .= ".Bf Sy\n" .
 	    "This function is experimental and may be modified or removed " .
 	    "in a future release without prior warning.\n";
 	$mdoc .= ".Ef\n.Pp\n";
     }
-    $mdoc .= "$func->{'man'}\n";
-    my @errors = @{$func->{'errors'}};
-    if ($func->{'customrv'}) {
+    $mdoc .= "$$func{man}\n";
+    my @errors = @{$$func{errors}};
+    if ($$func{customrv}) {
 	# leave it
-    } elsif ($func->{'type'} eq "int" && @errors) {
+    } elsif ($$func{type} eq "int" && @errors) {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Fn $func->{'name'}
+.Fn $$func{name}
 function returns one of the following values:
 .Bl -tag -width 18n
 ";
@@ -524,28 +524,28 @@ function returns one of the following values:
 	    $mdoc .= ".It Bq Er $_\n$PAMERR{$_}.\n";
 	}
 	$mdoc .= ".El\n";
-    } elsif ($func->{'type'} eq "int") {
+    } elsif ($$func{type} eq "int") {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Fn $func->{'name'}
+.Fn $$func{name}
 function returns 0 on success and -1 on failure.
 ";
-    } elsif ($func->{'type'} =~ m/\*$/) {
+    } elsif ($$func{type} =~ m/\*$/) {
 	$mdoc .= ".Sh RETURN VALUES
 The
-.Fn $func->{'name'}
+.Fn $$func{name}
 function returns
 .Dv NULL
 on failure.
 ";
-    } elsif ($func->{'type'} ne "void") {
-	warn("$func->{'name'}(): no error specification\n");
+    } elsif ($$func{type} ne "void") {
+	warn("$$func{name}(): no error specification\n");
     }
-    $mdoc .= ".Sh SEE ALSO\n" . genxref($func->{'xref'});
+    $mdoc .= ".Sh SEE ALSO\n" . genxref($$func{xref});
     $mdoc .= ".Sh STANDARDS\n";
-    if ($func->{'openpam'}) {
+    if ($$func{openpam}) {
 	$mdoc .= "The
-.Fn $func->{'name'}
+.Fn $$func{name}
 function is an OpenPAM extension.
 ";
     } else {
@@ -557,10 +557,10 @@ function is an OpenPAM extension.
     }
     $mdoc .= ".Sh AUTHORS
 The
-.Fn $func->{'name'}
+.Fn $$func{name}
 function and this manual page were\n";
-    $mdoc .= $AUTHORS{$func->{'author'} // 'THINKSEC_DARPA'} . "\n";
-    $fn = "$func->{'name'}.3";
+    $mdoc .= $AUTHORS{$$func{author} // 'THINKSEC_DARPA'} . "\n";
+    $fn = "$$func{name}.3";
     if (open(FILE, ">", $fn)) {
 	print(FILE $mdoc);
 	close(FILE);
@@ -579,16 +579,16 @@ sub readproto($) {
 	or die("$fn: open(): $!\n");
     while (<FILE>) {
 	if (m/^\.Nm ((?:open)?pam_.*?)\s*$/) {
-	    $func{'Nm'} = $func{'Nm'} || $1;
+	    $func{Nm} = $func{Nm} || $1;
 	} elsif (m/^\.Ft (\S.*?)\s*$/) {
-	    $func{'Ft'} = $func{'Ft'} || $1;
+	    $func{Ft} = $func{Ft} || $1;
 	} elsif (m/^\.Fn (\S.*?)\s*$/) {
-	    $func{'Fn'} = $func{'Fn'} || $1;
+	    $func{Fn} = $func{Fn} || $1;
 	}
     }
     close(FILE);
-    if ($func{'Nm'}) {
-	$FUNCTIONS{$func{'Nm'}} = \%func;
+    if ($func{Nm}) {
+	$FUNCTIONS{$func{Nm}} = \%func;
     } else {
 	warn("No function found\n");
     }
@@ -615,7 +615,7 @@ sub gensummary($) {
 ";
     my @funcs = sort(keys(%FUNCTIONS));
     while ($func = shift(@funcs)) {
-	print FILE ".Nm $FUNCTIONS{$func}->{'Nm'}";
+	print FILE ".Nm $FUNCTIONS{$func}->{Nm}";
 	print FILE " ,"
 		if (@funcs);
 	print FILE "\n";
@@ -630,8 +630,8 @@ sub gensummary($) {
 	print FILE ".In security/openpam.h\n";
     }
     foreach $func (sort(keys(%FUNCTIONS))) {
-	print FILE ".Ft $FUNCTIONS{$func}->{'Ft'}\n";
-	print FILE ".Fn $FUNCTIONS{$func}->{'Fn'}\n";
+	print FILE ".Ft $FUNCTIONS{$func}->{Ft}\n";
+	print FILE ".Fn $FUNCTIONS{$func}->{Fn}\n";
     }
     while (<STDIN>) {
 	if (m/^\.Xr (\S+)\s*(\d)\s*$/) {
@@ -654,7 +654,7 @@ The following return codes are defined by
     print FILE ".Sh SEE ALSO
 ";
     if ($page eq 'pam') {
-	++$xref{3}->{'openpam'};
+	++$xref{3}->{openpam};
     }
     foreach $func (keys(%FUNCTIONS)) {
 	++$xref{3}->{$func};
@@ -694,14 +694,14 @@ MAIN:{
     setlocale(LC_ALL, "en_US.UTF-8");
     $TODAY = strftime("%B %e, %Y", localtime(time()));
     $TODAY =~ s,\s+, ,g;
-    if ($opts{'o'} || $opts{'p'}) {
+    if ($opts{o} || $opts{p}) {
 	foreach my $fn (@ARGV) {
 	    readproto($fn);
 	}
 	gensummary('openpam')
-	    if ($opts{'o'});
+	    if ($opts{o});
 	gensummary('pam')
-	    if ($opts{'p'});
+	    if ($opts{p});
     } else {
 	foreach my $fn (@ARGV) {
 	    my $func = parse_source($fn);
