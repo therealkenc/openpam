@@ -70,12 +70,13 @@ OATH_MAN = \
 EXTRA_DIST = openpam.man pam.man
 
 ALLCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN) $(OATH_MAN)
+GENMAN = $(ALLCMAN) oath.3 openpam.3 pam.3
 
-dist_man3_MANS = $(ALLCMAN) oath.3 openpam.3 pam.3 pam_conv.3
+dist_man3_MANS = $(GENMAN) pam_conv.3
 
 dist_man5_MANS = pam.conf.5
 
-CLEANFILES = $(ALLCMAN) oath.3 openpam.3 pam.3
+CLEANFILES = $(GENMAN) oath.3 openpam.3 pam.3
 
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
@@ -87,13 +88,15 @@ VPATH = $(LIBPAMSRCDIR) $(LIBOATHSRCDIR) $(srcdir)
 SUFFIXES = .3
 
 .c.3: $(GENDOC)
-	perl -w $(GENDOC) $<
+	perl -w $(GENDOC) $< || rm $@
 
 oath.3: $(OATH_MAN) $(GENDOC) $(srcdir)/oath.man
-	perl -w $(GENDOC) -a $(OATH_MAN) <$(srcdir)/oath.man
+	perl -w $(GENDOC) -a $(OATH_MAN) <$(srcdir)/oath.man || rm $@
 
 openpam.3: $(OPENPAM_MAN) $(GENDOC) $(srcdir)/openpam.man
-	perl -w $(GENDOC) -o $(OPENPAM_MAN) <$(srcdir)/openpam.man
+	perl -w $(GENDOC) -o $(OPENPAM_MAN) <$(srcdir)/openpam.man || rm $@
 
 pam.3: $(PAM_MAN) $(GENDOC) $(srcdir)/pam.man
-	perl -w $(GENDOC) -p $(PAM_MAN) <$(srcdir)/pam.man
+	perl -w $(GENDOC) -p $(PAM_MAN) <$(srcdir)/pam.man || rm $@
+
+$(GENMAN): $(GENDOC)
