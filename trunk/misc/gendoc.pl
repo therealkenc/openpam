@@ -441,7 +441,6 @@ sub gendoc($) {
 	$mdoc .= ".\\\" $$func{version}\n";
     }
     $mdoc .= ".Dd $TODAY
-.Dd $TODAY
 .Dt " . uc($$func{name}) . " 3
 .Os
 .Sh NAME
