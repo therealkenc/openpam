@@ -3,7 +3,7 @@
 NULL =
 
 # Standard PAM API
-PMAN = \
+PAM_MAN = \
 	pam_acct_mgmt.3 \
 	pam_authenticate.3 \
 	pam_chauthtok.3 \
@@ -24,7 +24,7 @@ PMAN = \
 	$(NULL)
 
 # Standard module API
-MMAN = \
+MOD_MAN = \
 	pam_sm_acct_mgmt.3 \
 	pam_sm_authenticate.3 \
 	pam_sm_chauthtok.3 \
@@ -34,7 +34,7 @@ MMAN = \
 	$(NULL)
 
 # OpenPAM extensions
-OMAN = \
+OPENPAM_MAN = \
 	openpam_borrow_cred.3 \
 	openpam_free_data.3 \
 	openpam_free_envlist.3 \
@@ -61,29 +61,39 @@ OMAN = \
 	pam_vprompt.3 \
 	$(NULL)
 
+OATH_MAN = \
+	oath_key_alloc.3 \
+	oath_key_dummy.3 \
+	oath_key_free.3 \
+	$(NULL)
+
 EXTRA_DIST = openpam.man pam.man
 
-ALLCMAN = $(PMAN) $(MMAN) $(OMAN)
+ALLCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN) $(OATH_MAN)
 
-dist_man3_MANS = $(ALLCMAN) openpam.3 pam.3 pam_conv.3
+dist_man3_MANS = $(ALLCMAN) oath.3 openpam.3 pam.3 pam_conv.3
 
 dist_man5_MANS = pam.conf.5
 
-CLEANFILES = $(ALLCMAN) openpam.3 pam.3
+CLEANFILES = $(ALLCMAN) oath.3 openpam.3 pam.3
 
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
-LIBSRCDIR = $(top_srcdir)/lib/libpam
+LIBPAMSRCDIR = $(top_srcdir)/lib/libpam
+LIBOATHSRCDIR = $(top_srcdir)/lib/liboath
 
-VPATH = $(LIBSRCDIR) $(srcdir)
+VPATH = $(LIBPAMSRCDIR) $(LIBOATHSRCDIR) $(srcdir)
 
 SUFFIXES = .3
 
 .c.3: $(GENDOC)
 	perl -w $(GENDOC) $<
 
-openpam.3: $(OMAN) $(GENDOC) $(srcdir)/openpam.man
-	perl -w $(GENDOC) -o $(abs_srcdir)/$(OMAN) <$(srcdir)/openpam.man
+oath.3: $(OATH_MAN) $(GENDOC) $(srcdir)/oath.man
+	perl -w $(GENDOC) -a $(OATH_MAN) <$(srcdir)/oath.man
 
-pam.3: $(PMAN) $(GENDOC) $(srcdir)/pam.man
-	perl -w $(GENDOC) -p $(abs_srcdir)/$(PMAN) <$(srcdir)/pam.man
+openpam.3: $(OPENPAM_MAN) $(GENDOC) $(srcdir)/openpam.man
+	perl -w $(GENDOC) -o $(OPENPAM_MAN) <$(srcdir)/openpam.man
+
+pam.3: $(PAM_MAN) $(GENDOC) $(srcdir)/pam.man
+	perl -w $(GENDOC) -p $(PAM_MAN) <$(srcdir)/pam.man

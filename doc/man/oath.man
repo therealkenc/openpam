@@ -1,0 +1,6 @@
+.\"
+.\" $Id$
+.\"
+.Sh DESCRIPTION
+The OATH authentication library implements the OATH HOTP and TOTP
+authentication methods.
