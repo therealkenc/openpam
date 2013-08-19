@@ -76,7 +76,7 @@ dist_man3_MANS = $(GENMAN) pam_conv.3
 
 dist_man5_MANS = pam.conf.5
 
-CLEANFILES = $(GENMAN) oath.3 openpam.3 pam.3
+CLEANFILES = $(GENMAN)
 
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
