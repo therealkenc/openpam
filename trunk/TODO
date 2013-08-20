@@ -14,4 +14,9 @@ Before the next release:
 
  - Add loop detection to openpam_load_chain().
 
+ - Look into the possibility of implementing a version of (or a
+   wrapper for) openpam_log() which respects the PAM_SILENT flag and
+   the no_warn module option.  This would eliminate the need for
+   FreeBSD's _pam_verbose_error().
+
 $Id$
