@@ -117,7 +117,6 @@ int
 oath_hotp_match(struct oath_key *k, unsigned int response, int window)
 {
 	unsigned int code;
-	int dummy;
 
 	if (k == NULL)
 		return (-1);
@@ -127,10 +126,9 @@ oath_hotp_match(struct oath_key *k, unsigned int response, int window)
 		return (-1);
 	if (k->counter >= UINT64_MAX - window)
 		return (-1);
-	dummy = (strcmp(k->label, OATH_DUMMY_LABEL) == 0);
 	for (int i = 0; i < window; ++i) {
 		code = oath_hotp(k->key, k->keylen, k->counter + i, k->digits);
-		if (code == response && !dummy) {
+		if (code == response && !k->dummy) {
 			k->counter = k->counter + i;
 			return (1);
 		}

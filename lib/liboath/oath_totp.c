@@ -77,7 +77,6 @@ oath_totp_match(struct oath_key *k, unsigned int response, int window)
 {
 	unsigned int code;
 	uint64_t seq;
-	int dummy;
 
 	if (k == NULL)
 		return (-1);
@@ -88,7 +87,6 @@ oath_totp_match(struct oath_key *k, unsigned int response, int window)
 	if (k->timestep == 0)
 		return (-1);
 	seq = time(NULL) / k->timestep;
-	dummy = (strcmp(k->label, OATH_DUMMY_LABEL) == 0);
 	for (int i = -window; i <= window; ++i) {
 #if OATH_TOTP_PREVENT_REUSE
 		/* XXX disabled for now, should be a key parameter? */
@@ -96,7 +94,7 @@ oath_totp_match(struct oath_key *k, unsigned int response, int window)
 			continue;
 #endif
 		code = oath_hotp(k->key, k->keylen, seq + i, k->digits);
-		if (code == response && !dummy) {
+		if (code == response && !k->dummy) {
 			k->lastuse = seq;
 			return (1);
 		}
