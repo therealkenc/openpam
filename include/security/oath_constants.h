@@ -79,6 +79,6 @@ enum oath_hash {
 /*
  * Label to use for dummy keys
  */
-#define OATH_DUMMY_LABEL	"oath-dummy-key"
+#define OATH_DUMMY_LABEL	"oath-dummy@openpam.org"
 
 #endif
