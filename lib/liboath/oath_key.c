@@ -84,6 +84,7 @@ oath_key_from_uri(const char *uri)
 	p = q + 1;
 
 	/* extract label */
+	/* XXX actually URI-encoded */
 	if ((q = strchr(p, '?')) == NULL)
 		goto invalid;
 	if ((key->labellen = q - p + 1) > sizeof key->label)
@@ -94,6 +95,7 @@ oath_key_from_uri(const char *uri)
 
 	/* extract parameters */
 	key->counter = UINT64_MAX;
+	key->lastused = UINT64_MAX;
 	while (*p != '\0') {
 		if ((q = strchr(p, '=')) == NULL)
 			goto invalid;
@@ -143,6 +145,14 @@ oath_key_from_uri(const char *uri)
 			if (e != r || n >= UINT64_MAX)
 				goto invalid;
 			key->counter = (uint64_t)n;
+		} else if (strlcmp("lastused=", p, q - p) == 0) {
+			if (key->lastused != UINT64_MAX)
+				/* dupe */
+				goto invalid;
+			n = strtoumax(q, &e, 10);
+			if (e != r || n >= UINT64_MAX)
+				goto invalid;
+			key->lastused = (uint64_t)n;
 		} else if (strlcmp("period=", p, q - p) == 0) {
 			if (key->timestep != 0)
 				/* dupe */
@@ -163,15 +173,19 @@ oath_key_from_uri(const char *uri)
 
 	/* sanity checks and default values */
 	if (key->mode == om_hotp) {
+		if (key->counter == UINT64_MAX)
+			key->counter = 0;
 		if (key->timestep != 0)
 			goto invalid;
-		if (key->counter == UINTMAX_MAX)
-			key->counter = 0;
+		if (key->lastused != UINT64_MAX)
+			goto invalid;
 	} else if (key->mode == om_totp) {
-		if (key->counter != UINTMAX_MAX)
+		if (key->counter != UINT64_MAX)
 			goto invalid;
 		if (key->timestep == 0)
 			key->timestep = OATH_DEF_TIMESTEP;
+		if (key->lastused == UINT64_MAX)
+			key->lastused = 0;
 	} else {
 		/* unreachable */
 		oath_key_free(key);
@@ -238,15 +252,17 @@ oath_key_to_uri(const struct oath_key *key)
 		return (NULL);
 	}
 
+	/* XXX the label should be URI-encoded */
 	if (key->mode == om_hotp) {
-		urilen = asprintf(&uri, "otpauth://"
-		    "%s/%s?algorithm=%s&digits=%d&counter=%ju&secret=",
+		urilen = asprintf(&uri, "otpauth://%s/%s?"
+		    "algorithm=%s&digits=%d&counter=%ju&secret=",
 		    "hotp", key->label, hash, key->digits,
 		    (uintmax_t)key->counter);
 	} else if (key->mode == om_totp) {
-		urilen = asprintf(&uri, "otpauth://"
-		    "%s/%s?algorithm=%s&digits=%d&period=%u&secret=",
-		    "totp", key->label, hash, key->digits, key->timestep);
+		urilen = asprintf(&uri, "otpauth://%s/%s?"
+		    "algorithm=%s&digits=%d&period=%u&lastused=%ju&secret=",
+		    "totp", key->label, hash, key->digits, key->timestep,
+		    (uintmax_t)key->lastused);
 	} else {
 		/* unreachable */
 		return (NULL);
