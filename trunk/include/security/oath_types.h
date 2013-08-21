@@ -41,7 +41,7 @@ struct oath_key {
 	unsigned int	 digits;
 	uint64_t	 counter;  /* HOTP only */
 	unsigned int	 timestep; /* TOTP only - in seconds */
-	uint64_t	 lastuse; /* TOTP only */
+	uint64_t	 lastused; /* TOTP only */
 
 	/* housekeeping */
 	unsigned int	 dummy:1;  /* dummy key, always fail */

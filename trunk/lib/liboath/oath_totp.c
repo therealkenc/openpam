@@ -88,14 +88,11 @@ oath_totp_match(struct oath_key *k, unsigned int response, int window)
 		return (-1);
 	seq = time(NULL) / k->timestep;
 	for (int i = -window; i <= window; ++i) {
-#if OATH_TOTP_PREVENT_REUSE
-		/* XXX disabled for now, should be a key parameter? */
-		if (seq + i <= k->lastuse)
+		if (seq + i <= k->lastused)
 			continue;
-#endif
 		code = oath_hotp(k->key, k->keylen, seq + i, k->digits);
 		if (code == response && !k->dummy) {
-			k->lastuse = seq;
+			k->lastused = seq;
 			return (1);
 		}
 	}
