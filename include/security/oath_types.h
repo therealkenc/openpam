@@ -39,14 +39,14 @@ struct oath_key {
 	/* mode and parameters */
 	enum oath_mode	 mode;
 	unsigned int	 digits;
-	uint64_t	 counter;
-	unsigned int	 timestep; /* in seconds */
-	uint64_t	 lastuse;
+	uint64_t	 counter;  /* HOTP only */
+	unsigned int	 timestep; /* TOTP only - in seconds */
+	uint64_t	 lastuse; /* TOTP only */
 
 	/* housekeeping */
-	unsigned int	 dummy:1;
-	unsigned int	 mapped:1;
-	unsigned int	 locked:1;
+	unsigned int	 dummy:1;  /* dummy key, always fail */
+	unsigned int	 mapped:1; /* allocated with mmap() */
+	unsigned int	 locked:1; /* locked / wired with madvise() */
 
 	/* hash algorithm */
 	enum oath_hash	 hash;
