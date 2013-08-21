@@ -56,7 +56,7 @@ oath_key_dummy(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
 	key->counter = 0;
 	key->timestep = 30;
 	key->hash = hash;
-	strcpy(key->label, "oath-dummy-key");
+	strcpy(key->label, OATH_DUMMY_LABEL);
 	key->labellen = strlen(key->label);
 	key->keylen = sizeof key->key;
 	return (key);
