@@ -265,7 +265,7 @@ sub parse_source($) {
 		$man .= ".Bl -tag -width 18n\n";
 		$intaglist = 1;
 	    }
-	    s/^\.It [=;]([A-Za-z][A-Za-z_]+)$/.It Dv $1/gs;
+	    s/^\.It [=;]([A-Za-z][0-9A-Za-z_]+)$/.It Dv $1/gs;
 	    $man .= "$_\n";
 	    next;
 	} elsif (($inlist || $intaglist) && m/^\S/) {
@@ -293,16 +293,16 @@ sub parse_source($) {
 	s/\s*=($func)\b\s*/\n.Fn $1\n/gs;
 	s/\s*=($argnames)\b\s*/\n.Fa $1\n/gs;
 	s/\s*=(struct \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
-	s/\s*:([a-z_]+)\b\s*/\n.Va $1\n/gs;
-	s/\s*;([a-z_]+)\b\s*/\n.Dv $1\n/gs;
-	s/\s*=!([a-z_]+)\b\s*/\n.Xr $1 3\n/gs;
-	while (s/\s*=([a-z_]+)\b\s*/\n.Xr $1 3\n/s) {
+	s/\s*:([a-z][0-9a-z_]+)\b\s*/\n.Va $1\n/gs;
+	s/\s*;([a-z][0-9a-z_]+)\b\s*/\n.Dv $1\n/gs;
+	s/\s*=!([a-z][0-9a-z_]+)\b\s*/\n.Xr $1 3\n/gs;
+	while (s/\s*=([a-z][0-9a-z_]+)\b\s*/\n.Xr $1 3\n/s) {
 	    ++$xref{3}->{$1};
 	}
 	s/\s*\"(?=\w)/\n.Do\n/gs;
 	s/\"(?!\w)\s*/\n.Dc\n/gs;
-	s/\s*=([A-Z][A-Z_]+)\b\s*(?![\.,:;])/\n.Dv $1\n/gs;
-	s/\s*=([A-Z][A-Z_]+)\b([\.,:;]+)\s*/\n.Dv $1 $2\n/gs;
+	s/\s*=([A-Z][0-9A-Z_]+)\b\s*(?![\.,:;])/\n.Dv $1\n/gs;
+	s/\s*=([A-Z][0-9A-Z_]+)\b([\.,:;]+)\s*/\n.Dv $1 $2\n/gs;
 	s/\s*{([A-Z][a-z] .*?)}\s*/\n.$1\n/gs;
 	$man .= "$_\n";
     }
