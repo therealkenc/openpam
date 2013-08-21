@@ -51,13 +51,14 @@ oath_key_dummy(enum oath_mode mode, enum oath_hash hash, unsigned int digits)
 
 	if ((key = oath_key_alloc()) == NULL)
 		return (NULL);
+	key->dummy = 1;
 	key->mode = mode;
 	key->digits = digits;
 	key->counter = 0;
 	key->timestep = 30;
 	key->hash = hash;
-	strcpy(key->label, OATH_DUMMY_LABEL);
-	key->labellen = strlen(key->label);
+	memcpy(key->label, OATH_DUMMY_LABEL, sizeof OATH_DUMMY_LABEL);
+	key->labellen = sizeof OATH_DUMMY_LABEL - 1;
 	key->keylen = sizeof key->key;
 	return (key);
 }

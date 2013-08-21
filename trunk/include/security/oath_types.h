@@ -44,6 +44,7 @@ struct oath_key {
 	uint64_t	 lastuse;
 
 	/* housekeeping */
+	unsigned int	 dummy:1;
 	unsigned int	 mapped:1;
 	unsigned int	 locked:1;
 
