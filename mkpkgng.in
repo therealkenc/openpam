@@ -73,28 +73,29 @@ make="$make --no-print-directory --quiet V=0"
 #
 # Create temporary directory
 #
-info "Creating temporary directory."
+info "Creating the temporary directory."
 tmproot=$(mktemp -d "${TMPDIR:-/tmp}/$package-$version.XXXXXX")
-[ -n "$tmproot" -a -d "$tmproot" ] || error "unable to create temporary directory"
+[ -n "$tmproot" -a -d "$tmproot" ] || \
+    error "Unable to create the temporary directory."
 trap "exit 1" INT
-trap "info Deleting temporary directory. ; rm -rf '$tmproot'" EXIT
+trap "info Deleting the temporary directory. ; rm -rf '$tmproot'" EXIT
 set -e
 
 #
 # Install into tmproot
 #
-info "Installing into temporary directory."
+info "Installing into the temporary directory."
 $make install DESTDIR="$tmproot"
 
 #
 # Generate stub manifest
 #
-info "Generating stub manifest."
+info "Generating the stub manifest."
 manifest="$tmproot/+MANIFEST"
 cat >"$manifest" <<EOF
 name: $package
 version: $version
-origin: local/openpam
+origin: local/$package
 comment: BSD-licensed PAM implementation
 arch: $pkgabi
 www: @PACKAGE_URL@
@@ -112,8 +113,10 @@ desc:
 categories: local, security
 EOF
 
+#
 # Generate file list
-info "Generating file list."
+#
+info "Generating the file list."
 (
 	echo "files:"
 	find "$tmproot" -type f | while read file ; do
