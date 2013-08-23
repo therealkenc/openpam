@@ -69,7 +69,7 @@ cd "$srcdir"
 #
 # Determine pkgng version and ABI
 #
-pkgver=$(pkg query %v pkg)
+pkgver=$(pkg -vv | awk '$1 == "Version:" { print $2 }')
 [ -n "$pkgver" ] || error "Unable to determine pkgng version."
 pkgabi=$(pkg -vv | awk '$1 == "ABI:" { print $2 }')
 [ -n "$pkgabi" ] || error "Unable to determine package ABI."
