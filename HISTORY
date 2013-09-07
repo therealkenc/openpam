@@ -2,6 +2,8 @@ OpenPAM ??????????						2013-??-??
 
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
+============================================================================
+OpenPAM Nummularia						2013-09-07
 
  - ENHANCE: Rewrite the dynamic loader to improve readability and
    reliability.  Modules can now be listed without the ".so" suffix in
