@@ -154,18 +154,13 @@ info "Generating the file list."
 	done
 )>>"$manifest"
 
-# As of pkg 1.1.4, the shlib detection logic in "pkg create" only
-# works when tmproot == "/", so instead of creating a package directly
-# from the contents of $tmproot, we have to install to / and package
-# that.
-info "Packaging."
-if [ "$pkgver" \< "1.1.5" ] ; then
-	info "pkg 1.1.4 or older detected."
-	yesno "We must now install to /.  Proceed?" || error "Chicken."
-	$make install
-	pkg create -m "$tmproot" -o "$builddir"
-else
-	pkg create -r "$tmproot" -m "$tmproot" -o "$builddir"
-fi
+#
+# Create the package
+#
+info "Creating the package."
+pkg create -r "$tmproot" -m "$tmproot" -o "$builddir"
 
-echo "Package created for $package-$version."
+#
+# Done
+#
+info "Package created for $package-$version."
