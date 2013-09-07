@@ -146,7 +146,7 @@ EOF
 info "Generating the file list."
 (
 	echo "files:"
-	find "$tmproot" -type f | while read file ; do
+	find -s "$tmproot" -type f | while read file ; do
 		[ "$file" = "$manifest" ] && continue
 		mode=$(stat -f%p "$file" | cut -c 3-)
 		file="${file#$tmproot}"
