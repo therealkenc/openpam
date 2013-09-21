@@ -390,6 +390,10 @@ openpam_load_chain(pam_handle_t *pamh,
 	for (path = openpam_policy_path; *path != NULL; ++path) {
 		/* construct filename */
 		len = strlcpy(filename, *path, sizeof filename);
+		if (len >= sizeof filename) {
+			errno = ENAMETOOLONG;
+			RETURNN(-1);
+		}
 		if (filename[len - 1] == '/') {
 			len = strlcat(filename, service, sizeof filename);
 			if (len >= sizeof filename) {
