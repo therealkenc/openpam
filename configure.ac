@@ -62,25 +62,25 @@ AC_ARG_WITH([doc],
 AM_CONDITIONAL([WITH_DOC], [test x"$with_doc" = x"yes"])
 
 AC_ARG_WITH([pam-unix],
-    AC_HELP_STRING([--with-pam-unix], [compile sample pam_unix(8) module]),
+    AC_HELP_STRING([--with-pam-unix], [build sample pam_unix(8) module]),
     [],
     [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
 
 AC_ARG_WITH([oath],
-    AC_HELP_STRING([--with-oath], [compile OATH library, module and utility]),
+    AC_HELP_STRING([--without-oath], [do not build OATH library, module and utility]),
     [],
-    [with_oath=no])
+    [with_oath=yes])
 AM_CONDITIONAL([WITH_OATH], [test x"$with_oath" = x"yes"])
 
 AC_ARG_WITH(pamtest,
-    AC_HELP_STRING([--with-pamtest], [compile test application]),
+    AC_HELP_STRING([--with-pamtest], [build test application]),
     [],
     [with_pamtest=no])
 AM_CONDITIONAL([WITH_PAMTEST], [test x"$with_pamtest" = x"yes"])
 
 AC_ARG_WITH(su,
-    AC_HELP_STRING([--with-su], [compile sample su(1) implementation]),
+    AC_HELP_STRING([--with-su], [build sample su(1) implementation]),
     [],
     [with_su=no])
 AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
