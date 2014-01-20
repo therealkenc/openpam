@@ -63,6 +63,7 @@ OPENPAM_MAN = \
 
 OATH_MAN = \
 	oath_key_alloc.3 \
+	oath_key_create.3 \
 	oath_key_dummy.3 \
 	oath_key_free.3 \
 	$(NULL)
