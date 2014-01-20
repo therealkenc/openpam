@@ -138,6 +138,7 @@ pam_oath_load_key(const char *keyfile)
 
 /*
  * Save the user's key.
+ * XXX should be a liboath API function.
  */
 static int
 pam_oath_save_key(const struct oath_key *key, const char *keyfile)
@@ -276,7 +277,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		goto done;
 	}
 
-	/* write back (update counter for HOTP etc) */
+	/* write back the key (update counter for HOTP, lastused for TOTP) */
 	if (pam_oath_save_key(key, keyfile) != 0) {
 		pam_err = PAM_SERVICE_ERR;
 		goto done;
