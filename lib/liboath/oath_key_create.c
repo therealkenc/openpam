@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <openssl/rand.h>
+
 #include <security/oath.h>
 
 /*
@@ -49,8 +51,9 @@ oath_key_create(const char *label,
     enum oath_mode mode, enum oath_hash hash,
     const char *keydata, size_t keylen)
 {
+	char keybuf[OATH_MAX_KEYLEN];
 	struct oath_key *key;
-	int fd, labellen;
+	int labellen;
 
 	/* check label */
 	if (label == NULL ||
@@ -62,7 +65,7 @@ oath_key_create(const char *label,
 	    (keydata != NULL && keylen == 0))
 		return (NULL);
 	if (keylen == 0)
-		keylen = 160;
+		keylen = 20;
 
 	/* check mode */
 	switch (mode) {
@@ -87,6 +90,13 @@ oath_key_create(const char *label,
 		return (NULL);
 	}
 
+	/* generate key data if necessary */
+	if (keydata == NULL) {
+		if (RAND_bytes((void *)keybuf, keylen) != 1)
+			return (NULL);
+		keydata = keybuf;
+	}
+
 	/* allocate */
 	if ((key = oath_key_alloc()) == NULL)
 		return (NULL);
@@ -106,12 +116,7 @@ oath_key_create(const char *label,
 		key->timestep = 30;
 
 	/* key */
-	if (keydata == NULL) {
-		/* XXX generate random key */
-		(void)(fd = 0);
-	} else {
-		memcpy(key->key, keydata, keylen);
-	}
+	memcpy(key->key, keydata, keylen);
 	key->keylen = keylen;
 
 	return (key);
