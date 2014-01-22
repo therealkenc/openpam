@@ -271,9 +271,9 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 		ret = oath_totp_match(key, response, window);
 	}
 	openpam_log(PAM_LOG_VERBOSE, "verification code %s",
-	    ret ? "matched" : "did not match");
-	if (ret == 0) {
-		pam_err = PAM_AUTH_ERR;
+	    ret > 0 ? "matched" : "did not match");
+	if (ret <= 0) {
+		pam_err = ret < 0 ? PAM_SERVICE_ERR : PAM_AUTH_ERR;
 		goto done;
 	}
 
