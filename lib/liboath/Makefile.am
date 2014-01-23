@@ -12,8 +12,10 @@ liboath_la_SOURCES = \
 	oath_key_alloc.c \
 	oath_key_create.c \
 	oath_key_dummy.c \
+	oath_key_from_uri.c \
 	oath_key_free.c \
-	oath_key.c
+	oath_key.c \
+	oath_uri_decode.c
 
 liboath_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
 liboath_la_LIBADD = $(top_builddir)/lib/libpam/libpam.la @CRYPTO_LIBS@

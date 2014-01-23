@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2012-2014 Universitetet i Oslo
- * Copyright (c) 2013-2014 Dag-Erling Smørgrav
+ * Copyright (c) 2014 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,30 +29,9 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
+#ifndef OATH_RFC3986_H_INCLUDED
+#define OATH_RFC3986_H_INCLUDED
 
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc3986.h>
-#include <security/oath_rfc4648.h>
-
-struct oath_key *oath_key_alloc(void);
-struct oath_key *oath_key_create(const char *, enum oath_mode,
-    enum oath_hash, const char *, size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
-
-struct oath_key *oath_key_dummy(enum oath_mode, enum oath_hash, unsigned int);
-
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-unsigned int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-unsigned int oath_totp_current(const struct oath_key *);
-int oath_totp_match(struct oath_key *, unsigned int, int);
+size_t oath_uri_decode(const char *, size_t, char *, size_t);
 
 #endif
