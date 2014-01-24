@@ -39,6 +39,14 @@
 	(ch >= '0' && ch <= '9')
 
 /*
+ * Evaluates to non-zero if the argument is a hex digit.
+ */
+#define is_xdigit(ch)				\
+	((ch >= '0' && ch <= '9') ||		\
+	 (ch >= 'a' && ch <= 'f') ||		\
+	 (ch >= 'A' && ch <= 'F'))
+
+/*
  * Evaluates to non-zero if the argument is an uppercase letter.
  */
 #define is_upper(ch)				\
