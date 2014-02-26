@@ -1,7 +1,12 @@
-OpenPAM ??????????						2013-??-??
+OpenPAM ??????????						2014-??-??
 
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
+
+ - BUGFIX: The is_upper() predicate only accepted the letter A as an
+   upper-case character instead of the entire A-Z range.  As a result,
+   service and module names containing upper-case letters other than A
+   would be rejected.
 ============================================================================
 OpenPAM Nummularia						2013-09-07
 
