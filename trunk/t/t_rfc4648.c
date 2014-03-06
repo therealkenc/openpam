@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2013 Universitetet i Oslo
+ * Copyright (c) 2013-2014 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <security/pam_appl.h>
-#include <security/openpam.h>
 #include <security/oath.h>
 
 #include "t.h"
@@ -110,11 +108,12 @@ t_rfc4648_enc(const char *plain, const char *encoded,
 		return (0);
 	}
 	if (blen != olen) {
+		t_verbose("expected '%.*s' got '%.*s'\n", (int)olen, encoded, (int)blen, buf);
 		t_verbose("expected %zu B got %zu B\n", olen, blen);
 		return (0);
 	}
-	if (strcmp(buf, encoded) != 0) {
-		t_verbose("expected \"%s\" got \"%s\"\n", encoded, buf);
+	if (strncmp(buf, encoded, blen) != 0) {
+		t_verbose("expected '%.*s' got '%.*s'\n", (int)olen, encoded, (int)blen, buf);
 		return (0);
 	}
 	return (1);
@@ -124,7 +123,7 @@ t_rfc4648_enc(const char *plain, const char *encoded,
  * Encoding test wrapper for base 32
  */
 static int
-t_base32(void *arg)
+t_base32_enc(void *arg)
 {
 	struct t_vector *tv = (struct t_vector *)arg;
 
@@ -135,11 +134,61 @@ t_base32(void *arg)
  * Encoding test wrapper for base 64
  */
 static int
-t_base64(void *arg)
+t_base64_enc(void *arg)
 {
 	struct t_vector *tv = (struct t_vector *)arg;
 
 	return (t_rfc4648_enc(tv->plain, tv->base64, base64_enc));
+}
+
+/*
+ * Decoding test function
+ */
+static int
+t_rfc4648_dec(const char *encoded, const char *plain,
+    int (*dec)(const char *, size_t, uint8_t *, size_t *))
+{
+	char buf[64];
+	size_t blen, ilen, olen;
+
+	blen = sizeof buf;
+	ilen = strlen(encoded);
+	olen = strlen(plain);
+	if (dec(encoded, ilen, (uint8_t *)buf, &blen) != 0) {
+		t_verbose("encoding failed\n");
+		return (0);
+	}
+	if (blen != olen) {
+		t_verbose("expected %zu B got %zu B\n", olen, blen);
+		return (0);
+	}
+	if (strncmp(buf, plain, blen) != 0) {
+		t_verbose("expected '%.*s' got '%.*s'\n", (int)olen, plain, (int)blen, buf);
+		return (0);
+	}
+	return (1);
+}
+
+/*
+ * Decoding test wrapper for base 32
+ */
+static int
+t_base32_dec(void *arg)
+{
+	struct t_vector *tv = (struct t_vector *)arg;
+
+	return (t_rfc4648_dec(tv->base32, tv->plain, base32_dec));
+}
+
+/*
+ * Decoding test wrapper for base 64
+ */
+static int
+t_base64_dec(void *arg)
+{
+	struct t_vector *tv = (struct t_vector *)arg;
+
+	return (t_rfc4648_dec(tv->base64, tv->plain, base64_dec));
 }
 
 /*
@@ -174,13 +223,15 @@ t_prepare(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 	n = sizeof t_vectors / sizeof t_vectors[0];
-	plan = calloc(n * 2 + 1, sizeof *plan);
+	plan = calloc(n * 4 + 1, sizeof *plan);
 	if (plan == NULL)
 		return (NULL);
 	test = plan;
 	for (int i = 0; i < n; ++i) {
-		*test++ = t_create_test(t_base32, "BASE32", &t_vectors[i]);
-		*test++ = t_create_test(t_base64, "BASE64", &t_vectors[i]);
+		*test++ = t_create_test(t_base32_enc, "BASE32ENC", &t_vectors[i]);
+		*test++ = t_create_test(t_base32_dec, "BASE32DEC", &t_vectors[i]);
+		*test++ = t_create_test(t_base64_enc, "BASE64ENC", &t_vectors[i]);
+		*test++ = t_create_test(t_base64_dec, "BASE64DEC", &t_vectors[i]);
 	}
 	return ((const struct t_test **)plan);
 }
