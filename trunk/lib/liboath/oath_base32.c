@@ -37,14 +37,36 @@
 
 #include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <security/oath.h>
 
-static const char b32[] =
+static const char b32enc[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
+static const uint8_t b32dec[256] = {
+	['A'] =  0, ['B'] =  1, ['C'] =  2, ['D'] =  3,
+	['E'] =  4, ['F'] =  5, ['G'] =  6, ['H'] =  7,
+	['I'] =  8, ['J'] =  9, ['K'] = 10, ['L'] = 11,
+	['M'] = 12, ['N'] = 13, ['O'] = 14, ['P'] = 15,
+	['Q'] = 16, ['R'] = 17, ['S'] = 18, ['T'] = 19,
+	['U'] = 20, ['V'] = 21, ['W'] = 22, ['X'] = 23,
+	['Y'] = 24, ['Z'] = 25,
+
+	['a'] =  0, ['b'] =  1, ['c'] =  2, ['d'] =  3,
+	['e'] =  4, ['f'] =  5, ['g'] =  6, ['h'] =  7,
+	['i'] =  8, ['j'] =  9, ['k'] = 10, ['l'] = 11,
+	['m'] = 12, ['n'] = 13, ['o'] = 14, ['p'] = 15,
+	['q'] = 16, ['r'] = 17, ['s'] = 18, ['t'] = 19,
+	['u'] = 20, ['v'] = 21, ['w'] = 22, ['x'] = 23,
+	['y'] = 24, ['z'] = 25,
+
+	['2'] = 26, ['3'] = 27, ['4'] = 28, ['5'] = 29,
+	['6'] = 30, ['7'] = 31,
+};
+
 /*
- * Encode data in RFC 3548 base 32 representation.  The target buffer must
+ * Encode data in RFC 4648 base 32 representation.  The target buffer must
  * have room for base32_enclen(len) characters and a terminating NUL.
  */
 int
@@ -52,8 +74,10 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 {
 	uint64_t bits;
 
-	if (*olen <= base32_enclen(ilen))
+	if (*olen <= base32_enclen(ilen)) {
+		errno = ENOSPC;
 		return (-1);
+	}
 	*olen = 0;
 	while (ilen >= 5) {
 		bits = 0;
@@ -64,14 +88,14 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		bits |= (uint64_t)in[4];
 		ilen -= 5;
 		in += 5;
-		out[0] = b32[bits >> 35 & 0x1f];
-		out[1] = b32[bits >> 30 & 0x1f];
-		out[2] = b32[bits >> 25 & 0x1f];
-		out[3] = b32[bits >> 20 & 0x1f];
-		out[4] = b32[bits >> 15 & 0x1f];
-		out[5] = b32[bits >> 10 & 0x1f];
-		out[6] = b32[bits >> 5 & 0x1f];
-		out[7] = b32[bits & 0x1f];
+		out[0] = b32enc[bits >> 35 & 0x1f];
+		out[1] = b32enc[bits >> 30 & 0x1f];
+		out[2] = b32enc[bits >> 25 & 0x1f];
+		out[3] = b32enc[bits >> 20 & 0x1f];
+		out[4] = b32enc[bits >> 15 & 0x1f];
+		out[5] = b32enc[bits >> 10 & 0x1f];
+		out[6] = b32enc[bits >> 5 & 0x1f];
+		out[7] = b32enc[bits & 0x1f];
 		*olen += 8;
 		out += 8;
 	}
@@ -87,13 +111,13 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 		case 1:
 			bits |= (uint64_t)in[0] << 32;
 		}
-		out[0] = b32[bits >> 35 & 0x1f];
-		out[1] = b32[bits >> 30 & 0x1f];
-		out[2] = ilen > 1 ? b32[bits >> 25 & 0x1f] : '=';
-		out[3] = ilen > 1 ? b32[bits >> 20 & 0x1f] : '=';
-		out[4] = ilen > 2 ? b32[bits >> 15 & 0x1f] : '=';
-		out[5] = ilen > 3 ? b32[bits >> 10 & 0x1f] : '=';
-		out[6] = ilen > 3 ? b32[bits >> 5 & 0x1f] : '=';
+		out[0] = b32enc[bits >> 35 & 0x1f];
+		out[1] = b32enc[bits >> 30 & 0x1f];
+		out[2] = ilen > 1 ? b32enc[bits >> 25 & 0x1f] : '=';
+		out[3] = ilen > 1 ? b32enc[bits >> 20 & 0x1f] : '=';
+		out[4] = ilen > 2 ? b32enc[bits >> 15 & 0x1f] : '=';
+		out[5] = ilen > 3 ? b32enc[bits >> 10 & 0x1f] : '=';
+		out[6] = ilen > 3 ? b32enc[bits >> 5 & 0x1f] : '=';
 		out[7] = '=';
 		*olen += 8;
 		out += 8;
@@ -104,9 +128,14 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
 }
 
 /*
- * Decode data in RFC 2548 base 32 representation, stopping at the
+ * Decode data in RFC 4648 base 32 representation, stopping at the
  * terminating NUL, the first invalid (non-base32, non-whitespace)
  * character or after len characters, whichever comes first.
+ *
+ * Padding is handled sloppily: any padding character following the data
+ * is silently consumed.  This not only simplifies the code but ensures
+ * compatibility with implementations which do not emit or understand
+ * padding.
  *
  * The olen argument is used by the caller to pass the size of the buffer
  * and by base32_dec() to return the amount of data successfully decoded.
@@ -117,90 +146,40 @@ int
 base32_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
 {
 	size_t len;
-	uint64_t bits;
-	int shift;
+	int bits, shift, padding;
 
-	for (len = 0, bits = 0, shift = 40; ilen && *in && *in != '='; --ilen, ++in) {
-		if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n') {
+	for (bits = shift = padding = len = 0; ilen && *in; --ilen, ++in) {
+		if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n' ||
+		    (padding && *in == '=')) {
+			/* consume */
 			continue;
-		} else if (*in >= 'A' && *in <= 'Z') {
-			shift -= 5;
-			bits |= (uint64_t)(*in - 'A') << shift;
-		} else if (*in >= 'a' && *in <= 'z') {
-			shift -= 5;
-			bits |= (uint64_t)(*in - 'a') << shift;
-		} else if (*in >= '2' && *in <= '7') {	
-			shift -= 5;
-			bits |= (uint64_t)(*in - '2' + 26) << shift;
-		} else if (*in == '=') {
-			/* handled below */
-			break;
+		} else if (!padding && b32dec[(int)*in]) {
+			/* shift into accumulator */
+			shift += 5;
+			bits = bits << 5 | b32dec[(int)*in];
+		} else if (!padding && shift && *in == '=') {
+			/* final byte */
+			shift = 0;
+			padding = 1;
 		} else {
-			goto bad;
+			/* error */
+			*olen = 0;
+			errno = EINVAL;
+			return (-1);
 		}
-		if (shift == 0) {
-			if ((len += 5) <= *olen) {
-				*out++ = (bits >> 32) & 0xff;
-				*out++ = (bits >> 24) & 0xff;
-				*out++ = (bits >> 16) & 0xff;
-				*out++ = (bits >> 8) & 0xff;
-				*out++ = bits & 0xff;
-			}
-			bits = 0;
-			shift = 40;
+		if (shift >= 8) {
+			/* output accumulated byte */
+			shift -= 8;
+			if (len++ < *olen)
+				*out++ = (bits >> shift) & 0xff;
 		}
 	}
-	if (ilen && *in == '=' &&
-	    (shift == 30 || shift == 20 || shift == 15 || shift == 5)) {
-		/*
-		 * Padding:
-		 *
-		 * 00		 8 AA====== 30
-		 * 00 00	16 AAAA==== 20
-		 * 00 00 00	24 AAAAA=== 15
-		 * 00 00 00 00	32 AAAAAAA= 5
-		 *
-		 * XXX We should check that the last few bits before the
-		 * padding starts are zero.
-		 */
-		switch (shift) {
-		case 5:
-			if (++len <= *olen)
-				*out++ = (bits >> 32) & 0xff;
-			bits <<= 8;
-		case 15:
-			if (++len <= *olen)
-				*out++ = (bits >> 32) & 0xff;
-			bits <<= 8;
-		case 20:
-			if (++len <= *olen)
-				*out++ = (bits >> 32) & 0xff;
-			bits <<= 8;
-		case 30:
-			if (++len <= *olen)
-				*out++ = (bits >> 32) & 0xff;
-			bits <<= 8;
-			break;
-		default:
-			goto bad;
-		}
-		/* consume remaining padding and whitespace */
-		for (; ilen && *in; --ilen, ++in) {
-			if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n')
-				continue;
-			else if (*in == '=' && shift)
-				shift -= 5;
-			else
-				goto bad;
-		}
-	}
-	if (ilen)
-		goto bad;
+	/* report decoded length */
 	*olen = len;
-	if (len > *olen)
+	if (len > *olen) {
+		/* overflow */
+		errno = ENOSPC;
 		return (-1);
+	}
 	return (0);
-bad:
-	*olen = 0;
-	return (-1);
 }
