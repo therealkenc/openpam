@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2013 Universitetet i Oslo
+ * Copyright (c) 2013-2014 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,37 +119,69 @@ base64_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
 			bits |= (uint32_t)(*in - 'a' + 26) << shift;
 		} else if (*in >= '0' && *in <= '9') {
 			shift -= 6;
-			bits |= (uint32_t)(*in - '2' + 52) << shift;
+			bits |= (uint32_t)(*in - '0' + 52) << shift;
 		} else if (*in == '+') {
 			shift -= 6;
 			bits |= (uint32_t)62 << shift;
 		} else if (*in == '/') {
 			shift -= 6;
 			bits |= (uint32_t)63 << shift;
-		} else if (*in == '=' && (shift == 12 || shift == 6)) {
-			/* hack: assume the rest of the padding is ok */
-			shift = 0;
+		} else if (*in == '=') {
+			/* handled below */
+			break;
 		} else {
-			*olen = 0;
-			return (-1);
+			goto bad;
 		}
 		if (shift == 0) {
 			if ((len += 3) <= *olen) {
-				out[1] = (bits >> 16) & 0xff;
-				out[1] = (bits >> 8) & 0xff;
-				out[2] = bits & 0xff;
-				out += 3;
+				*out++ = (bits >> 16) & 0xff;
+				*out++ = (bits >> 8) & 0xff;
+				*out++ = bits & 0xff;
 			}
 			bits = 0;
 			shift = 24;
 		}
-		if (*in == '=')
+	}
+	if (ilen && *in == '=' && (shift == 12 || shift == 6)) {
+		/*
+		 * Padding:
+		 *
+		 * 00		 8 AA== 12
+		 * 00 00	16 AAA=  6
+		 *
+		 * XXX We should check that the last few bits before the
+		 * padding starts are zero.
+		 */
+		switch (shift) {
+		case 6:
+			if (++len <= *olen)
+				*out++ = (bits >> 16) & 0xff;
+			bits <<= 8;
+		case 12:
+			if (++len <= *olen)
+				*out++ = (bits >> 16) & 0xff;
+			bits <<= 8;
 			break;
+		default:
+			goto bad;
+		}
+		/* consume remaining padding and whitespace */
+		for (; ilen && *in; --ilen, ++in) {
+			if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n')
+				continue;
+			else if (*in == '=' && shift)
+				shift -= 6;
+			else
+				goto bad;
+		}
 	}
-	if (len > *olen) {
-		*olen = len;
-		return (-1);
-	}
+	if (ilen)
+		goto bad;
 	*olen = len;
+	if (len > *olen)
+		return (-1);
 	return (0);
+bad:
+	*olen = 0;
+	return (-1);
 }
