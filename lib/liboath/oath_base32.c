@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2013 Universitetet i Oslo
+ * Copyright (c) 2013-2014 Universitetet i Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,7 +120,7 @@ base32_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
 	uint64_t bits;
 	int shift;
 
-	for (len = 0, bits = 0, shift = 40; ilen && *in; --ilen, ++in) {
+	for (len = 0, bits = 0, shift = 40; ilen && *in && *in != '='; --ilen, ++in) {
 		if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n') {
 			continue;
 		} else if (*in >= 'A' && *in <= 'Z') {
@@ -132,33 +132,75 @@ base32_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
 		} else if (*in >= '2' && *in <= '7') {	
 			shift -= 5;
 			bits |= (uint64_t)(*in - '2' + 26) << shift;
-		} else if (*in == '=' &&
-		    (shift == 30 || shift == 20 || shift == 15 || shift == 5)) {
-			/* hack: assume the rest of the padding is ok */
-			shift = 0;
+		} else if (*in == '=') {
+			/* handled below */
+			break;
 		} else {
-			*olen = 0;
-			return (-1);
+			goto bad;
 		}
 		if (shift == 0) {
 			if ((len += 5) <= *olen) {
-				out[0] = (bits >> 32) & 0xff;
-				out[1] = (bits >> 24) & 0xff;
-				out[2] = (bits >> 16) & 0xff;
-				out[3] = (bits >> 8) & 0xff;
-				out[4] = bits & 0xff;
-				out += 5;
+				*out++ = (bits >> 32) & 0xff;
+				*out++ = (bits >> 24) & 0xff;
+				*out++ = (bits >> 16) & 0xff;
+				*out++ = (bits >> 8) & 0xff;
+				*out++ = bits & 0xff;
 			}
 			bits = 0;
 			shift = 40;
 		}
-		if (*in == '=')
+	}
+	if (ilen && *in == '=' &&
+	    (shift == 30 || shift == 20 || shift == 15 || shift == 5)) {
+		/*
+		 * Padding:
+		 *
+		 * 00		 8 AA====== 30
+		 * 00 00	16 AAAA==== 20
+		 * 00 00 00	24 AAAAA=== 15
+		 * 00 00 00 00	32 AAAAAAA= 5
+		 *
+		 * XXX We should check that the last few bits before the
+		 * padding starts are zero.
+		 */
+		switch (shift) {
+		case 5:
+			if (++len <= *olen)
+				*out++ = (bits >> 32) & 0xff;
+			bits <<= 8;
+		case 15:
+			if (++len <= *olen)
+				*out++ = (bits >> 32) & 0xff;
+			bits <<= 8;
+		case 20:
+			if (++len <= *olen)
+				*out++ = (bits >> 32) & 0xff;
+			bits <<= 8;
+		case 30:
+			if (++len <= *olen)
+				*out++ = (bits >> 32) & 0xff;
+			bits <<= 8;
 			break;
+		default:
+			goto bad;
+		}
+		/* consume remaining padding and whitespace */
+		for (; ilen && *in; --ilen, ++in) {
+			if (*in == ' ' || *in == '\t' || *in == '\r' || *in == '\n')
+				continue;
+			else if (*in == '=' && shift)
+				shift -= 5;
+			else
+				goto bad;
+		}
 	}
-	if (len > *olen) {
-		*olen = len;
-		return (-1);
-	}
+	if (ilen)
+		goto bad;
 	*olen = len;
+	if (len > *olen)
+		return (-1);
 	return (0);
+bad:
+	*olen = 0;
+	return (-1);
 }
