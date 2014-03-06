@@ -80,6 +80,9 @@ main(int argc, char *argv[])
 	setlogmask(LOG_UPTO(0));
 #endif
 
+	/* make stdout line-buffered to preserve ordering */
+	setvbuf(stdout, NULL, _IOLBF, 0);
+
 	/* clean up temp files in case of premature exit */
 	atexit(t_fcloseall);
 
