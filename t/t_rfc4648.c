@@ -73,11 +73,11 @@ struct t_case {
 	T_ENCODE(p, b32, b64), T_DECODE(p, b32, b64)
 
 /* decoding failure */
-#define T_DECODE_FAIL_N(N, i, e)					\
+#define T_DECODE_FAIL_N(N, e, i)					\
 	{ "base"#N"_dec("#i")", base##N##_dec, i, sizeof i - 1,		\
 	  NULL, 0, 0, -1, e }
 #define T_DECODE_FAIL(e, b32, b64)					\
-	T_DECODE_FAIL_N(32, b32, e), T_DECODE_FAIL_N(64, b64, e)
+	T_DECODE_FAIL_N(32, e, b32), T_DECODE_FAIL_N(64, e, b64)
 
 /* input string shorter than input length */
 #define T_SHORT_INPUT_DEC(N, i)						\
@@ -138,7 +138,10 @@ static struct t_case t_cases[] = {
 	T_DECODE_FAIL(EINVAL,	"AA=A",			"AA=A"),
 
 	/* padding in incorrect location */
-	T_DECODE_FAIL(EINVAL,	"A=",			"A="),
+	T_DECODE_FAIL_N(32, EINVAL, "A======="),
+	T_DECODE_FAIL_N(32, EINVAL, "AAA====="),
+	T_DECODE_FAIL_N(32, EINVAL, "AAAAAA=="),
+	T_DECODE_FAIL_N(64, EINVAL, "A==="),
 
 	/* various error conditions */
 	T_SHORT_INPUT(),
