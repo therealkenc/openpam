@@ -95,7 +95,7 @@ static struct t_vector {
  */
 static int
 t_rfc4648_enc(const char *plain, const char *encoded,
-    int (*enc)(const uint8_t *, size_t, char *, size_t *))
+    int (*enc)(const char *, size_t, char *, size_t *))
 {
 	char buf[64];
 	size_t blen, ilen, olen;
@@ -103,7 +103,7 @@ t_rfc4648_enc(const char *plain, const char *encoded,
 	blen = sizeof buf;
 	ilen = strlen(plain);
 	olen = strlen(encoded) + 1;
-	if (enc((const uint8_t *)plain, ilen, buf, &blen) != 0) {
+	if (enc((const char *)plain, ilen, buf, &blen) != 0) {
 		t_verbose("encoding failed\n");
 		return (0);
 	}
@@ -146,7 +146,7 @@ t_base64_enc(void *arg)
  */
 static int
 t_rfc4648_dec(const char *encoded, const char *plain,
-    int (*dec)(const char *, size_t, uint8_t *, size_t *))
+    int (*dec)(const char *, size_t, char *, size_t *))
 {
 	char buf[64];
 	size_t blen, ilen, olen;
@@ -154,7 +154,7 @@ t_rfc4648_dec(const char *encoded, const char *plain,
 	blen = sizeof buf;
 	ilen = strlen(encoded);
 	olen = strlen(plain);
-	if (dec(encoded, ilen, (uint8_t *)buf, &blen) != 0) {
+	if (dec(encoded, ilen, buf, &blen) != 0) {
 		t_verbose("encoding failed\n");
 		return (0);
 	}
