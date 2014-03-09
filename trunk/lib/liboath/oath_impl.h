@@ -32,11 +32,21 @@
 #ifndef OATH_IMPL_H_INCLUDED
 #define OATH_IMPL_H_INCLUDED
 
+#if _BullseyeCoverage
+#define COVERAGE_DISABLE _Pragma("BullseyeCoverage save off")
+#define COVERAGE_RESTORE _Pragma("BullseyeCoverage restore")
+#else
+#define COVERAGE_DISABLE
+#define COVERAGE_RESTORE
+#endif
+
 /*
- * Dummy key parameters
+ * Use at end of switch which has no default case
  */
-#define OATH_DUMMY_LABEL	("oath-dummy-key")
-#define OATH_DUMMY_LABELLEN	(sizeof DUMMY_LABEL)
-#define OATH_DUMMY_KEYLEN	80
+#define COVERAGE_NO_DEFAULT_CASE \
+	COVERAGE_DISABLE				\
+	default:					\
+		(void)0;				\
+	COVERAGE_RESTORE
 
 #endif
