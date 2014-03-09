@@ -107,7 +107,7 @@ oath_key_from_uri(const char *uri)
 				/* dupe */
 				goto invalid;
 			key->keylen = sizeof key->key;
-			if (base32_dec(q, r - q, key->key, &key->keylen) != 0)
+			if (base32_dec(q, r - q, (char *)key->key, &key->keylen) != 0)
 				goto invalid;
 			if (base32_enclen(key->keylen) != (size_t)(r - q))
 				goto invalid;

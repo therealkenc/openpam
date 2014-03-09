@@ -37,15 +37,15 @@
 #define base32_declen(l) (size_t)(((l + 7) / 8) * 5)
 
 /* base32 encoding / decoding */
-int base32_enc(const uint8_t *, size_t, char *, size_t *);
-int base32_dec(const char *, size_t, uint8_t *, size_t *);
+int base32_enc(const char *, size_t, char *, size_t *);
+int base32_dec(const char *, size_t, char *, size_t *);
 
 /* estimate of output length for base64 encoding / decoding */
 #define base64_enclen(l) (size_t)(((l + 2) / 3) * 4)
 #define base64_declen(l) (size_t)(((l + 3) / 4) * 3)
 
 /* base64 encoding / decoding */
-int base64_enc(const uint8_t *, size_t, char *, size_t *);
-int base64_dec(const char *, size_t, uint8_t *, size_t *);
+int base64_enc(const char *, size_t, char *, size_t *);
+int base64_dec(const char *, size_t, char *, size_t *);
 
 #endif

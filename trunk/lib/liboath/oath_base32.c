@@ -44,7 +44,7 @@
 static const char b32enc[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
-static const uint8_t b32dec[256] = {
+static const char b32dec[256] = {
 	['A'] =  0, ['B'] =  1, ['C'] =  2, ['D'] =  3,
 	['E'] =  4, ['F'] =  5, ['G'] =  6, ['H'] =  7,
 	['I'] =  8, ['J'] =  9, ['K'] = 10, ['L'] = 11,
@@ -70,7 +70,7 @@ static const uint8_t b32dec[256] = {
  * have room for base32_enclen(len) characters and a terminating NUL.
  */
 int
-base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
+base32_enc(const char *in, size_t ilen, char *out, size_t *olen)
 {
 	uint64_t bits;
 
@@ -143,7 +143,7 @@ base32_enc(const uint8_t *in, size_t ilen, char *out, size_t *olen)
  * returns the total amount.
  */
 int
-base32_dec(const char *in, size_t ilen, uint8_t *out, size_t *olen)
+base32_dec(const char *in, size_t ilen, char *out, size_t *olen)
 {
 	size_t len;
 	int bits, shift, padding;

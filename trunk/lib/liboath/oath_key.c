@@ -116,7 +116,7 @@ oath_key_to_uri(const struct oath_key *key)
 		return (NULL);
 	}
 	uri = tmp;
-	if (base32_enc(key->key, key->keylen, uri + urilen, &kslen) != 0) {
+	if (base32_enc((char *)key->key, key->keylen, uri + urilen, &kslen) != 0) {
 		free(uri);
 		return (NULL);
 	}
