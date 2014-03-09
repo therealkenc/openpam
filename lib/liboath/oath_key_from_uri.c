@@ -157,6 +157,8 @@ oath_key_from_uri(const char *uri)
 			if (e != r || n > OATH_MAX_TIMESTEP)
 				goto invalid;
 			key->timestep = n;
+		} else if (strlcmp("issuer=", p, q - p) == 0) {
+			// noop for now
 		} else {
 			goto invalid;
 		}
