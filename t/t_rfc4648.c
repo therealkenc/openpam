@@ -69,8 +69,10 @@ struct t_case {
 	T_DECODE_N(32, b32, p), T_DECODE_N(64, b64, p)
 
 /* roundtrip encoding tests */
+#define T_ENCDEC_N(N, p, e)						\
+	T_ENCODE_N(N, p, e), T_DECODE_N(N, e, p)
 #define T_ENCDEC(p, b32, b64)						\
-	T_ENCODE(p, b32, b64), T_DECODE(p, b32, b64)
+	T_ENCDEC_N(32, p, b32), T_ENCDEC_N(64, p, b64)
 
 /* decoding failure */
 #define T_DECODE_FAIL_N(N, e, i)					\
@@ -100,7 +102,37 @@ struct t_case {
 	T_LONG_OUTPUT_ENC(64, "foo"),					\
 	T_LONG_OUTPUT_DEC(64, "AAAA")
 
+static const char b64alphabet[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+static const char b64complete[] = {
+	0x00, 0x10, 0x83, 0x10, 0x51, 0x87,
+	0x20, 0x92, 0x8b, 0x30, 0xd3, 0x8f,
+	0x41, 0x14, 0x93, 0x51, 0x55, 0x97,
+	0x61, 0x96, 0x9b, 0x71, 0xd7, 0x9f,
+	0x82, 0x18, 0xa3, 0x92, 0x59, 0xa7,
+	0xa2, 0x9a, 0xab, 0xb2, 0xdb, 0xaf,
+	0xc3, 0x1c, 0xb3, 0xd3, 0x5d, 0xb7,
+	0xe3, 0x9e, 0xbb, 0xf3, 0xdf, 0xbf,
+	0x00
+};
+
+static const char b32alphabet[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+static const char b32complete[] = {
+	0x00, 0x44, 0x32, 0x14, 0xc7,
+	0x42, 0x54, 0xb6, 0x35, 0xcf,
+	0x84, 0x65, 0x3a, 0x56, 0xd7,
+	0xc6, 0x75, 0xbe, 0x77, 0xdf,
+	0x00
+};
+
 static struct t_case t_cases[] = {
+	/* complete alphabet */
+	T_ENCDEC_N(32, b32complete, b32alphabet),
+	T_ENCDEC_N(64, b64complete, b64alphabet),
+
 	/* test vectors from RFC 4648 */
 	/*	 plain		base32			base64 */
 	T_ENCDEC("",		"",			""),
