@@ -87,8 +87,9 @@ static const char b64dec[256] = {
  * have room for base64_enclen(len) characters and a terminating NUL.
  */
 int
-base64_enc(const char *in, size_t ilen, char *out, size_t *olen)
+base64_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 {
+	const uint8_t *in = (uint8_t *)cin;
 	uint32_t bits;
 
 	if (*olen <= base64_enclen(ilen)) {
@@ -148,8 +149,9 @@ base64_enc(const char *in, size_t ilen, char *out, size_t *olen)
  * returns the total amount.
  */
 int
-base64_dec(const char *in, size_t ilen, char *out, size_t *olen)
+base64_dec(const char *cin, size_t ilen, char *out, size_t *olen)
 {
+	const uint8_t *in = (uint8_t *)cin;
 	size_t len;
 	int bits, shift, padding;
 
@@ -158,10 +160,10 @@ base64_dec(const char *in, size_t ilen, char *out, size_t *olen)
 		    (padding && *in == '=')) {
 			/* consume */
 			continue;
-		} else if (!padding && b64dec[(int)*in] >= 0) {
+		} else if (!padding && b64dec[*in] >= 0) {
 			/* shift into accumulator */
 			shift += 6;
-			bits = bits << 6 | b64dec[(int)*in];
+			bits = bits << 6 | b64dec[*in];
 		} else if (!padding && shift > 0 && shift != 6 && *in == '=') {
 			/* final byte */
 			shift = 0;
