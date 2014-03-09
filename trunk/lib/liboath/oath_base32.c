@@ -85,8 +85,9 @@ static const char b32dec[256] = {
  * have room for base32_enclen(len) characters and a terminating NUL.
  */
 int
-base32_enc(const char *in, size_t ilen, char *out, size_t *olen)
+base32_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 {
+	const uint8_t *in = (uint8_t *)cin;
 	uint64_t bits;
 
 	if (*olen <= base32_enclen(ilen)) {
@@ -160,8 +161,9 @@ base32_enc(const char *in, size_t ilen, char *out, size_t *olen)
  * returns the total amount.
  */
 int
-base32_dec(const char *in, size_t ilen, char *out, size_t *olen)
+base32_dec(const char *cin, size_t ilen, char *out, size_t *olen)
 {
+	const uint8_t *in = (uint8_t *)cin;
 	size_t len;
 	int bits, shift, padding;
 
@@ -170,10 +172,10 @@ base32_dec(const char *in, size_t ilen, char *out, size_t *olen)
 		    (padding && *in == '=')) {
 			/* consume */
 			continue;
-		} else if (!padding && b32dec[(int)*in] >= 0) {
+		} else if (!padding && b32dec[*in] >= 0) {
 			/* shift into accumulator */
 			shift += 5;
-			bits = bits << 5 | b32dec[(int)*in];
+			bits = bits << 5 | b32dec[*in];
 		} else if (!padding && shift > 0 && shift < 5 && *in == '=') {
 			/* final byte */
 			shift = 0;
