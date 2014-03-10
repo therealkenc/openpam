@@ -66,6 +66,8 @@ OATH_MAN = \
 	oath_key_create.3 \
 	oath_key_dummy.3 \
 	oath_key_free.3 \
+	oath_key_from_uri.3 \
+	oath_uri_decode.3 \
 	$(NULL)
 
 EXTRA_DIST = openpam.man pam.man
