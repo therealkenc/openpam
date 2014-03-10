@@ -37,6 +37,7 @@
 
 #include <err.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdint.h>
@@ -54,9 +55,59 @@ enum { RET_SUCCESS, RET_FAILURE, RET_ERROR, RET_USAGE, RET_UNAUTH };
 static char *user;
 static char *keyfile;
 static int verbose;
+static int writeback;
 
 static int isroot;		/* running as root */
 static int issameuser;		/* real user same as target user */
+
+/*
+ * Print key in otpauth URI form
+ */
+static int
+oathkey_print(struct oath_key *key)
+{
+	char *keyuri;
+
+	if ((keyuri = oath_key_to_uri(key)) == NULL) {
+		warnx("failed to convert key to otpauth URI");
+		return (RET_ERROR);
+	}
+	printf("%s\n", keyuri);
+	free(keyuri);
+	return (RET_SUCCESS);
+}
+
+/*
+ * Save key to file
+ * XXX liboath should take care of this for us
+ */
+static int
+oathkey_save(struct oath_key *key)
+{
+	char *keyuri;
+	int fd, len, ret;
+
+	keyuri = NULL;
+	len = 0;
+	fd = ret = -1;
+	if ((keyuri = oath_key_to_uri(key)) == NULL) {
+		warnx("failed to convert key to otpauth URI");
+		goto done;
+	}
+	len = strlen(keyuri);
+	if ((fd = open(keyfile, O_WRONLY|O_CREAT|O_TRUNC, 0600)) < 0 ||
+	    write(fd, keyuri, len) != len || write(fd, "\n", 1) != 1) {
+		warn("%s", keyfile);
+		goto done;
+	}
+	ret = 0;
+done:
+	if (fd >= 0)
+		close(fd);
+	if (keyuri != NULL)
+		free(keyuri);
+	return (ret);
+}
 
 /*
  * Generate a new key
@@ -65,6 +116,7 @@ static int
 oathkey_genkey(int argc, char *argv[])
 {
 	struct oath_key *key;
+	int ret;
 
 	/* XXX add parameters later */
 	if (argc != 0)
@@ -77,10 +129,9 @@ oathkey_genkey(int argc, char *argv[])
 
 	if ((key = oath_key_create(user, om_totp, oh_undef, NULL, 0)) == NULL)
 		return (RET_ERROR);
-	/* XXX should save to file, not print */
-	printf("%s\n", oath_key_to_uri(key));
+	ret = writeback ? oathkey_save(key) : oathkey_print(key);
 	oath_key_free(key);
-	return (RET_SUCCESS);
+	return (ret);
 }
 
 /*
@@ -90,6 +141,7 @@ static int
 oathkey_setkey(int argc, char *argv[])
 {
 	struct oath_key *key;
+	int ret;
 
 	/* XXX add parameters later */
 	if (argc != 1)
@@ -102,10 +154,9 @@ oathkey_setkey(int argc, char *argv[])
 
 	if ((key = oath_key_from_uri(argv[0])) == NULL)
 		return (RET_ERROR);
-	/* XXX should save to file, not print */
-	printf("%s\n", oath_key_to_uri(key));
+	ret = oathkey_save(key);
 	oath_key_free(key);
-	return (RET_SUCCESS);
+	return (ret);
 }
 
 /*
@@ -115,6 +166,7 @@ static int
 oathkey_uri(int argc, char *argv[])
 {
 	struct oath_key *key;
+	int ret;
 
 	if (argc != 0)
 		return (RET_USAGE);
@@ -126,9 +178,9 @@ oathkey_uri(int argc, char *argv[])
 
 	if ((key = oath_key_from_file(keyfile)) == NULL)
 		return (RET_ERROR);
-	printf("%s\n", oath_key_to_uri(key));
+	ret = oathkey_print(key);
 	oath_key_free(key);
-	return (RET_SUCCESS);
+	return (ret);
 }
 
 /*
@@ -140,7 +192,7 @@ oathkey_verify(int argc, char *argv[])
 	struct oath_key *key;
 	unsigned long response;
 	char *end;
-	int match;
+	int match, ret;
 
 	if (argc < 1)
 		return (RET_USAGE);
@@ -163,11 +215,11 @@ oathkey_verify(int argc, char *argv[])
 	if (verbose)
 		warnx("response: %lu %s", response,
 		    match ? "matched" : "did not match");
-	if (match) {
-		/* XXX write key back! */
-	}
+	ret = match ? RET_SUCCESS : RET_FAILURE;
+	if (match && writeback)
+		ret = oathkey_save(key);
 	oath_key_free(key);
-	return (match ? RET_SUCCESS : RET_FAILURE);
+	return (ret);
 }
 
 /*
@@ -177,7 +229,7 @@ static void
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: oathkey [-hv] [-u user] [-k keyfile] <command>\n"
+	    "usage: oathkey [-hvw] [-u user] [-k keyfile] <command>\n"
 	    "\n"
 	    "Commands:\n"
 	    "    genkey      Generate a new key\n"
@@ -198,7 +250,7 @@ main(int argc, char *argv[])
 	/*
 	 * Parse command-line options
 	 */
-	while ((opt = getopt(argc, argv, "hk:u:v")) != -1)
+	while ((opt = getopt(argc, argv, "hk:u:vw")) != -1)
 		switch (opt) {
 		case 'k':
 			keyfile = optarg;
@@ -208,6 +260,9 @@ main(int argc, char *argv[])
 			break;
 		case 'v':
 			++verbose;
+			break;
+		case 'w':
+			++writeback;
 			break;
 		case 'h':
 		default:

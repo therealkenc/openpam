@@ -36,7 +36,7 @@
 .Nd OATH key management tool
 .Sh SYNOPSIS
 .Nm
-.Op Fl hv
+.Op Fl hvw
 .Op Fl u Ar user
 .Op Fl k Ar keyfile
 .Ar command
@@ -61,12 +61,16 @@ The default is the current user.
 Only root may operate on other users.
 .It Fl v
 Enable verbose mode.
+.It Fl w
+Enable writeback mode (see below).
 .El
 .Pp
 The commands are:
 .Bl -tag -width 6n
 .It Cm genkey
 Generate a new key.
+If writeback mode is enabled, the user's key is set; otherwise, it is
+printed to standard output.
 .It Cm setkey Ar uri
 Set the user's key to the given otpauth URI.
 .It Cm uri
@@ -74,6 +78,8 @@ Print the user's key in otpauth URI form.
 .It Cm verify Ar code
 Verify that the given code is the correct current response for the
 user's key.
+If writeback mode is enabled and the response matched, the user's
+keyfile is updated to prevent reuse.
 .El
 .Sh SEE ALSO
 .Xr oath_hotp 3 ,
