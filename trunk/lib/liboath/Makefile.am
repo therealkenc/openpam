@@ -14,6 +14,7 @@ liboath_la_SOURCES = \
 	oath_key_alloc.c \
 	oath_key_create.c \
 	oath_key_dummy.c \
+	oath_key_from_file.c \
 	oath_key_from_uri.c \
 	oath_key_free.c \
 	oath_key.c \

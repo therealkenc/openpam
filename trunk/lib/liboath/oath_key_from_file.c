@@ -36,6 +36,7 @@
 #include <sys/types.h>
 
 #include <inttypes.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
@@ -45,57 +46,49 @@
 
 #include <security/oath.h>
 
-char *
-oath_key_to_uri(const struct oath_key *key)
+/*
+ * OATH
+ *
+ * Loads an OATH key from a file
+ */
+
+struct oath_key *
+oath_key_from_file(const char *filename)
 {
-	const char *hash;
-	char *tmp, *uri;
-	size_t kslen, urilen;
+	struct oath_key *key;
+	FILE *f;
+	char *line;
+	size_t len;
 
-	switch (key->hash) {
-	case oh_sha1:
-		hash = "SHA1";
-		break;
-	case oh_sha256:
-		hash = "SHA256";
-		break;
-	case oh_sha512:
-		hash = "SHA512";
-		break;
-	case oh_md5:
-		hash = "MD5";
-		break;
-	default:
+	if ((f = fopen(filename, "r")) == NULL)
 		return (NULL);
-	}
-
-	/* XXX the label should be URI-encoded */
-	if (key->mode == om_hotp) {
-		urilen = asprintf(&uri, "otpauth://%s/%s?"
-		    "algorithm=%s&digits=%d&counter=%ju&secret=",
-		    "hotp", key->label, hash, key->digits,
-		    (uintmax_t)key->counter);
-	} else if (key->mode == om_totp) {
-		urilen = asprintf(&uri, "otpauth://%s/%s?"
-		    "algorithm=%s&digits=%d&period=%u&lastused=%ju&secret=",
-		    "totp", key->label, hash, key->digits, key->timestep,
-		    (uintmax_t)key->lastused);
+	/* get first non-empty non-comment line */
+	line = openpam_readline(f, NULL, &len);
+	if (strlcmp("otpauth://", line, len) == 0) {
+		key = oath_key_from_uri(line);
 	} else {
-		/* unreachable */
-		return (NULL);
+		openpam_log(PAM_LOG_ERROR,
+		    "unrecognized key file format: %s", filename);
+		key = NULL;
 	}
-
-	/* compute length of base32-encoded key and append it */
-	kslen = base32_enclen(key->keylen) + 1;
-	if ((tmp = realloc(uri, urilen + kslen)) == NULL) {
-		free(uri);
-		return (NULL);
-	}
-	uri = tmp;
-	if (base32_enc((char *)key->key, key->keylen, uri + urilen, &kslen) != 0) {
-		free(uri);
-		return (NULL);
-	}
-
-	return (uri);
+	fclose(f);
+	return (key);
 }
+
+/**
+ * The =oath_key_from_file function loads a key from the specified file.
+ * The file format is automatically detected.
+ *
+ * The following key file formats are supported:
+ *
+ *  - otpauth URI
+ *
+ * Keys created with =oath_key_from_file must be freed using
+ * =oath_key_free.
+ *
+ * >oath_key_alloc
+ * >oath_key_free
+ * >oath_key_from_uri
+ *
+ * AUTHOR UIO
+ */
