@@ -4,6 +4,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam
 
 lib_LTLIBRARIES = liboath.la
 
+noinst_HEADERS = oath_impl.h
+
 liboath_la_SOURCES = \
 	oath_base32.c \
 	oath_base64.c \
