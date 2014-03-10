@@ -204,7 +204,7 @@ invalid:
 }
 
 /**
- * The =oath_key_from_uri parses a Google otpauth URI into a key
+ * The =oath_key_from_uri function parses a Google otpauth URI into a key
  * structure.
  *
  * The =uri parameter points to a NUL-terminated string containing the
