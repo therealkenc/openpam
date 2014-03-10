@@ -1,0 +1,90 @@
+.\"-
+.\" Copyright (c) 2013-2014 Universitetet i Oslo
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.Dd March 9, 2014
+.Dt OATHKEY 1
+.Os
+.Sh NAME
+.Nm oathkey
+.Nd OATH key management tool
+.Sh SYNOPSIS
+.Nm
+.Op Fl hv
+.Op Fl u Ar user
+.Op Fl k Ar keyfile
+.Ar command
+.Op Ar args
+.Sh DESCRIPTION
+The
+.Nm
+utility creates and manages OATH keys, and can be used to validate an
+OATH response.
+.Pp
+The following options are available:
+.Bl -tag -width Fl
+.It Fl h
+Print a usage message and exit.
+.It Fl k Ar keyfile
+Specify the location of the keyfile on which to operate.
+The default is
+.Pa /var/oath/ Ns Ar user Ns Pa .otpauth .
+.It Fl u Ar user
+Specify the user on which to operate.
+The default is the current user.
+Only root may operate on other users.
+.It Fl v
+Enable verbose mode.
+.El
+.Pp
+The commands are:
+.Bl -tag -width 6n
+.It Cm genkey
+Generate a new key.
+.It Cm setkey Ar uri
+Set the user's key to the given otpauth URI.
+.It Cm uri
+Print the user's key in otpauth URI form.
+.It Cm verify Ar code
+Verify that the given code is the correct current response for the
+user's key.
+.El
+.Sh SEE ALSO
+.Xr oath_hotp 3 ,
+.Xr oath_key 3 ,
+.Xr oath_totp 3 ,
+.Xr pam_oath 8
+.Sh AUTHORS
+The
+.Nm
+utility and this manual page were written by
+.An Dag-Erling Sm\(/orgrav Aq des@des.no
+for the University of Oslo.
+.Sh BUGS
+Many.
