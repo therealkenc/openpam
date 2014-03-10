@@ -187,7 +187,7 @@ static int
 t_rfc4648(void *arg)
 {
 	struct t_case *t = arg;
-	char buf[64];
+	char buf[256];
 	size_t len;
 	int ret;
 
@@ -229,7 +229,7 @@ t_prepare(int argc, char *argv[])
 	(void)argv;
 	n = sizeof t_cases / sizeof t_cases[0];
 	if ((plan = calloc(n + 1, sizeof *plan)) == NULL ||
-	    (tests = calloc(n + 1, sizeof *tests)) == NULL)
+	    (tests = calloc(n, sizeof *tests)) == NULL)
 		return (NULL);
 	for (i = 0; i < n; ++i) {
 		plan[i] = &tests[i];
@@ -237,6 +237,7 @@ t_prepare(int argc, char *argv[])
 		tests[i].desc = t_cases[i].desc;
 		tests[i].arg = &t_cases[i];
 	}
+	plan[n] = NULL;
 	return ((const struct t_test **)plan);
 }
 
