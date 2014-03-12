@@ -39,10 +39,10 @@
 
 #include "openpam_ctype.h"
 
-#define unhex(ch) \
-	((ch >= '0' && ch <= '9') ? ch - '0' :	\
-	 (ch >= 'A' && ch <= 'F') ? ch - 'A' :	\
-	 (ch >= 'a' && ch <= 'F') ? ch - 'a' : 0)
+#define unhex(ch)							\
+	((ch >= '0' && ch <= '9') ? ch - '0' :				\
+	 (ch >= 'A' && ch <= 'F') ? 0xa + ch - 'A' :			\
+	 (ch >= 'a' && ch <= 'f') ? 0xa + ch - 'a' : 0)
 
 /*
  * OATH
