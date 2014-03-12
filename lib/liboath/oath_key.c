@@ -36,12 +36,13 @@
 #include <sys/types.h>
 
 #include <inttypes.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
-#include "openpam_strlcmp.h"
+#include "openpam_asprintf.h"
 
 #include <security/oath.h>
 
