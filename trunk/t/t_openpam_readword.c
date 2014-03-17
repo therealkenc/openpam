@@ -905,6 +905,7 @@ T_FUNC(escaped_double_quote_within_double_quotes,
 const struct t_test *t_plan[] = {
 	T(empty_input),
 	T(empty_line),
+	T(unterminated_line),
 	T(single_whitespace),
 	T(multiple_whitespace),
 	T(line_continuation_in_whitespace),
