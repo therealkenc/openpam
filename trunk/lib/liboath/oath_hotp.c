@@ -129,7 +129,7 @@ oath_hotp_match(struct oath_key *k, unsigned int response, int window)
 	for (int i = 0; i < window; ++i) {
 		code = oath_hotp(k->key, k->keylen, k->counter + i, k->digits);
 		if (code == response && !k->dummy) {
-			k->counter = k->counter + i;
+			k->counter = k->counter + i + 1;
 			return (1);
 		}
 	}
