@@ -1,5 +1,9 @@
 OpenPAM ??????????						2014-??-??
 
+ - BUGFIX: Under certain circumstances, specifying a non-existent
+   module (or misspelling the name of a module) in a policy could
+   result in a fail-open scenario.
+
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
 
