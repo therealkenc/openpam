@@ -64,7 +64,7 @@ openpam_facility_index_name(pam_facility_t fclt)
 	if (asprintf(&name, "PAM_%s", facility) == -1)
 		return (NULL);
 	for (p = name + 4; *p; ++p)
-		*p = toupper(*p);
+		*p = toupper((unsigned char)*p);
 	return (name);
 }
 
