@@ -2,7 +2,7 @@ OpenPAM ??????????						2014-??-??
 
  - BUGFIX: Under certain circumstances, specifying a non-existent
    module (or misspelling the name of a module) in a policy could
-   result in a fail-open scenario.
+   result in a fail-open scenario.  (CVE-2014-3879)
 
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
@@ -114,7 +114,7 @@ OpenPAM Lycopsida						2011-12-18
    module before loading it.
 
  - ENHANCE: added / improved input validation in many cases, including
-   the policy file and some function arguments.
+   the policy file and some function arguments.  (CVE-2011-4122)
 ============================================================================
 OpenPAM Hydrangea						2007-12-21
 
