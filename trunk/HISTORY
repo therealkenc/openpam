@@ -17,7 +17,7 @@ OpenPAM Ourouparia						2014-09-11
    result in a fail-open scenario.  (CVE-2014-3879)
 
  - FEATURE: Add a search path for modules.  This was implemented in
-   Nummularia but inadvertantly left out of the release notes.
+   Nummularia but inadvertently left out of the release notes.
 
  - BUGFIX: The is_upper() predicate only accepted the letter A as an
    upper-case character instead of the entire A-Z range.  As a result,
