@@ -91,7 +91,7 @@ AC_CHECK_FUNCS([asprintf vasprintf])
 AC_CHECK_FUNCS([dlfunc fdlopen])
 AC_CHECK_FUNCS([fpurge])
 AC_CHECK_FUNCS([setlogmask])
-AC_CHECK_FUNCS([strlcat strlcmp strlcpy])
+AC_CHECK_FUNCS([strlcat strlcmp strlcpy strlset])
 
 saved_LIBS="${LIBS}"
 LIBS=""
