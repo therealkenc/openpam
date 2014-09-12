@@ -3,7 +3,7 @@ OpenPAM ??????????						2014-??-??
  - FEATURE: Add a pam_oath module that implements RFC 4226 (HOTP) and
    RFC 6238 (TOTP).
 ============================================================================
-OpenPAM Ourouparia						2014-09-11
+OpenPAM Ourouparia						2014-09-12
 
  - ENHANCE: When executing a chain, require at least one service
    function to succeed.  This mitigates fail-open scenarios caused by
