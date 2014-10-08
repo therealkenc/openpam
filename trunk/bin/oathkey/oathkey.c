@@ -61,10 +61,24 @@ static int isroot;		/* running as root */
 static int issameuser;		/* real user same as target user */
 
 /*
+ * Print key in hexadecimal form
+ */
+static int
+oathkey_print_hex(struct oath_key *key)
+{
+	unsigned int i;
+
+	for (i = 0; i < key->keylen; ++i)
+		printf("%02x", key->key[i]);
+	printf("\n");
+	return (RET_SUCCESS);
+}
+
+/*
  * Print key in otpauth URI form
  */
 static int
-oathkey_print(struct oath_key *key)
+oathkey_print_uri(struct oath_key *key)
 {
 	char *keyuri;
 
@@ -87,6 +101,8 @@ oathkey_save(struct oath_key *key)
 	char *keyuri;
 	int fd, len, ret;
 
+	if (verbose)
+		warnx("saving key to %s", keyfile);
 	keyuri = NULL;
 	len = 0;
 	fd = ret = -1;
@@ -126,7 +142,7 @@ oathkey_genkey(int argc, char *argv[])
 		return (RET_UNAUTH);
 	if ((key = oath_key_create(user, om_totp, oh_undef, NULL, 0)) == NULL)
 		return (RET_ERROR);
-	ret = writeback ? oathkey_save(key) : oathkey_print(key);
+	ret = writeback ? oathkey_save(key) : oathkey_print_uri(key);
 	oath_key_free(key);
 	return (ret);
 }
@@ -154,10 +170,10 @@ oathkey_setkey(int argc, char *argv[])
 }
 
 /*
- * Print the otpauth URI for a key
+ * Print raw key in hexadecimal
  */
 static int
-oathkey_uri(int argc, char *argv[])
+oathkey_getkey(int argc, char *argv[])
 {
 	struct oath_key *key;
 	int ret;
@@ -167,9 +183,34 @@ oathkey_uri(int argc, char *argv[])
 	(void)argv;
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
+	if (verbose)
+		warnx("loading key from %s", keyfile);
 	if ((key = oath_key_from_file(keyfile)) == NULL)
 		return (RET_ERROR);
-	ret = oathkey_print(key);
+	ret = oathkey_print_hex(key);
+	oath_key_free(key);
+	return (ret);
+}
+
+/*
+ * Print the otpauth URI for a key
+ */
+static int
+oathkey_geturi(int argc, char *argv[])
+{
+	struct oath_key *key;
+	int ret;
+
+	if (argc != 0)
+		return (RET_USAGE);
+	(void)argv;
+	if (!isroot && !issameuser)
+		return (RET_UNAUTH);
+	if (verbose)
+		warnx("loading key from %s", keyfile);
+	if ((key = oath_key_from_file(keyfile)) == NULL)
+		return (RET_ERROR);
+	ret = oathkey_print_uri(key);
 	oath_key_free(key);
 	return (ret);
 }
@@ -187,6 +228,8 @@ oathkey_verify(int argc, char *argv[])
 
 	if (argc < 1)
 		return (RET_USAGE);
+	if (verbose)
+		warnx("loading key from %s", keyfile);
 	if ((key = oath_key_from_file(keyfile)) == NULL)
 		return (RET_ERROR);
 	response = strtoul(*argv, &end, 10);
@@ -224,8 +267,9 @@ usage(void)
 	    "\n"
 	    "Commands:\n"
 	    "    genkey      Generate a new key\n"
+	    "    getkey      Print the key in hexadecimal form\n"
+	    "    geturi      Print the key in otpauth URI form\n"
 	    "    setkey      Generate a new key\n"
-	    "    uri         Print the key in otpauth URI form\n"
 	    "    verify <response>\n"
 	    "                Verify a response\n");
 	exit(1);
@@ -293,6 +337,7 @@ main(int argc, char *argv[])
 			errx(1, "who are you?");
 		if (asprintf(&user, "%s", pw->pw_name) < 0)
 			err(1, "asprintf()");
+		issameuser = 1;
 	}
 
 	/*
@@ -311,10 +356,12 @@ main(int argc, char *argv[])
 		ret = RET_USAGE;
 	else if (strcmp(cmd, "genkey") == 0)
 		ret = oathkey_genkey(argc, argv);
+	else if (strcmp(cmd, "getkey") == 0)
+		ret = oathkey_getkey(argc, argv);	
+	else if (strcmp(cmd, "geturi") == 0 || strcmp(cmd, "uri") == 0)
+		ret = oathkey_geturi(argc, argv);
 	else if (strcmp(cmd, "setkey") == 0)
 		ret = oathkey_setkey(argc, argv);
-	else if (strcmp(cmd, "uri") == 0)
-		ret = oathkey_uri(argc, argv);
 	else if (strcmp(cmd, "verify") == 0)
 		ret = oathkey_verify(argc, argv);
 	else
