@@ -122,11 +122,8 @@ oathkey_genkey(int argc, char *argv[])
 	if (argc != 0)
 		return (RET_USAGE);
 	(void)argv;
-
-	/* don't let users generate keys for eachother */
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-
 	if ((key = oath_key_create(user, om_totp, oh_undef, NULL, 0)) == NULL)
 		return (RET_ERROR);
 	ret = writeback ? oathkey_save(key) : oathkey_print(key);
@@ -147,11 +144,8 @@ oathkey_setkey(int argc, char *argv[])
 	if (argc != 1)
 		return (RET_USAGE);
 	(void)argv;
-
-	/* don't let users set eachother's keys */
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-
 	if ((key = oath_key_from_uri(argv[0])) == NULL)
 		return (RET_ERROR);
 	ret = oathkey_save(key);
@@ -171,11 +165,8 @@ oathkey_uri(int argc, char *argv[])
 	if (argc != 0)
 		return (RET_USAGE);
 	(void)argv;
-
-	/* don't let users see eachother's keys */
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-
 	if ((key = oath_key_from_file(keyfile)) == NULL)
 		return (RET_ERROR);
 	ret = oathkey_print(key);
