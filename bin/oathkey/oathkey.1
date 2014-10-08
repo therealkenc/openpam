@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd March 9, 2014
+.Dd October 8, 2014
 .Dt OATHKEY 1
 .Os
 .Sh NAME
@@ -71,15 +71,20 @@ The commands are:
 Generate a new key.
 If writeback mode is enabled, the user's key is set; otherwise, it is
 printed to standard output.
+.It Cm getkey
+Print the user's key.
+.It Cm geturi
+Print the user's key in otpauth URI form.
 .It Cm setkey Ar uri
 Set the user's key to the given otpauth URI.
-.It Cm uri
-Print the user's key in otpauth URI form.
 .It Cm verify Ar code
 Verify that the given code is the correct current response for the
 user's key.
 If writeback mode is enabled and the response matched, the user's
 keyfile is updated to prevent reuse.
+.It Cm uri
+Deprecated synonym for
+.Cm geturi .
 .El
 .Sh SEE ALSO
 .Xr oath_hotp 3 ,
