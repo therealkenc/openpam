@@ -33,26 +33,30 @@
 use strict;
 use warnings;
 
+my $CVEURL = "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-";
+
 while (<>) {
     if (m/^OpenPAM ([A-Z][a-z]+)\t+(\d\d\d\d-\d\d-\d\d)\s*$/) {
 	my ($relname, $reldate) = ($1, $2);
-	my $wikitext = "= OpenPAM $relname =\n" .
-	    "\n" .
-	    "OpenPAM $relname was released on $reldate.\n";
+	my $changes;
 	while (<>) {
 	    last if m/^=+$/;
-	    $wikitext .= $_;
+	    $changes .= $_;
 	}
-	$wikitext =~ s/^ - ([A-Z]+): / - '''$1''' /gm;
-	$wikitext =~ s/(\w+\(\d*\))/`$1`/gs;
-	$wikitext =~ s/([^'])\b([A-Z_]{2,})\b([^'])/$1`$2`$3/gs;
-	$wikitext =~ s/([.!?])\n +(\w)/$1  $2/gs;
-	$wikitext =~ s/(\S)\n +(\S)/$1 $2/gs;
-	$wikitext .= "\n" .
-	    "[http://sourceforge.net/projects/openpam/files/openpam/$relname/ Download from Sourceforge]\n";
+	$changes =~ s/^ - ([A-Z]+): / - '''$1''' /gm;
+	$changes =~ s/([\w.-]+\(\d*\))/`$1`/gs;
+	$changes =~ s/([^'])\b([A-Z_]{2,})\b([^'])/$1`$2`$3/gs;
+	$changes =~ s/`CVE`-(\d{4}-\d+)/[$CVEURL$1 CVE-$1]/gs;
+	$changes =~ s/([.!?])\n +(\w)/$1  $2/gs;
+	$changes =~ s/(\S)\n +(\S)/$1 $2/gs;
 	open(my $fh, ">", "$relname.txt")
 	    or die("$relname.txt: $!\n");
-	print($fh $wikitext);
+	print($fh "= OpenPAM $relname =\n",
+	      "\n",
+	      "OpenPAM $relname was released on $reldate.\n",
+	      $changes,
+	      "\n",
+	      "[http://sourceforge.net/projects/openpam/files/openpam/$relname/ Download from Sourceforge]\n");
 	close($fh);
 	print("|| $reldate || [[Releases/$relname|$relname]] ||\n");
     }
