@@ -33,7 +33,7 @@
 use strict;
 use warnings;
 
-my $CVEURL = "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-";
+my $CVEURL = "http://web.nvd.nist.gov/view/vuln/detail?vulnId=";
 
 while (<>) {
     if (m/^OpenPAM ([A-Z][a-z]+)\t+(\d\d\d\d-\d\d-\d\d)\s*$/) {
@@ -45,8 +45,8 @@ while (<>) {
 	}
 	$changes =~ s/^ - ([A-Z]+): / - '''$1''' /gm;
 	$changes =~ s/([\w.-]+\(\d*\))/`$1`/gs;
-	$changes =~ s/([^'])\b([A-Z_]{2,})\b([^'])/$1`$2`$3/gs;
-	$changes =~ s/`CVE`-(\d{4}-\d+)/[$CVEURL$1 CVE-$1]/gs;
+	$changes =~ s/([^'])\b([A-Z_]{4,})\b([^'])/$1`$2`$3/gs;
+	$changes =~ s/(CVE-\d{4}-\d+)/[$CVEURL$1 $1]/gs;
 	$changes =~ s/([.!?])\n +(\w)/$1  $2/gs;
 	$changes =~ s/(\S)\n +(\S)/$1 $2/gs;
 	open(my $fh, ">", "$relname.txt")
