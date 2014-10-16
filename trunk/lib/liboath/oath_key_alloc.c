@@ -60,7 +60,7 @@ oath_key_alloc(void)
 #ifdef MAP_NOCORE
 	flags |= MAP_NOCORE;
 #endif
-	if ((key = mmap(NULL, sizeof *key, prot, flags, -1, 0)) != NULL) {
+	if ((key = mmap(NULL, sizeof *key, prot, flags, -1, 0)) != MAP_FAILED) {
 		memset(key, 0, sizeof *key);
 		key->mapped = 1;
 		if (mlock(key, sizeof *key) == 0)
