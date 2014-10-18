@@ -55,13 +55,13 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 {
 	char *word;
 	size_t size, len;
-	int ch, comment, escape, quote;
+	int ch, escape, quote;
 	int serrno;
 
 	errno = 0;
 
 	/* skip initial whitespace */
-	comment = escape = quote = 0;
+	escape = quote = 0;
 	while ((ch = getc(f)) != EOF) {
 		if (ch == '\n') {
 			/* either EOL or line continuation */
