@@ -92,6 +92,24 @@ oathkey_print_uri(struct oath_key *key)
 }
 
 /*
+ * Load key from file
+ */
+static int
+oathkey_load(struct oath_key **key)
+{
+
+	if (verbose)
+		warnx("loading key from %s", keyfile);
+	if ((*key = oath_key_from_file(keyfile)) == NULL) {
+		warn("%s", keyfile);
+		if (errno == EACCES || errno == EPERM)
+			return (RET_UNAUTH);
+		return (RET_ERROR);
+	}
+	return (RET_SUCCESS);
+}
+
+/*
  * Save key to file
  * XXX liboath should take care of this for us
  */
@@ -183,10 +201,8 @@ oathkey_getkey(int argc, char *argv[])
 	(void)argv;
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-	if (verbose)
-		warnx("loading key from %s", keyfile);
-	if ((key = oath_key_from_file(keyfile)) == NULL)
-		return (RET_ERROR);
+	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
+		return (ret);
 	ret = oathkey_print_hex(key);
 	oath_key_free(key);
 	return (ret);
@@ -206,10 +222,8 @@ oathkey_geturi(int argc, char *argv[])
 	(void)argv;
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-	if (verbose)
-		warnx("loading key from %s", keyfile);
-	if ((key = oath_key_from_file(keyfile)) == NULL)
-		return (RET_ERROR);
+	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
+		return (ret);
 	ret = oathkey_print_uri(key);
 	oath_key_free(key);
 	return (ret);
@@ -228,10 +242,8 @@ oathkey_verify(int argc, char *argv[])
 
 	if (argc < 1)
 		return (RET_USAGE);
-	if (verbose)
-		warnx("loading key from %s", keyfile);
-	if ((key = oath_key_from_file(keyfile)) == NULL)
-		return (RET_ERROR);
+	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
+		return (ret);
 	response = strtoul(*argv, &end, 10);
 	if (end == *argv || *end != '\0')
 		response = ULONG_MAX; /* never valid */
@@ -257,6 +269,40 @@ oathkey_verify(int argc, char *argv[])
 }
 
 /*
+ * Compute the current code
+ */
+static int
+oathkey_calc(int argc, char *argv[])
+{
+	struct oath_key *key;
+	unsigned int current;
+	int ret;
+
+	if (argc != 0)
+		return (RET_USAGE);
+	(void)argv;
+	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
+		return (ret);
+	if (key->mode == om_totp)
+		current = oath_totp_current(key);
+	else if (key->mode == om_hotp)
+		current = oath_hotp_current(key);
+	else
+		current = -1;
+	if (current == (unsigned int)-1) {
+		warnx("OATH error");
+		ret = RET_ERROR;
+	} else {
+		printf("%.*d\n", (int)key->digits, current);
+		ret = RET_SUCCESS;
+		if (writeback)
+			ret = oathkey_save(key);
+	}
+	oath_key_free(key);
+	return (ret);
+}
+
+/*
  * Print usage string and exit.
  */
 static void
@@ -266,6 +312,7 @@ usage(void)
 	    "usage: oathkey [-hvw] [-u user] [-k keyfile] <command>\n"
 	    "\n"
 	    "Commands:\n"
+	    "    calc        Print the current code\n"
 	    "    genkey      Generate a new key\n"
 	    "    getkey      Print the key in hexadecimal form\n"
 	    "    geturi      Print the key in otpauth URI form\n"
@@ -354,10 +401,12 @@ main(int argc, char *argv[])
 	 */
 	if (strcmp(cmd, "help") == 0)
 		ret = RET_USAGE;
+	else if (strcmp(cmd, "calc") == 0)
+		ret = oathkey_calc(argc, argv);
 	else if (strcmp(cmd, "genkey") == 0)
 		ret = oathkey_genkey(argc, argv);
 	else if (strcmp(cmd, "getkey") == 0)
-		ret = oathkey_getkey(argc, argv);	
+		ret = oathkey_getkey(argc, argv);
 	else if (strcmp(cmd, "geturi") == 0 || strcmp(cmd, "uri") == 0)
 		ret = oathkey_geturi(argc, argv);
 	else if (strcmp(cmd, "setkey") == 0)
