@@ -169,19 +169,6 @@ T_FUNC(multiple_whitespace, "multiple whitespace")
 	return (ret);
 }
 
-T_FUNC(line_continuation_in_whitespace, "line continuation in whitespace")
-{
-	struct t_file *tf;
-	int ret;
-
-	tf = t_fopen(NULL);
-	t_fprintf(tf, " \\\n \n");
-	t_frewind(tf);
-	ret = orw_expect(tf, NULL, 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
-	t_fclose(tf);
-	return (ret);
-}
-
 T_FUNC(comment, "comment")
 {
 	struct t_file *tf;
@@ -899,6 +886,64 @@ T_FUNC(escaped_double_quote_within_double_quotes,
 
 
 /***************************************************************************
+ * Line continuation
+ */
+
+T_FUNC(line_continuation_within_whitespace, "line continuation within whitespace")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, " \\\n \n");
+	t_frewind(tf);
+	ret = orw_expect(tf, NULL, 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(line_continuation_before_whitespace, "line continuation before whitespace")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "xyzzy\\\n \n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(tf, NULL, 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(line_continuation_after_whitespace, "line continuation after whitespace")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, " \\\nxyzzy\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+T_FUNC(line_continuation_within_word, "line continuation within word")
+{
+	struct t_file *tf;
+	int ret;
+
+	tf = t_fopen(NULL);
+	t_fprintf(tf, "xyz\\\nzy\n");
+	t_frewind(tf);
+	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	t_fclose(tf);
+	return (ret);
+}
+
+
+/***************************************************************************
  * Boilerplate
  */
 
@@ -908,7 +953,6 @@ const struct t_test *t_plan[] = {
 	T(unterminated_line),
 	T(single_whitespace),
 	T(multiple_whitespace),
-	T(line_continuation_in_whitespace),
 	T(comment),
 	T(whitespace_before_comment),
 	T(single_quoted_comment),
@@ -964,6 +1008,11 @@ const struct t_test *t_plan[] = {
 	T(escaped_double_quote_within_single_quotes),
 	T(escaped_single_quote_within_double_quotes),
 	T(escaped_double_quote_within_double_quotes),
+
+	T(line_continuation_within_whitespace),
+	T(line_continuation_before_whitespace),
+	T(line_continuation_after_whitespace),
+	T(line_continuation_within_word),
 
 	NULL
 };
