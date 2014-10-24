@@ -947,7 +947,7 @@ T_FUNC(line_continuation_within_word, "line continuation within word")
  * Boilerplate
  */
 
-const struct t_test *t_plan[] = {
+static const struct t_test *t_plan[] = {
 	T(empty_input),
 	T(empty_line),
 	T(unterminated_line),
