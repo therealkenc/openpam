@@ -895,9 +895,10 @@ T_FUNC(line_continuation_within_whitespace, "line continuation within whitespace
 	int ret;
 
 	tf = t_fopen(NULL);
-	t_fprintf(tf, " \\\n \n");
+	t_fprintf(tf, "hello \\\n world\n");
 	t_frewind(tf);
-	ret = orw_expect(tf, NULL, 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(tf, "hello", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(tf, "world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	t_fclose(tf);
 	return (ret);
 }
@@ -908,10 +909,10 @@ T_FUNC(line_continuation_before_whitespace, "line continuation before whitespace
 	int ret;
 
 	tf = t_fopen(NULL);
-	t_fprintf(tf, "xyzzy\\\n \n");
+	t_fprintf(tf, "hello\\\n world\n");
 	t_frewind(tf);
-	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect(tf, NULL, 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(tf, "hello", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(tf, "world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	t_fclose(tf);
 	return (ret);
 }
@@ -922,9 +923,10 @@ T_FUNC(line_continuation_after_whitespace, "line continuation after whitespace")
 	int ret;
 
 	tf = t_fopen(NULL);
-	t_fprintf(tf, " \\\nxyzzy\n");
+	t_fprintf(tf, "hello \\\nworld\n");
 	t_frewind(tf);
-	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(tf, "hello", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(tf, "world", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	t_fclose(tf);
 	return (ret);
 }
@@ -935,9 +937,9 @@ T_FUNC(line_continuation_within_word, "line continuation within word")
 	int ret;
 
 	tf = t_fopen(NULL);
-	t_fprintf(tf, "xyz\\\nzy\n");
+	t_fprintf(tf, "hello\\\nworld\n");
 	t_frewind(tf);
-	ret = orw_expect(tf, "xyzzy", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(tf, "helloworld", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	t_fclose(tf);
 	return (ret);
 }
