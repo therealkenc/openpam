@@ -62,6 +62,7 @@ OPENPAM_MAN = \
 	$(NULL)
 
 if WITH_OATH
+if !WITH_SYSTEM_LIBOATH
 OATH_MAN = \
 	oath_key_alloc.3 \
 	oath_key_create.3 \
@@ -72,15 +73,20 @@ OATH_MAN = \
 	oath_uri_decode.3 \
 	$(NULL)
 endif
+endif
 
 EXTRA_DIST = openpam.man pam.man
 
+if !WITH_SYSTEM_LIBPAM
 PAMCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN)
 PAMXMAN = openpam.3 pam.3
+endif
 
 if WITH_OATH
+if !WITH_SYSTEM_LIBOATH
 OATHCMAN = $(OATH_MAN)
 OATHXMAN = oath.3
+endif
 endif
 
 ALLCMAN = $(PAMCMAN) $(OATHCMAN)
@@ -107,8 +113,10 @@ SUFFIXES = .3
 	perl -w $(GENDOC) $< || rm $@
 
 if WITH_OATH
+if !WITH_SYSTEM_LIBOATH
 oath.3: $(OATH_MAN) $(GENDOC) $(srcdir)/oath.man
 	perl -w $(GENDOC) -a $(OATH_MAN) <$(srcdir)/oath.man || rm $@
+endif
 endif
 
 openpam.3: $(OPENPAM_MAN) $(GENDOC) $(srcdir)/openpam.man

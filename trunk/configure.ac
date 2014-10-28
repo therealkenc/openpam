@@ -85,6 +85,18 @@ AC_ARG_WITH(su,
     [with_su=no])
 AM_CONDITIONAL([WITH_SU], [test x"$with_su" = x"yes"])
 
+AC_ARG_WITH(system-libpam,
+    AC_HELP_STRING([--with-system-libpam], [use system libpam]),
+    [],
+    [with_system_libpam=no])
+AM_CONDITIONAL([WITH_SYSTEM_LIBPAM], [test x"$with_system_libpam" = x"yes"])
+
+AC_ARG_WITH(system-liboath,
+    AC_HELP_STRING([--with-system-liboath], [use system liboath]),
+    [],
+    [with_system_liboath=no])
+AM_CONDITIONAL([WITH_SYSTEM_LIBOATH], [test x"$with_system_liboath" = x"yes"])
+
 AC_CHECK_HEADERS([crypt.h])
 
 AC_CHECK_FUNCS([asprintf vasprintf])
@@ -113,6 +125,20 @@ AC_CHECK_LIB([crypto], [HMAC_CTX_init])
 CRYPTO_LIBS="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(CRYPTO_LIBS)
+
+saved_LIBS="${LIBS}"
+LIBS=""
+AC_CHECK_LIB([pam], [pam_start])
+SYSTEM_LIBPAM="${LIBS}"
+LIBS="${saved_LIBS}"
+AC_SUBST(SYSTEM_LIBPAM)
+
+saved_LIBS="${LIBS}"
+LIBS=""
+AC_CHECK_LIB([oath], [oath_key_alloc])
+SYSTEM_LIBOATH="${LIBS}"
+LIBS="${saved_LIBS}"
+AC_SUBST(SYSTEM_LIBOATH)
 
 AC_ARG_ENABLE([developer-warnings],
     AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),

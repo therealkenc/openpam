@@ -19,7 +19,16 @@ check_LIBRARIES = libt.a
 libt_a_SOURCES = t_main.c t_file.c
 
 # link with libpam and libt
-LDADD = libt.a $(top_builddir)/lib/libpam/libpam.la
+LDADD = libt.a
+if WITH_SYSTEM_LIBPAM
+LDADD += $(SYSTEM_LIBPAM)
+else
+LDADD += $(top_builddir)/lib/libpam/libpam.la
+endif
 if WITH_OATH
+if WITH_SYSTEM_LIBOATH
+LDADD += $(SYSTEM_LIBOATH)
+else
 LDADD += $(top_builddir)/lib/liboath/liboath.la
+endif
 endif
