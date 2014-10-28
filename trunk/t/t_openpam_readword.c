@@ -897,8 +897,8 @@ T_FUNC(line_continuation_within_whitespace, "line continuation within whitespace
 	tf = t_fopen(NULL);
 	t_fprintf(tf, "hello \\\n world\n");
 	t_frewind(tf);
-	ret = orw_expect(tf, "hello", 1 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
-	    orw_expect(tf, "world", 0 /*lines*/, 0 /*eof*/, 1 /*eol*/);
+	ret = orw_expect(tf, "hello", 0 /*lines*/, 0 /*eof*/, 0 /*eol*/) &&
+	    orw_expect(tf, "world", 1 /*lines*/, 0 /*eof*/, 1 /*eol*/);
 	t_fclose(tf);
 	return (ret);
 }
