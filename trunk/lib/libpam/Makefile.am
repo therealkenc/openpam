@@ -79,8 +79,8 @@ libpam_la_SOURCES = \
 	pam_vprompt.c \
 	$(NULL)
 
-libpam_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
-libpam_la_LIBADD = @DL_LIBS@
+libpam_la_LDFLAGS = -no-undefined -version-info $(LIB_MAJ)
+libpam_la_LIBADD = $(DL_LIBS)
 
 EXTRA_DIST = \
 	pam_authenticate_secondary.c \

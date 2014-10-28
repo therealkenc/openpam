@@ -61,6 +61,7 @@ OPENPAM_MAN = \
 	pam_vprompt.3 \
 	$(NULL)
 
+if WITH_OATH
 OATH_MAN = \
 	oath_key_alloc.3 \
 	oath_key_create.3 \
@@ -70,11 +71,20 @@ OATH_MAN = \
 	oath_key_from_uri.3 \
 	oath_uri_decode.3 \
 	$(NULL)
+endif
 
 EXTRA_DIST = openpam.man pam.man
 
-ALLCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN) $(OATH_MAN)
-GENMAN = $(ALLCMAN) oath.3 openpam.3 pam.3
+PAMCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN)
+PAMXMAN = openpam.3 pam.3
+
+if WITH_OATH
+OATHCMAN = $(OATH_MAN)
+OATHXMAN = oath.3
+endif
+
+ALLCMAN = $(PAMCMAN) $(OATHCMAN)
+GENMAN = $(ALLCMAN) $(PAMXMAN) $(OATHXMAN)
 
 dist_man3_MANS = $(GENMAN) pam_conv.3
 
@@ -85,7 +95,9 @@ CLEANFILES = $(GENMAN)
 GENDOC = $(top_srcdir)/misc/gendoc.pl
 
 LIBPAMSRCDIR = $(top_srcdir)/lib/libpam
+if WITH_OATH
 LIBOATHSRCDIR = $(top_srcdir)/lib/liboath
+endif
 
 VPATH = $(LIBPAMSRCDIR) $(LIBOATHSRCDIR) $(srcdir)
 
@@ -94,8 +106,10 @@ SUFFIXES = .3
 .c.3: $(GENDOC)
 	perl -w $(GENDOC) $< || rm $@
 
+if WITH_OATH
 oath.3: $(OATH_MAN) $(GENDOC) $(srcdir)/oath.man
 	perl -w $(GENDOC) -a $(OATH_MAN) <$(srcdir)/oath.man || rm $@
+endif
 
 openpam.3: $(OPENPAM_MAN) $(GENDOC) $(srcdir)/openpam.man
 	perl -w $(GENDOC) -o $(OPENPAM_MAN) <$(srcdir)/openpam.man || rm $@
