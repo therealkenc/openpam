@@ -20,5 +20,5 @@ liboath_la_SOURCES = \
 	oath_key.c \
 	oath_uri_decode.c
 
-liboath_la_LDFLAGS = -no-undefined -version-info @LIB_MAJ@
-liboath_la_LIBADD = $(top_builddir)/lib/libpam/libpam.la @CRYPTO_LIBS@
+liboath_la_LDFLAGS = -no-undefined -version-info $(LIB_MAJ)
+liboath_la_LIBADD = $(top_builddir)/lib/libpam/libpam.la $(CRYPTO_LIBS)
