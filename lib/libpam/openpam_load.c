@@ -84,6 +84,7 @@ openpam_load_module(const char *modulename)
 static void
 openpam_release_module(pam_module_t *module)
 {
+
 	if (module == NULL)
 		return;
 	if (module->dlh == NULL)
@@ -104,6 +105,7 @@ openpam_release_module(pam_module_t *module)
 static void
 openpam_destroy_chain(pam_chain_t *chain)
 {
+
 	if (chain == NULL)
 		return;
 	openpam_destroy_chain(chain->next);
