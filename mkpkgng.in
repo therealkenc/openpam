@@ -61,8 +61,6 @@ yesno() {
 # Locate source and build directory
 #
 srcdir="@abs_top_srcdir@"
-[ -f "$srcdir/include/security/openpam.h" ] || \
-    error "Unable to locate source directory."
 builddir="@abs_top_builddir@"
 cd "$srcdir"
 
