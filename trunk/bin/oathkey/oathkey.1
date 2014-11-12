@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd October 22, 2014
+.Dd November 11, 2014
 .Dt OATHKEY 1
 .Os
 .Sh NAME
@@ -36,7 +36,7 @@
 .Nd OATH key management tool
 .Sh SYNOPSIS
 .Nm
-.Op Fl hvw
+.Op Fl hrvw
 .Op Fl u Ar user
 .Op Fl k Ar keyfile
 .Ar command
@@ -55,6 +55,8 @@ Print a usage message and exit.
 Specify the location of the keyfile on which to operate.
 The default is
 .Pa /var/oath/ Ns Ar user Ns Pa .otpauth .
+.It Fl r
+Disable writeback mode.
 .It Fl u Ar user
 Specify the user on which to operate.
 The default is the current user.
@@ -63,6 +65,7 @@ Only root may operate on other users.
 Enable verbose mode.
 .It Fl w
 Enable writeback mode (see below).
+This is the default.
 .El
 .Pp
 The commands are:
