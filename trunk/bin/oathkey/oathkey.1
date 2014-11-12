@@ -82,6 +82,11 @@ printed to standard output.
 Print the user's key.
 .It Cm geturi
 Print the user's key in otpauth URI form.
+.It Cm resync Ar code1 Ar code2
+Resynchronize an event-mode token that has moved too far ahead of the
+validation server.
+The codes provided must be two consecutive codes within the
+resynchronization window.
 .It Cm setkey Ar uri
 Set the user's key to the given otpauth URI.
 .It Cm uri
