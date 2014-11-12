@@ -55,7 +55,7 @@ enum { RET_SUCCESS, RET_FAILURE, RET_ERROR, RET_USAGE, RET_UNAUTH };
 static char *user;
 static char *keyfile;
 static int verbose;
-static int writeback;
+static int readonly;
 
 static int isroot;		/* running as root */
 static int issameuser;		/* real user same as target user */
@@ -160,7 +160,7 @@ oathkey_genkey(int argc, char *argv[])
 		return (RET_UNAUTH);
 	if ((key = oath_key_create(user, om_totp, oh_undef, NULL, 0)) == NULL)
 		return (RET_ERROR);
-	ret = writeback ? oathkey_save(key) : oathkey_print_uri(key);
+	ret = readonly ? oathkey_print_uri(key) : oathkey_save(key);
 	oath_key_free(key);
 	return (ret);
 }
@@ -261,9 +261,7 @@ oathkey_verify(int argc, char *argv[])
 	if (verbose)
 		warnx("response: %lu %s", response,
 		    match ? "matched" : "did not match");
-	ret = match ? RET_SUCCESS : RET_FAILURE;
-	if (match && writeback)
-		ret = oathkey_save(key);
+	ret = match ? readonly ? RET_SUCCESS : oathkey_save(key) : RET_FAILURE;
 	oath_key_free(key);
 	return (ret);
 }
@@ -294,9 +292,7 @@ oathkey_calc(int argc, char *argv[])
 		ret = RET_ERROR;
 	} else {
 		printf("%.*d\n", (int)key->digits, current);
-		ret = RET_SUCCESS;
-		if (writeback)
-			ret = oathkey_save(key);
+		ret = readonly ? RET_SUCCESS : oathkey_save(key);
 	}
 	oath_key_free(key);
 	return (ret);
@@ -337,6 +333,9 @@ main(int argc, char *argv[])
 		case 'k':
 			keyfile = optarg;
 			break;
+		case 'r':
+			readonly = 1;
+			break;
 		case 'u':
 			user = optarg;
 			break;
@@ -344,7 +343,7 @@ main(int argc, char *argv[])
 			++verbose;
 			break;
 		case 'w':
-			++writeback;
+			readonly = 0;
 			break;
 		case 'h':
 		default:
