@@ -236,7 +236,7 @@ static int
 oathkey_verify(int argc, char *argv[])
 {
 	struct oath_key *key;
-	unsigned long response;
+	unsigned long counter, response;
 	char *end;
 	int match, ret;
 
@@ -247,12 +247,19 @@ oathkey_verify(int argc, char *argv[])
 	response = strtoul(*argv, &end, 10);
 	if (end == *argv || *end != '\0')
 		response = ULONG_MAX; /* never valid */
-	if (key->mode == om_totp)
+	switch (key->mode) {
+	case om_totp:
 		match = oath_totp_match(key, response, 3 /* XXX window */);
-	else if (key->mode == om_hotp)
+		break;
+	case om_hotp:
+		counter = key->counter;
 		match = oath_hotp_match(key, response, 17 /* XXX window */);
-	else
+		if (verbose && match > 0 && key->counter > counter + 1)
+			warnx("skipped %lu codes", key->counter - counter - 1);
+		break;
+	default:
 		match = -1;
+	}
 	/* oath_*_match() return -1 on error, 0 on failure, 1 on success */
 	if (match < 0) {
 		warnx("OATH error");
@@ -299,6 +306,52 @@ oathkey_calc(int argc, char *argv[])
 }
 
 /*
+ * Resynchronize
+ */
+static int
+oathkey_resync(int argc, char *argv[])
+{
+	struct oath_key *key;
+	unsigned long counter, response[2];
+	char *end;
+	int i, match, ret;
+
+	if (argc != 2)
+		return (RET_USAGE);
+	for (i = 0; i < argc; ++i) {
+		response[i] = strtoul(argv[i], &end, 10);
+		if (end == argv[i] || *end != '\0')
+			response[i] = ULONG_MAX; /* never valid */
+	}
+	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
+		return (ret);
+	switch (key->mode) {
+	case om_hotp:
+		counter = key->counter;
+		match = oath_hotp_match(key, response[0], 99 /* XXX window */);
+		if (match > 0)
+			match = oath_hotp_match(key, response[1], 1);
+		if (verbose && match > 0)
+			warnx("skipped %lu codes", key->counter - counter - 1);
+		break;
+	case om_totp:
+		match = 1;
+		break;
+	default:
+		match = -1;
+	}
+	if (match < 0) {
+		warnx("OATH error");
+		match = 0;
+	}
+	if (verbose)
+		warnx("resynchronization %s", match ? "succeeded" : "failed");
+	ret = match ? readonly ? RET_SUCCESS : oathkey_save(key) : RET_FAILURE;
+	oath_key_free(key);
+	return (ret);
+}
+
+/*
  * Print usage string and exit.
  */
 static void
@@ -312,6 +365,7 @@ usage(void)
 	    "    genkey      Generate a new key\n"
 	    "    getkey      Print the key in hexadecimal form\n"
 	    "    geturi      Print the key in otpauth URI form\n"
+	    "    resync      Resynchronize an HOTP token\n"
 	    "    setkey      Generate a new key\n"
 	    "    verify <response>\n"
 	    "                Verify a response\n");
@@ -408,6 +462,8 @@ main(int argc, char *argv[])
 		ret = oathkey_getkey(argc, argv);
 	else if (strcmp(cmd, "geturi") == 0 || strcmp(cmd, "uri") == 0)
 		ret = oathkey_geturi(argc, argv);
+	else if (strcmp(cmd, "resync") == 0)
+		ret = oathkey_resync(argc, argv);
 	else if (strcmp(cmd, "setkey") == 0)
 		ret = oathkey_setkey(argc, argv);
 	else if (strcmp(cmd, "verify") == 0)
