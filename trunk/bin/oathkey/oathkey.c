@@ -358,7 +358,7 @@ static void
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: oathkey [-hvw] [-u user] [-k keyfile] <command>\n"
+	    "usage: oathkey [-hrvw] [-u user] [-k keyfile] <command>\n"
 	    "\n"
 	    "Commands:\n"
 	    "    calc        Print the current code\n"
@@ -382,7 +382,7 @@ main(int argc, char *argv[])
 	/*
 	 * Parse command-line options
 	 */
-	while ((opt = getopt(argc, argv, "hk:u:vw")) != -1)
+	while ((opt = getopt(argc, argv, "hk:ru:vw")) != -1)
 		switch (opt) {
 		case 'k':
 			keyfile = optarg;
