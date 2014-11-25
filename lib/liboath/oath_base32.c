@@ -87,7 +87,7 @@ static const char b32dec[256] = {
 int
 base32_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 {
-	const uint8_t *in = (uint8_t *)cin;
+	const uint8_t *in = (const uint8_t *)cin;
 	uint64_t bits;
 
 	if (*olen <= base32_enclen(ilen)) {
@@ -163,7 +163,7 @@ base32_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 int
 base32_dec(const char *cin, size_t ilen, char *out, size_t *olen)
 {
-	const uint8_t *in = (uint8_t *)cin;
+	const uint8_t *in = (const uint8_t *)cin;
 	size_t len;
 	int bits, shift, padding;
 
