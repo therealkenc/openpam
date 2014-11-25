@@ -89,7 +89,7 @@ static const char b64dec[256] = {
 int
 base64_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 {
-	const uint8_t *in = (uint8_t *)cin;
+	const uint8_t *in = (const uint8_t *)cin;
 	uint32_t bits;
 
 	if (*olen <= base64_enclen(ilen)) {
@@ -151,7 +151,7 @@ base64_enc(const char *cin, size_t ilen, char *out, size_t *olen)
 int
 base64_dec(const char *cin, size_t ilen, char *out, size_t *olen)
 {
-	const uint8_t *in = (uint8_t *)cin;
+	const uint8_t *in = (const uint8_t *)cin;
 	size_t len;
 	int bits, shift, padding;
 
