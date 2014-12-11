@@ -18,6 +18,7 @@ liboath_la_SOURCES = \
 	oath_key_from_uri.c \
 	oath_key_free.c \
 	oath_key.c \
+	oath_mode.c \
 	oath_uri_decode.c
 
 liboath_la_LDFLAGS = -no-undefined -version-info $(LIB_MAJ)
