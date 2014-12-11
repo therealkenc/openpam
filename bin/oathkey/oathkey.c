@@ -150,15 +150,16 @@ static int
 oathkey_genkey(int argc, char *argv[])
 {
 	struct oath_key *key;
+	enum oath_mode mode;
 	int ret;
 
-	/* XXX add parameters later */
-	if (argc != 0)
+	if (argc != 1)
 		return (RET_USAGE);
-	(void)argv;
+	if ((mode = oath_mode(argv[0])) == om_undef)
+		return (RET_USAGE);
 	if (!isroot && !issameuser)
 		return (RET_UNAUTH);
-	if ((key = oath_key_create(user, om_totp, oh_undef, NULL, 0)) == NULL)
+	if ((key = oath_key_create(user, mode, oh_undef, NULL, 0)) == NULL)
 		return (RET_ERROR);
 	ret = readonly ? oathkey_print_uri(key) : oathkey_save(key);
 	oath_key_free(key);
@@ -312,25 +313,27 @@ static int
 oathkey_resync(int argc, char *argv[])
 {
 	struct oath_key *key;
-	unsigned long counter, response[2];
+	unsigned long counter, response[3];
 	char *end;
-	int i, match, ret;
+	int i, match, n, ret, w;
 
-	if (argc != 2)
+	if (argc < 2 || argc > 3)
 		return (RET_USAGE);
-	for (i = 0; i < argc; ++i) {
+	n = argc;
+	for (i = 0, w = 1; i < n; ++i) {
 		response[i] = strtoul(argv[i], &end, 10);
 		if (end == argv[i] || *end != '\0')
 			response[i] = ULONG_MAX; /* never valid */
+		w = w * 10;
 	}
 	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
 		return (ret);
 	switch (key->mode) {
 	case om_hotp:
 		counter = key->counter;
-		match = oath_hotp_match(key, response[0], 99 /* XXX window */);
-		if (match > 0)
-			match = oath_hotp_match(key, response[1], 1);
+		match = oath_hotp_match(key, response[0], w);
+		for (i = 1; i < n && match > 0; ++i)
+			match = oath_hotp_match(key, response[i], 1);
 		if (verbose && match > 0)
 			warnx("skipped %lu codes", key->counter - counter - 1);
 		break;
@@ -362,13 +365,15 @@ usage(void)
 	    "\n"
 	    "Commands:\n"
 	    "    calc        Print the current code\n"
-	    "    genkey      Generate a new key\n"
+	    "    genkey <mode>\n"
+	    "                Generate a new key\n"
 	    "    getkey      Print the key in hexadecimal form\n"
 	    "    geturi      Print the key in otpauth URI form\n"
-	    "    resync      Resynchronize an HOTP token\n"
+	    "    resync <code1> <code2> [<code3>]\n"
+	    "                Resynchronize an HOTP token\n"
 	    "    setkey      Generate a new key\n"
-	    "    verify <response>\n"
-	    "                Verify a response\n");
+	    "    verify <code>\n"
+	    "                Verify an HOTP or TOTP code\n");
 	exit(1);
 }
 

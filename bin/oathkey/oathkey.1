@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd November 11, 2014
+.Dd December 11, 2014
 .Dt OATHKEY 1
 .Os
 .Sh NAME
@@ -74,19 +74,21 @@ The commands are:
 Compute and display the current code for the given key.
 If writeback mode is enabled, the user's keyfile is updated to prevent
 reuse.
-.It Cm genkey
-Generate a new key.
+.It Cm genkey Ar hotp | totp
+Generate a new key for the specified OATH mode.
 If writeback mode is enabled, the user's key is set; otherwise, it is
 printed to standard output.
 .It Cm getkey
 Print the user's key.
 .It Cm geturi
 Print the user's key in otpauth URI form.
-.It Cm resync Ar code1 Ar code2
+.It Cm resync Ar code1 Ar code2 Op Ar code3
 Resynchronize an event-mode token that has moved too far ahead of the
 validation server.
-The codes provided must be two consecutive codes within the
+The codes provided must be consecutive codes within the
 resynchronization window.
+The resynchronization window is 100 if two codes are provided and 1000
+if three codes are provided.
 .It Cm setkey Ar uri
 Set the user's key to the given otpauth URI.
 .It Cm uri
