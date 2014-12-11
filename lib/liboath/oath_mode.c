@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2012-2014 The University of Oslo
- * Copyright (c) 2013-2014 Dag-Erling Smørgrav
+ * Copyright (c) 2014 The University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,32 +29,44 @@
  * $Id$
  */
 
-#ifndef OATH_H_INCLUDED
-#define OATH_H_INCLUDED
-
-#include <security/oath_constants.h>
-#include <security/oath_types.h>
-#include <security/oath_rfc3986.h>
-#include <security/oath_rfc4648.h>
-
-struct oath_key *oath_key_alloc(void);
-struct oath_key *oath_key_create(const char *, enum oath_mode,
-    enum oath_hash, const char *, size_t);
-void oath_key_free(struct oath_key *);
-struct oath_key *oath_key_from_uri(const char *);
-struct oath_key *oath_key_from_file(const char *);
-char *oath_key_to_uri(const struct oath_key *);
-
-struct oath_key *oath_key_dummy(enum oath_mode, enum oath_hash, unsigned int);
-
-enum oath_mode oath_mode(const char *);
-
-unsigned int oath_hotp(const uint8_t *, size_t, uint64_t, unsigned int);
-unsigned int oath_hotp_current(struct oath_key *);
-int oath_hotp_match(struct oath_key *, unsigned int, int);
-
-unsigned int oath_totp(const uint8_t *, size_t, unsigned int);
-unsigned int oath_totp_current(const struct oath_key *);
-int oath_totp_match(struct oath_key *, unsigned int, int);
-
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <strings.h>
+
+#include <security/oath.h>
+
+static const char *oath_mode_names[om_max] = {
+	[om_hotp] = "hotp",
+	[om_totp] = "totp",
+};
+
+/*
+ * OATH
+ *
+ * Converts a mode name to the corresponding enum value
+ */
+
+enum oath_mode
+oath_mode(const char *str)
+{
+	enum oath_mode om;
+
+	for (om = 0; om < om_max; ++om) {
+		if (oath_mode_names[om] != NULL &&
+		    strcasecmp(oath_mode_names[om], str) == 0) {
+			return (om);
+		}
+	}
+	return (om_undef);
+}
+
+/**
+ * The =oath_mode function returns the =enum oath_mode value that
+ * corresponds to the specified string.
+ *
+ * AUTHOR UIO
+ */

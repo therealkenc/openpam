@@ -70,6 +70,7 @@ OATH_MAN = \
 	oath_key_free.3 \
 	oath_key_from_file.3 \
 	oath_key_from_uri.3 \
+	oath_mode.3 \
 	oath_uri_decode.3 \
 	$(NULL)
 endif
