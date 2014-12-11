@@ -292,7 +292,7 @@ sub parse_source($) {
 	}
 	s/\s*=($func)\b\s*/\n.Fn $1\n/gs;
 	s/\s*=($argnames)\b\s*/\n.Fa $1\n/gs;
-	s/\s*=(struct \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
+	s/\s*=((?:enum|struct|union) \w+(?: \*)?)\b\s*/\n.Vt $1\n/gs;
 	s/\s*:([a-z][0-9a-z_]+)\b\s*/\n.Va $1\n/gs;
 	s/\s*;([a-z][0-9a-z_]+)\b\s*/\n.Dv $1\n/gs;
 	s/\s*=!([a-z][0-9a-z_]+)\b\s*/\n.Xr $1 3\n/gs;
