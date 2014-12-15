@@ -81,7 +81,7 @@ oath_totp_match(struct oath_key *k, unsigned int response, int window)
 
 	if (k == NULL)
 		return (-1);
-	if (window < 1)
+	if (window < 0)
 		return (-1);
 	if (k->mode != om_totp)
 		return (-1);

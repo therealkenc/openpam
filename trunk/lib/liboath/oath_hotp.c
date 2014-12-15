@@ -121,13 +121,13 @@ oath_hotp_match(struct oath_key *k, unsigned int response, int window)
 
 	if (k == NULL)
 		return (-1);
-	if (window < 1)
+	if (window < 0)
 		return (-1);
 	if (k->mode != om_hotp)
 		return (-1);
-	if (k->counter >= UINT64_MAX - window)
+	if (k->counter >= UINT64_MAX - window - 1)
 		return (-1);
-	for (int i = 0; i < window; ++i) {
+	for (int i = 0; i <= window; ++i) {
 		code = oath_hotp(k->key, k->keylen, k->counter + i, k->digits);
 		if (code == response && !k->dummy) {
 			k->counter = k->counter + i + 1;
