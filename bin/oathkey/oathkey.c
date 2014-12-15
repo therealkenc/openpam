@@ -354,17 +354,17 @@ oathkey_resync(int argc, char *argv[])
 	case om_hotp:
 		/* this should be a library function */
 		counter = key->counter;
-		while (key->counter < counter + w) {
+		match = 0;
+		while (key->counter < counter + w && match == 0) {
 			match = oath_hotp_match(key, response[0],
 			    counter + w - key->counter - 1);
-			warnx("%d", match);
 			if (match <= 0)
 				break;
 			for (i = 1; i < n && match > 0; ++i)
 				match = oath_hotp_match(key, response[i], 0);
 		}
 		if (verbose && match > 0)
-			warnx("skipped %lu codes", key->counter - counter - 1);
+			warnx("skipped %lu codes", key->counter - counter);
 		break;
 	default:
 		match = -1;
