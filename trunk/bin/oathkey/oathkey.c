@@ -50,6 +50,10 @@
 
 #include <security/oath.h>
 
+/* XXX hardcoded windows */
+#define HOTP_WINDOW	9
+#define TOTP_WINDOW	1
+
 enum { RET_SUCCESS, RET_FAILURE, RET_ERROR, RET_USAGE, RET_UNAUTH };
 
 static char *user;
@@ -237,7 +241,8 @@ static int
 oathkey_verify(int argc, char *argv[])
 {
 	struct oath_key *key;
-	unsigned long counter, response;
+	unsigned long counter;
+	unsigned int response;
 	char *end;
 	int match, ret;
 
@@ -247,16 +252,16 @@ oathkey_verify(int argc, char *argv[])
 		return (ret);
 	response = strtoul(*argv, &end, 10);
 	if (end == *argv || *end != '\0')
-		response = ULONG_MAX; /* never valid */
+		response = UINT_MAX; /* never valid */
 	switch (key->mode) {
-	case om_totp:
-		match = oath_totp_match(key, response, 3 /* XXX window */);
-		break;
 	case om_hotp:
 		counter = key->counter;
-		match = oath_hotp_match(key, response, 17 /* XXX window */);
+		match = oath_hotp_match(key, response, HOTP_WINDOW);
 		if (verbose && match > 0 && key->counter > counter + 1)
 			warnx("skipped %lu codes", key->counter - counter - 1);
+		break;
+	case om_totp:
+		match = oath_totp_match(key, response, TOTP_WINDOW);
 		break;
 	default:
 		match = -1;
@@ -267,7 +272,7 @@ oathkey_verify(int argc, char *argv[])
 		match = 0;
 	}
 	if (verbose)
-		warnx("response: %lu %s", response,
+		warnx("response: %u %s", response,
 		    match ? "matched" : "did not match");
 	ret = match ? readonly ? RET_SUCCESS : oathkey_save(key) : RET_FAILURE;
 	oath_key_free(key);
@@ -282,26 +287,41 @@ oathkey_calc(int argc, char *argv[])
 {
 	struct oath_key *key;
 	unsigned int current;
+	unsigned long i, n;
+	char *end;
 	int ret;
 
-	if (argc != 0)
+	if (argc > 1)
 		return (RET_USAGE);
-	(void)argv;
+	if (argc > 0) {
+		n = strtoul(argv[0], &end, 10);
+		if (end == argv[0] || *end != '\0')
+			return (RET_USAGE);
+	} else {
+		n = 0;
+	}
 	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
 		return (ret);
-	if (key->mode == om_totp)
-		current = oath_totp_current(key);
-	else if (key->mode == om_hotp)
-		current = oath_hotp_current(key);
-	else
-		current = -1;
-	if (current == (unsigned int)-1) {
-		warnx("OATH error");
-		ret = RET_ERROR;
-	} else {
+	for (i = 0; i <= n; ++i) {
+		switch (key->mode) {
+		case om_hotp:
+			current = oath_hotp_current(key);
+			break;
+		case om_totp:
+			current = oath_totp_current(key);
+			break;
+		default:
+			current = UINT_MAX;
+		}
+		if (current == UINT_MAX) {
+			warnx("OATH error");
+			ret = RET_ERROR;
+			break;
+		}
 		printf("%.*d\n", (int)key->digits, current);
-		ret = readonly ? RET_SUCCESS : oathkey_save(key);
 	}
+	if (ret == RET_SUCCESS && !readonly)
+		ret = oathkey_save(key);
 	oath_key_free(key);
 	return (ret);
 }
@@ -313,7 +333,8 @@ static int
 oathkey_resync(int argc, char *argv[])
 {
 	struct oath_key *key;
-	unsigned long counter, response[3];
+	unsigned long counter;
+	unsigned int response[3];
 	char *end;
 	int i, match, n, ret, w;
 
@@ -323,22 +344,27 @@ oathkey_resync(int argc, char *argv[])
 	for (i = 0, w = 1; i < n; ++i) {
 		response[i] = strtoul(argv[i], &end, 10);
 		if (end == argv[i] || *end != '\0')
-			response[i] = ULONG_MAX; /* never valid */
-		w = w * 10;
+			response[i] = UINT_MAX; /* never valid */
+		w = w * (HOTP_WINDOW + 1);
 	}
+	w -= n;
 	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
 		return (ret);
 	switch (key->mode) {
 	case om_hotp:
+		/* this should be a library function */
 		counter = key->counter;
-		match = oath_hotp_match(key, response[0], w);
-		for (i = 1; i < n && match > 0; ++i)
-			match = oath_hotp_match(key, response[i], 1);
+		while (key->counter < counter + w) {
+			match = oath_hotp_match(key, response[0],
+			    counter + w - key->counter - 1);
+			warnx("%d", match);
+			if (match <= 0)
+				break;
+			for (i = 1; i < n && match > 0; ++i)
+				match = oath_hotp_match(key, response[i], 0);
+		}
 		if (verbose && match > 0)
 			warnx("skipped %lu codes", key->counter - counter - 1);
-		break;
-	case om_totp:
-		match = 1;
 		break;
 	default:
 		match = -1;
@@ -361,18 +387,19 @@ static void
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: oathkey [-hrvw] [-u user] [-k keyfile] <command>\n"
+	    "usage: oathkey [-hrvw] [-u user] [-k keyfile] command\n"
 	    "\n"
 	    "Commands:\n"
-	    "    calc        Print the current code\n"
-	    "    genkey <mode>\n"
+	    "    calc [count]\n"
+            "                Print the next code(s)\n"
+	    "    genkey hotp | totp\n"
 	    "                Generate a new key\n"
 	    "    getkey      Print the key in hexadecimal form\n"
 	    "    geturi      Print the key in otpauth URI form\n"
-	    "    resync <code1> <code2> [<code3>]\n"
+	    "    resync code1 code2 [code3]\n"
 	    "                Resynchronize an HOTP token\n"
 	    "    setkey      Generate a new key\n"
-	    "    verify <code>\n"
+	    "    verify code\n"
 	    "                Verify an HOTP or TOTP code\n");
 	exit(1);
 }
