@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd December 11, 2014
+.Dd December 15, 2014
 .Dt OATHKEY 1
 .Os
 .Sh NAME
@@ -70,8 +70,11 @@ This is the default.
 .Pp
 The commands are:
 .Bl -tag -width 6n
-.It Cm calc
+.It Cm calc Op Ar count
 Compute and display the current code for the given key.
+If a count is specified, compute and display
+.Ar count
+additional codes.
 If writeback mode is enabled, the user's keyfile is updated to prevent
 reuse.
 .It Cm genkey Ar hotp | totp
@@ -100,6 +103,19 @@ user's key.
 If writeback mode is enabled and the response matched, the user's
 keyfile is updated to prevent reuse.
 .El
+.Sh EXIT STATUS
+The
+.Cm verify
+command exits 0 if the code is valid, 1 if it is invalid and >1 if an
+error occurred.
+.Pp
+The
+.Cm resync
+command exits 0 if resynchronization was successful, 1 if it failed or
+the specified key does not support resynchronization, and >1 if an
+error occurred.
+.Pp
+All other commands exit 0 if successful and >1 if an error occurred.
 .Sh SEE ALSO
 .Xr oath_hotp 3 ,
 .Xr oath_key 3 ,
