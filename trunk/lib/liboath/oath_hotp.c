@@ -36,6 +36,7 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -98,11 +99,11 @@ oath_hotp_current(struct oath_key *k)
 	unsigned int code;
 
 	if (k == NULL)
-		return (-1);
+		return (UINT_MAX);
 	if (k->mode != om_hotp)
-		return (-1);
+		return (UINT_MAX);
 	if (k->counter == UINT64_MAX)
-		return (-1);
+		return (UINT_MAX);
 	code = oath_hotp(k->key, k->keylen, k->counter, k->digits);
 	k->counter += 1;
 	return (code);
