@@ -10,6 +10,19 @@ set -ex
 # autoconf prior to 2.62 has issues with zsh 4.2 and newer
 export CONFIG_SHELL=/bin/sh
 
+# BullseyeCoverage needs to know exactly which compiler we're using
+if [ -z "$CC" -a -z "$CPP" -a -z "$CXX" ] ; then
+	if $(which clang clang++ >/dev/null) ; then
+		export CC=${CC:-clang}
+		export CPP=${CPP:-clang -E}
+		export CXX=${CXX:-clang++}
+	elif $(which gcc g++ >/dev/null) ; then
+		export CC=${CC:-gcc}
+		export CPP=${CPP:-gcc -E}
+		export CXX=${CXX:-g++}
+	fi
+fi
+
 ./configure \
 	--with-oath \
 	--with-doc \
