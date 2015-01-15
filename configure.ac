@@ -171,6 +171,5 @@ AC_CONFIG_FILES([
     modules/pam_oath/Makefile
     t/Makefile
 ])
-AC_CONFIG_FILES([pamgdb],[chmod +x pamgdb])
 AC_CONFIG_FILES([mkpkgng],[chmod +x mkpkgng])
 AC_OUTPUT
