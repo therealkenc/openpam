@@ -175,11 +175,10 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 {
 	enum pam_oath_nokey nokey, badkey;
 	struct passwd *pwd;
-	const char *user;
-	char *keyfile;
+	const char *user, *password;
+	char *end, *keyfile;
 	struct oath_key *key;
 	unsigned long response;
-	char *password, *end;
 	int pam_err, ret, window;
 
 	/* unused */
@@ -247,7 +246,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
 
 	/* get user's response */
 	pam_err = pam_get_authtok(pamh, PAM_AUTHTOK,
-	    (const char **)&password, PAM_OATH_PROMPT);
+	    &password, PAM_OATH_PROMPT);
 	if (pam_err != PAM_SUCCESS) {
 		openpam_log(PAM_LOG_VERBOSE, "conversation failure");
 		goto done;
