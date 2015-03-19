@@ -63,7 +63,6 @@ oath_uri_decode(const char *in, size_t ilen, char *out, size_t olen)
 			if (out != NULL && opos < olen - 1)
 				out[opos] = unhex(in[ipos + 1]) * 16 +
 				    unhex(in[ipos + 2]);
-			ilen += 2;
 			ipos += 2;
 		} else {
 			if (out != NULL && opos < olen - 1)

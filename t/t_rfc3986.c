@@ -54,16 +54,26 @@ struct t_case {
 };
 
 /* basic encoding / decoding */
-#define T_ENCODE4(d, i, il, o, ol)					\
+#define T_ENCODE6(d, i, il, o, ol)					\
 	{ .func = oath_uri_encode, .desc = d,				\
 	  .in = i, .ilen = il, .out = o, .olen = ol }
+#define T_ENCODE5(d, i, il, o, ol)					\
+	T_ENCODE6(d, i, il, o, ol)
+#define T_ENCODE4(d, i, il, o)						\
+	T_ENCODE5(d, i, il, o, sizeof o)
 #define T_ENCODE(d, i, o)						\
-	T_ENCODE4(d, i, sizeof(i) - 1, o, sizeof(o))
-#define T_DECODE4(d, i, il, o, ol)					\
+	T_ENCODE4(d, i, sizeof i - 1, o)
+
+#define T_DECODE6(d, i, il, o, ol)					\
 	{ .func = oath_uri_decode, .desc = d,				\
 	  .in = i, .ilen = il, .out = o, .olen = ol }
+#define T_DECODE5(d, i, il, o, ol)					\
+	T_DECODE6(d, i, il, o, ol)
+#define T_DECODE4(d, i, il, o)						\
+	T_DECODE5(d, i, il, o, sizeof o)
 #define T_DECODE(d, i, o)						\
-	T_DECODE4(d, i, sizeof(i) - 1, o, sizeof(o))
+	T_DECODE4(d, i, sizeof i - 1, o)
+
 #define T_ENCDEC(d, i, o)						\
 	T_ENCODE(d " enc", i, o), T_DECODE(d " dec", o, i)
 
@@ -76,6 +86,9 @@ static struct t_case t_cases[] = {
 	T_DECODE("prefix",		"x%20",		"x "),
 	T_DECODE("suffix",		"%20x",		" x"),
 	T_DECODE("surrounded",		"x%20x",	"x x"),
+
+	/* input overflow */
+	T_DECODE4("short",		"%20xy", 4,	" x"),
 
 	/* partials */
 	T_DECODE("partial, one",	"%",		"%"),
