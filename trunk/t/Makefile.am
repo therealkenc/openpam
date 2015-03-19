@@ -10,7 +10,7 @@ TESTS += t_openpam_ctype
 TESTS += t_openpam_readword
 TESTS += t_openpam_readlinev
 if WITH_OATH
-TESTS += t_rfc4648
+TESTS += t_rfc3986 t_rfc4648
 endif
 check_PROGRAMS = $(TESTS)
 
