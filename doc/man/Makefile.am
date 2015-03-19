@@ -76,7 +76,7 @@ OATH_MAN = \
 endif
 endif
 
-EXTRA_DIST = openpam.man pam.man
+EXTRA_DIST = oath.man openpam.man pam.man
 
 if !WITH_SYSTEM_LIBPAM
 PAMCMAN = $(PAM_MAN) $(MOD_MAN) $(OPENPAM_MAN)
