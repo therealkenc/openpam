@@ -58,12 +58,13 @@ oath_uri_decode(const char *in, size_t ilen, char *out, size_t olen)
 	if (ilen == 0)
 		ilen = strlen(in);
 	for (ipos = opos = 0; ipos < ilen && in[ipos] != '\0'; ++ipos, ++opos) {
-		if (in[ipos] == '%' &&
+		if (in[ipos] == '%' && ipos + 2 < ilen &&
 		    is_xdigit(in[ipos + 1]) && is_xdigit(in[ipos + 2])) {
 			if (out != NULL && opos < olen - 1)
 				out[opos] = unhex(in[ipos + 1]) * 16 +
 				    unhex(in[ipos + 2]);
 			ilen += 2;
+			ipos += 2;
 		} else {
 			if (out != NULL && opos < olen - 1)
 				out[opos] = in[ipos];
