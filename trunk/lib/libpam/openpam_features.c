@@ -65,4 +65,9 @@ struct openpam_feature openpam_features[OPENPAM_NUM_FEATURES] = {
 	    "Verify ownership and permissions of module files",
 	    1
 	),
+	STRUCT_OPENPAM_FEATURE(
+	    FALLBACK_TO_OTHER,
+	    "Fall back to \"other\" policy for empty chains",
+	    1
+	),
 };

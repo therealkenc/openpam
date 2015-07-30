@@ -467,8 +467,10 @@ openpam_configure(pam_handle_t *pamh,
 	for (fclt = 0; fclt < PAM_NUM_FACILITIES; ++fclt) {
 		if (pamh->chains[fclt] != NULL)
 			continue;
-		if (openpam_load_chain(pamh, PAM_OTHER, fclt) < 0)
-			goto load_err;
+		if (OPENPAM_FEATURE(FALLBACK_TO_OTHER)) {
+			if (openpam_load_chain(pamh, PAM_OTHER, fclt) < 0)
+				goto load_err;
+		}
 	}
 	RETURNC(PAM_SUCCESS);
 load_err:
