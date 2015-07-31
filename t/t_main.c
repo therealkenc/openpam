@@ -70,7 +70,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	const struct t_test **t_plan;
+	struct t_test **t_plan;
 	const char *desc;
 	int n, pass, fail;
 	int opt;

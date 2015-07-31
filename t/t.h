@@ -42,13 +42,13 @@ struct t_test {
 
 #define T_FUNC(n, d)				\
 	static int t_ ## n ## _func(void *);	\
-	static const struct t_test t_ ## n =	\
+	static struct t_test t_ ## n =	\
 	    { t_ ## n ## _func, d, NULL };	\
 	static int t_ ## n ## _func(OPENPAM_UNUSED(void *arg))
 
 #define T_FUNC_ARG(n, d, a)			\
 	static int t_ ## n ## _func(void *);	\
-	static const struct t_test t_ ## n =	\
+	static struct t_test t_ ## n =	\
 	    { t_ ## n ## _func, d, a };		\
 	static int t_ ## n ## _func(void *arg)
 
@@ -57,7 +57,7 @@ struct t_test {
 
 extern const char *t_progname;
 
-const struct t_test **t_prepare(int, char **);
+struct t_test **t_prepare(int, char **);
 void t_cleanup(void);
 
 void t_verbose(const char *, ...)
