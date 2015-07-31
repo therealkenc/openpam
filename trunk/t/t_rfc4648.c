@@ -219,7 +219,7 @@ t_rfc4648(void *arg)
 /*
  * Generate the test plan
  */
-const struct t_test **
+struct t_test **
 t_prepare(int argc, char *argv[])
 {
 	struct t_test **plan, *tests;
@@ -238,7 +238,7 @@ t_prepare(int argc, char *argv[])
 		tests[i].arg = &t_cases[i];
 	}
 	plan[n] = NULL;
-	return ((const struct t_test **)plan);
+	return (plan);
 }
 
 /*
