@@ -41,6 +41,8 @@
 
 #include <sys/param.h>
 
+#include <stdint.h>
+
 #include <security/pam_appl.h>
 
 #include "openpam_impl.h"
