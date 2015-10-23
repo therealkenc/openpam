@@ -60,6 +60,7 @@ static char *user;
 static char *keyfile;
 static int verbose;
 static int readonly;
+static int numbered;
 
 static int isroot;		/* running as root */
 static int issameuser;		/* real user same as target user */
@@ -288,6 +289,7 @@ oathkey_calc(int argc, char *argv[])
 	struct oath_key *key;
 	unsigned int current;
 	unsigned long i, n;
+	uintmax_t count;
 	char *end;
 	int ret;
 
@@ -295,20 +297,22 @@ oathkey_calc(int argc, char *argv[])
 		return (RET_USAGE);
 	if (argc > 0) {
 		n = strtoul(argv[0], &end, 10);
-		if (end == argv[0] || *end != '\0')
+		if (end == argv[0] || *end != '\0' || n < 1)
 			return (RET_USAGE);
 	} else {
-		n = 0;
+		n = 1;
 	}
 	if ((ret = oathkey_load(&key)) != RET_SUCCESS)
 		return (ret);
-	for (i = 0; i <= n; ++i) {
+	for (i = 0; i < n; ++i) {
 		switch (key->mode) {
 		case om_hotp:
 			current = oath_hotp_current(key);
+			count = key->counter;
 			break;
 		case om_totp:
 			current = oath_totp_current(key);
+			count = key->lastused * key->timestep;
 			break;
 		default:
 			current = UINT_MAX;
@@ -318,6 +322,8 @@ oathkey_calc(int argc, char *argv[])
 			ret = RET_ERROR;
 			break;
 		}
+		if (numbered)
+			printf("%6ju ", count);
 		printf("%.*d\n", (int)key->digits, current);
 	}
 	if (ret == RET_SUCCESS && !readonly)
@@ -387,7 +393,7 @@ static void
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: oathkey [-hrvw] [-u user] [-k keyfile] command\n"
+	    "usage: oathkey [-hnrvw] [-u user] [-k keyfile] command\n"
 	    "\n"
 	    "Commands:\n"
 	    "    calc [count]\n"
@@ -414,10 +420,13 @@ main(int argc, char *argv[])
 	/*
 	 * Parse command-line options
 	 */
-	while ((opt = getopt(argc, argv, "hk:ru:vw")) != -1)
+	while ((opt = getopt(argc, argv, "hk:nru:vw")) != -1)
 		switch (opt) {
 		case 'k':
 			keyfile = optarg;
+			break;
+		case 'n':
+			numbered = 1;
 			break;
 		case 'r':
 			readonly = 1;
