@@ -2,7 +2,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam
 
-noinst_HEADERS = t.h
+noinst_HEADERS = t.h t_pam_conv.h
 
 # tests
 TESTS =
