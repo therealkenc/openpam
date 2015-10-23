@@ -316,6 +316,7 @@ oathkey_calc(int argc, char *argv[])
 			break;
 		default:
 			current = UINT_MAX;
+			count = 0;
 		}
 		if (current == UINT_MAX) {
 			warnx("OATH error");
