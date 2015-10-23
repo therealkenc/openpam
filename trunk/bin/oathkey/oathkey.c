@@ -52,7 +52,7 @@
 
 /* XXX hardcoded windows */
 #define HOTP_WINDOW	9
-#define TOTP_WINDOW	1
+#define TOTP_WINDOW	2
 
 enum { RET_SUCCESS, RET_FAILURE, RET_ERROR, RET_USAGE, RET_UNAUTH };
 
