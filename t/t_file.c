@@ -55,21 +55,25 @@ struct t_file *
 t_fopen(const char *filename)
 {
 	struct t_file *tf;
-	int fd;
+	int fd, dynfn;
 
 	if ((tf = calloc(sizeof *tf, 1)) == NULL)
 		err(1, "%s(): calloc()", __func__);
 	if (filename) {
-		if ((tf->name = strdup(filename)) == NULL)
-			err(1, "%s(): strdup()", __func__);
+		dynfn = 0;
 	} else {
-		asprintf(&tf->name, "%s.%lu.%p.tmp",
+		asprintf(&filename, "%s.%lu.%p.tmp",
 		    t_progname, (unsigned long)getpid(), (void *)tf);
-		if (tf->name == NULL)
+		if (filename == NULL)
 			err(1, "%s(): asprintf()", __func__);
+		dynfn = 1;
 	}
-	if ((fd = open(tf->name, O_RDWR|O_CREAT|O_TRUNC, 0600)) < 0)
+	if ((fd = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0600)) < 0)
 		err(1, "%s(): %s", __func__, tf->name);
+	if ((tf->name = realpath(filename, NULL)) == NULL)
+		err(1, "%s(): realpath()", __func__);
+	if (dynfn)
+		free(filename);
 	if ((tf->file = fdopen(fd, "r+")) == NULL)
 		err(1, "%s(): fdopen()", __func__);
 	if ((tf->next = tflist) != NULL)
@@ -92,6 +96,8 @@ t_fprintf(struct t_file *tf, const char *fmt, ...)
 	va_end(ap);
 	if (ferror(tf->file))
 		err(1, "%s(): vfprintf()", __func__);
+	if (fflush(tf->file) != 0)
+		err(1, "%s(): fflush()", __func__);
 	return (len);
 }
 
