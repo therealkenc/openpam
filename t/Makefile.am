@@ -2,6 +2,9 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam
 
+AM_TESTS_ENVIRONMENT = \
+	PAM_RETURN_SO=$(abs_top_builddir)/modules/pam_return/.libs/pam_return.so
+
 noinst_HEADERS = t.h t_pam_conv.h
 
 # tests

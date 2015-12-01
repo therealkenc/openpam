@@ -45,6 +45,28 @@
 #include "t.h"
 #include "t_pam_conv.h"
 
+const char *pam_return_so;
+
+T_FUNC(null, "null handle")
+{
+	int pam_err;
+
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+#elif __GNUC__
+#pragma gcc diagnostic push
+#pragma gcc diagnostic ignored "-Wnonnull"
+#endif
+	pam_err = pam_authenticate(NULL, 0);
+#if __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma gcc diagnostic pop
+#endif
+	return (pam_err == PAM_SYSTEM_ERR);
+}
+
 T_FUNC(empty_policy, "empty policy")
 {
 	struct t_pam_conv_script script;
@@ -89,13 +111,90 @@ T_FUNC(empty_policy, "empty policy")
 	return (ret);
 }
 
+static struct t_pam_return_case {
+	int		 facility;
+	int		 primitive;
+	int		 flags;
+	struct {
+		int		 ctlflag;
+		int		 modret;
+	} mod[2];
+	int		 result;
+} t_pam_return_cases[] = {
+	{
+		PAM_AUTH, PAM_SM_AUTHENTICATE, 0,
+		{
+			{ PAM_REQUIRED, PAM_SUCCESS },
+			{ PAM_REQUIRED, PAM_SUCCESS },
+		},
+		PAM_SUCCESS,
+	},
+};
+
+T_FUNC(mod_return, "module return value")
+{
+	struct t_pam_return_case *tc;
+	struct t_pam_conv_script script;
+	struct pam_conv pamc;
+	struct t_file *tf;
+	pam_handle_t *pamh;
+	unsigned int i, j, n;
+	int pam_err;
+
+	memset(&script, 0, sizeof script);
+	pamc.conv = &t_pam_conv;
+	pamc.appdata_ptr = &script;
+	n = sizeof t_pam_return_cases / sizeof t_pam_return_cases[0];
+	for (i = 0; i < n; ++i) {
+		tc = &t_pam_return_cases[i];
+		tf = t_fopen(NULL);
+		for (j = 0; j < 2; ++j) {
+			t_fprintf(tf, "%s %s %s error=%s\n",
+			    pam_facility_name[tc->facility],
+			    pam_control_flag_name[tc->mod[j].ctlflag],
+			    pam_return_so,
+			    pam_err_name[tc->mod[j].modret]);
+		}
+		pam_err = pam_start(tf->name, "test", &pamc, &pamh);
+		t_verbose("pam_start() returned %d\n", pam_err);
+		if (pam_err != PAM_SUCCESS)
+			continue;
+		switch (tc->primitive) {
+		case PAM_SM_AUTHENTICATE:
+			pam_err = pam_authenticate(pamh, tc->flags);
+			break;
+		case PAM_SM_SETCRED:
+			pam_err = pam_setcred(pamh, tc->flags);
+			break;
+		case PAM_SM_ACCT_MGMT:
+			pam_err = pam_acct_mgmt(pamh, tc->flags);
+			break;
+		case PAM_SM_OPEN_SESSION:
+			pam_err = pam_open_session(pamh, tc->flags);
+			break;
+		case PAM_SM_CLOSE_SESSION:
+			pam_err = pam_close_session(pamh, tc->flags);
+			break;
+		case PAM_SM_CHAUTHTOK:
+			pam_err = pam_chauthtok(pamh, tc->flags);
+			break;
+		}
+		t_verbose("%s returned %d\n",
+		    pam_func_name[tc->primitive], pam_err);
+		t_fclose(tf);
+	}
+	return (1);
+}
+
 
 /***************************************************************************
  * Boilerplate
  */
 
 static struct t_test *t_plan[] = {
+	T(null),
 	T(empty_policy),
+	T(mod_return),
 
 	NULL
 };
@@ -103,6 +202,9 @@ static struct t_test *t_plan[] = {
 struct t_test **
 t_prepare(int argc, char *argv[])
 {
+
+	if ((pam_return_so = getenv("PAM_RETURN_SO")) == NULL)
+		return (NULL);
 
 	openpam_set_feature(OPENPAM_RESTRICT_MODULE_NAME, 0);
 	openpam_set_feature(OPENPAM_VERIFY_MODULE_FILE, 0);
