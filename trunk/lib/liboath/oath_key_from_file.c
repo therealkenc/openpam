@@ -64,6 +64,7 @@ oath_key_from_file(const char *filename)
 		return (NULL);
 	/* get first non-empty non-comment line */
 	line = openpam_readline(f, NULL, &len);
+	fclose(f);
 	if (strlcmp("otpauth://", line, len) == 0) {
 		key = oath_key_from_uri(line);
 	} else {
@@ -71,7 +72,7 @@ oath_key_from_file(const char *filename)
 		    "unrecognized key file format: %s", filename);
 		key = NULL;
 	}
-	fclose(f);
+	free(line);
 	return (key);
 }
 
