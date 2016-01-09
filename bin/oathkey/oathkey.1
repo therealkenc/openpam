@@ -28,7 +28,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd October 23, 2015
+.Dd January 9, 2016
 .Dt OATHKEY 1
 .Os
 .Sh NAME
@@ -78,7 +78,8 @@ The commands are:
 Compute and display the current code for the given key.
 If a count is specified, compute and display
 .Ar count
-codes in total, starting with the current code.
+codes in total, starting with the current code, up to a maximum of
+1,000 codes.
 If writeback mode is enabled, the user's keyfile is updated to prevent
 reuse.
 .It Cm genkey Ar hotp | totp
