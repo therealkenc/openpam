@@ -55,25 +55,21 @@ struct t_file *
 t_fopen(const char *filename)
 {
 	struct t_file *tf;
-	int fd, dynfn;
+	int fd;
 
 	if ((tf = calloc(sizeof *tf, 1)) == NULL)
 		err(1, "%s(): calloc()", __func__);
 	if (filename) {
-		dynfn = 0;
+		if ((tf->name = strdup(filename)) == NULL)
+			err(1, "%s(): strdup()", __func__);
 	} else {
-		asprintf(&filename, "%s.%lu.%p.tmp",
+		asprintf(&tf->name, "%s.%lu.%p.tmp",
 		    t_progname, (unsigned long)getpid(), (void *)tf);
-		if (filename == NULL)
+		if (tf->name == NULL)
 			err(1, "%s(): asprintf()", __func__);
-		dynfn = 1;
 	}
-	if ((fd = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0600)) < 0)
+	if ((fd = open(tf->name, O_RDWR|O_CREAT|O_TRUNC, 0600)) < 0)
 		err(1, "%s(): %s", __func__, tf->name);
-	if ((tf->name = realpath(filename, NULL)) == NULL)
-		err(1, "%s(): realpath()", __func__);
-	if (dynfn)
-		free(filename);
 	if ((tf->file = fdopen(fd, "r+")) == NULL)
 		err(1, "%s(): fdopen()", __func__);
 	if ((tf->next = tflist) != NULL)
