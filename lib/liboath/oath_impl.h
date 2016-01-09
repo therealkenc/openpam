@@ -49,8 +49,8 @@
 	default:					\
 		(void)0;				\
 	COVERAGE_RESTORE
-
-#endif
 #else
 #define COVERAGE_NO_DEFAULT_CASE
+#endif
+
 #endif
