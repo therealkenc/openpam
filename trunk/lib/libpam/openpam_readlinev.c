@@ -79,6 +79,7 @@ openpam_readlinev(FILE *f, int *lineno, int *lenp)
 		/* insert our word */
 		wordv[wordvlen++] = word;
 		wordv[wordvlen] = NULL;
+		word = NULL;
 	}
 	if (errno != 0) {
 		/* I/O error or out of memory */
@@ -86,6 +87,7 @@ openpam_readlinev(FILE *f, int *lineno, int *lenp)
 		while (wordvlen--)
 			free(wordv[wordvlen]);
 		free(wordv);
+		free(word);
 		errno = serrno;
 		return (NULL);
 	}
