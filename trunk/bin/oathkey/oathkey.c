@@ -297,7 +297,7 @@ oathkey_calc(int argc, char *argv[])
 		return (RET_USAGE);
 	if (argc > 0) {
 		n = strtoul(argv[0], &end, 10);
-		if (end == argv[0] || *end != '\0' || n < 1)
+		if (end == argv[0] || *end != '\0' || n < 1 || n > 1000)
 			return (RET_USAGE);
 	} else {
 		n = 1;
