@@ -32,6 +32,10 @@
 #ifndef T_H_INCLUDED
 #define T_H_INCLUDED
 
+#if _BullseyeCoverage
+_Pragma("BullseyeCoverage save off")
+#endif
+
 #include <security/openpam_attr.h>
 
 struct t_test {
