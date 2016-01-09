@@ -162,7 +162,7 @@ pam_oath_save_key(const struct oath_key *key, const char *keyfile)
 done:
 	if (fd >= 0)
 		close(fd);
-	if (keyfile != NULL) {
+	if (keyuri != NULL) {
 		memset(keyuri, 0, len);
 		free(keyuri);
 	}
