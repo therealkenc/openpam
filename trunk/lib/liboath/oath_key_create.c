@@ -55,9 +55,9 @@ oath_key_create(const char *label,
 	struct oath_key *key;
 	int labellen;
 
-	/* check label */
+	/* check label length */
 	if (label == NULL ||
-	    (labellen = strlen(label)) > OATH_MAX_LABELLEN)
+	    (labellen = strlen(label)) >= OATH_MAX_LABELLEN)
 		return (NULL);
 
 	/* check key length */
