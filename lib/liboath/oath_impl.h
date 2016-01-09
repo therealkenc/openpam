@@ -43,10 +43,14 @@
 /*
  * Use at end of switch which has no default case
  */
-#define COVERAGE_NO_DEFAULT_CASE \
+#if _BullseyeCoverage
+#define COVERAGE_NO_DEFAULT_CASE			\
 	COVERAGE_DISABLE				\
 	default:					\
 		(void)0;				\
 	COVERAGE_RESTORE
 
+#endif
+#else
+#define COVERAGE_NO_DEFAULT_CASE
 #endif
