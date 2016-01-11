@@ -23,3 +23,5 @@ pam_oath_la_LIBADD += $(SYSTEM_LIBPAM)
 else
 pam_oath_la_LIBADD += $(top_builddir)/lib/libpam/libpam.la
 endif
+
+dist_man8_MANS = pam_oath.8
