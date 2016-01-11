@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 2002-2003 Networks Associates Technology, Inc.
- * Copyright (c) 2004-2011 Dag-Erling Smørgrav
+ * Copyright (c) 2004-2015 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -130,7 +130,7 @@ openpam_dispatch(pam_handle_t *pamh,
 
 		if (r == PAM_IGNORE)
 			continue;
-		if (r == PAM_SUCCESS) {	
+		if (r == PAM_SUCCESS) {
 			++nsuccess;
 			/*
 			 * For pam_setcred() and pam_chauthtok() with the
