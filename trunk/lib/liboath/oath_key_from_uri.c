@@ -42,6 +42,7 @@
 #include <security/openpam.h>
 
 #include "openpam_strlcmp.h"
+#include "openpam_strlcpy.h"
 
 #include <security/oath.h>
 
@@ -54,6 +55,8 @@
 struct oath_key *
 oath_key_from_uri(const char *uri)
 {
+	char name[64], value[256];
+	size_t namelen, valuelen;
 	struct oath_key *key;
 	const char *p, *q, *r;
 	uintmax_t n;
@@ -83,9 +86,9 @@ oath_key_from_uri(const char *uri)
 	/* extract label */
 	if ((q = strchr(p, '?')) == NULL)
 		goto invalid;
-	key->labellen = oath_uri_decode(p, q - p, key->label,
-	    sizeof key->label);
-	if (key->labellen > sizeof key->label)
+	valuelen = oath_uri_decode(p, q - p, value, sizeof value) - 1;
+	key->labellen = strlcpy(key->label, value, sizeof key->label);
+	if (key->labellen >= sizeof key->label)
 		goto invalid;
 	p = q + 1;
 
@@ -93,71 +96,77 @@ oath_key_from_uri(const char *uri)
 	key->counter = UINT64_MAX;
 	key->lastused = UINT64_MAX;
 	while (*p != '\0') {
+		/* locate name-value separator */
 		if ((q = strchr(p, '=')) == NULL)
 			goto invalid;
 		q = q + 1;
+		/* locate end of value */
 		if ((r = strchr(p, '&')) == NULL)
 			r = strchr(p, '\0');
 		if (r < q)
 			/* & before = */
 			goto invalid;
-		/* p points to key, q points to value, r points to & or NUL */
-		if (strlcmp("secret=", p, q - p) == 0) {
+		/* decode name and value*/
+		namelen = oath_uri_decode(p, q - p - 1, name, sizeof name) - 1;
+		if (namelen >= sizeof name)
+			goto invalid;
+		valuelen = oath_uri_decode(q, r - q, value, sizeof value) - 1;
+		if (valuelen >= sizeof value)
+			goto invalid;
+		if (strcmp("secret", name) == 0) {
 			if (key->keylen != 0)
 				/* dupe */
 				goto invalid;
 			key->keylen = sizeof key->key;
-			if (base32_dec(q, r - q, (char *)key->key, &key->keylen) != 0)
+			if (base32_dec(value, valuelen, (char *)key->key, &key->keylen) != 0)
 				goto invalid;
-			if (base32_enclen(key->keylen) != (size_t)(r - q))
-				goto invalid;
-		} else if (strlcmp("algorithm=", p, q - p) == 0) {
+		} else if (strcmp("algorithm", name) == 0) {
 			if (key->hash != oh_undef)
 				/* dupe */
 				goto invalid;
-			if (strlcmp("SHA1", q, r - q) == 0)
+			if (strcmp("SHA1", value) == 0)
 				key->hash = oh_sha1;
-			else if (strlcmp("SHA256", q, r - q) == 0)
+			else if (strcmp("SHA256", value) == 0)
 				key->hash = oh_sha256;
-			else if (strlcmp("SHA512", q, r - q) == 0)
+			else if (strcmp("SHA512", value) == 0)
 				key->hash = oh_sha512;
-			else if (strlcmp("MD5", q, r - q) == 0)
+			else if (strcmp("MD5", value) == 0)
 				key->hash = oh_md5;
 			else
 				goto invalid;
-		} else if (strlcmp("digits=", p, q - p) == 0) {
+		} else if (strcmp("digits", name) == 0) {
 			if (key->digits != 0)
 				/* dupe */
 				goto invalid;
 			/* only 6 or 8 */
-			if (r - q != 1 || (*q != '6' && *q != '8'))
+			if (valuelen != 1 || (*value != '6' && *value != '8'))
 				goto invalid;
 			key->digits = *q - '0';
-		} else if (strlcmp("counter=", p, q - p) == 0) {
+		} else if (strcmp("counter", name) == 0) {
 			if (key->counter != UINT64_MAX)
 				/* dupe */
 				goto invalid;
-			n = strtoumax(q, &e, 10);
-			if (e != r || n >= UINT64_MAX)
+			n = strtoumax(value, &e, 10);
+			if (e == value || *e != '\0' || n >= UINT64_MAX)
 				goto invalid;
 			key->counter = (uint64_t)n;
-		} else if (strlcmp("lastused=", p, q - p) == 0) {
+		} else if (strcmp("lastused", name) == 0) {
 			if (key->lastused != UINT64_MAX)
 				/* dupe */
 				goto invalid;
-			n = strtoumax(q, &e, 10);
-			if (e != r || n >= UINT64_MAX)
+			n = strtoumax(value, &e, 10);
+			if (e == value || *e != '\0' || n >= UINT64_MAX)
 				goto invalid;
 			key->lastused = (uint64_t)n;
-		} else if (strlcmp("period=", p, q - p) == 0) {
+		} else if (strcmp("period", name) == 0) {
 			if (key->timestep != 0)
 				/* dupe */
 				goto invalid;
-			n = strtoumax(q, &e, 10);
-			if (e != r || n > OATH_MAX_TIMESTEP)
+			n = strtoumax(value, &e, 10);
+			if (e == value || *e != '\0' || n > OATH_MAX_TIMESTEP)
 				goto invalid;
 			key->timestep = n;
-		} else if (strlcmp("issuer=", p, q - p) == 0) {
+		} else if (strcmp("issuer", name) == 0) {
 			// noop for now
 		} else {
 			goto invalid;
