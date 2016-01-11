@@ -70,7 +70,7 @@ oath_key_to_uri(const struct oath_key *key)
 		return (NULL);
 	}
 
-	/* XXX the label should be URI-encoded */
+	/* XXX the label and secret should be URI-encoded */
 	if (key->mode == om_hotp) {
 		urilen = asprintf(&uri, "otpauth://%s/%s?"
 		    "algorithm=%s&digits=%d&counter=%ju&secret=",
