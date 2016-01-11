@@ -167,6 +167,7 @@ AC_CONFIG_FILES([
     modules/Makefile
     modules/pam_deny/Makefile
     modules/pam_permit/Makefile
+    modules/pam_return/Makefile
     modules/pam_unix/Makefile
     modules/pam_oath/Makefile
     t/Makefile
