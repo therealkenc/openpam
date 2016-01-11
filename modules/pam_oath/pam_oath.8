@@ -1,0 +1,87 @@
+.\"-
+.\" Copyright (c) 2012-2016 Universitetet i Oslo
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"
+.\" $Id$
+.\"
+.Dd January 11, 2016
+.Dt PAM_OATH 8
+.Os
+.Sh NAME
+.Nm pam_oath
+.Nd OATH service module
+.Sh SYNOPSIS
+.Op Ar service
+.Ar module-type
+.Ar control-flag
+.Cm Nm
+.Op Ar arguments
+.Sh DESCRIPTION
+The
+.Nm
+service module implements counter-based and time-based one-time
+passwords.
+.Pp
+The
+.Nm
+service module recognizes the following options:
+.Bl -tag -width ".Cm echo_pass"
+.It Cm nokey = Ar fail | fake | ignore
+Specifies how the module should behave when no key is available for
+the user: either fail immediately, prompt for a code but fail anyway,
+or let authentication proceed by other means.
+\" .It Cm nouser = Ar fail | fake | ignore
+\" Specifies how the module should behave when the user does not exist.
+\" See
+\" .Bm nokey
+\" above.
+\" .It Cm badkey = Ar fail | fake | ignore
+\" Specifies how the module should behave when the user exists and has a
+\" key, but the key could not be loaded (e.g. due to a syntax error in
+\" the keyfile).
+\" See
+\" .Bm nokey
+\" above.
+.El
+.Pp
+The
+.Nm
+service module uses
+.Xr pam_get_authtok 3
+to prompt the user, and will therefore also be affected by the
+standard options
+.Sh SEE ALSO
+.Xr oathkey 1 ,
+.Xr pam.conf 5 ,
+.Xr pam 8
+.Sh AUTHORS
+The
+.Nm
+module and this manual page were developed by
+.An Dag-Erling Sm\(/orgrav Aq des@des.no
+for the University of Oslo.
