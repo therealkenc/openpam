@@ -55,14 +55,14 @@ T_FUNC(null, "null handle")
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 #elif __GNUC__
-#pragma gcc diagnostic push
-#pragma gcc diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
 #endif
 	pam_err = pam_authenticate(NULL, 0);
 #if __clang__
 #pragma clang diagnostic pop
 #elif __GNUC__
-#pragma gcc diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 	return (pam_err == PAM_SYSTEM_ERR);
 }
