@@ -1,26 +1,11 @@
 Before the next release:
 
- - Add oath_alloc_secure() which allocates memory using mmap() +
-   mlock() and oath_free_secure() which wipes and frees it.
-
- - Move key management (locate keyfile, load various key formats,
-   write back after use) into liboath.
-
- - Implement support for PSKC (RFC 6030) keyfiles.
-
- - Implement OATH OCRA (RFC 6287) authentication.
-
- - Determine and document level of compliance with the OATH HOTP /
-   TOTP / OCRA validation server profiles.
-
  - Rewrite openpam_ttyconv(3).
    - mostly done, needs review.
 
  - Fix try_first_pass / use_first_pass (pam_get_authtok() code &
    documentation are slightly incorrect, OpenPAM's pam_unix(8) is
    incorrect, all FreeBSD modules are broken)
-
- - Finish pam_oath(8) and oathkey(1).
 
  - Add loop detection to openpam_load_chain().
 

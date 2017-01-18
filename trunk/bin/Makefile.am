@@ -2,10 +2,6 @@
 
 SUBDIRS = openpam_dump_policy
 
-if WITH_OATH
-SUBDIRS += oathkey
-endif
-
 if WITH_PAMTEST
 SUBDIRS += pamtest
 endif

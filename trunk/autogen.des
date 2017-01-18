@@ -24,7 +24,6 @@ if [ -z "$CC" -a -z "$CPP" -a -z "$CXX" ] ; then
 fi
 
 ./configure \
-	--with-oath \
 	--with-doc \
 	--with-pam-unix \
 	--with-pamtest \
