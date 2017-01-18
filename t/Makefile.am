@@ -13,9 +13,6 @@ TESTS += t_openpam_ctype
 TESTS += t_openpam_dispatch
 TESTS += t_openpam_readword
 TESTS += t_openpam_readlinev
-if WITH_OATH
-TESTS += t_rfc3986 t_rfc4648
-endif
 check_PROGRAMS = $(TESTS)
 
 # libt - common support code
@@ -28,11 +25,4 @@ if WITH_SYSTEM_LIBPAM
 LDADD += $(SYSTEM_LIBPAM)
 else
 LDADD += $(top_builddir)/lib/libpam/libpam.la
-endif
-if WITH_OATH
-if WITH_SYSTEM_LIBOATH
-LDADD += $(SYSTEM_LIBOATH)
-else
-LDADD += $(top_builddir)/lib/liboath/liboath.la
-endif
 endif

@@ -17,11 +17,6 @@ The distribution consists of the following components:
  - A test application (pamtest) which can be used to test policies and
    modules.
 
- - A library which implements the OATH one-time password algorithms,
-   with complete API documentation.
-
- - A PAM module which implements OATH-based authentication.
-
  - Unit tests for limited portions of the libraries.
 
 Please direct bug reports and inquiries to <des@des.no>.

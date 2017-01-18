@@ -67,12 +67,6 @@ AC_ARG_WITH([pam-unix],
     [with_pam_unix=no])
 AM_CONDITIONAL([WITH_PAM_UNIX], [test x"$with_pam_unix" = x"yes"])
 
-AC_ARG_WITH([oath],
-    AC_HELP_STRING([--without-oath], [do not build OATH library, module and utility]),
-    [],
-    [with_oath=yes])
-AM_CONDITIONAL([WITH_OATH], [test x"$with_oath" = x"yes"])
-
 AC_ARG_WITH(pamtest,
     AC_HELP_STRING([--with-pamtest], [build test application]),
     [],
@@ -90,12 +84,6 @@ AC_ARG_WITH(system-libpam,
     [],
     [with_system_libpam=no])
 AM_CONDITIONAL([WITH_SYSTEM_LIBPAM], [test x"$with_system_libpam" = x"yes"])
-
-AC_ARG_WITH(system-liboath,
-    AC_HELP_STRING([--with-system-liboath], [use system liboath]),
-    [],
-    [with_system_liboath=no])
-AM_CONDITIONAL([WITH_SYSTEM_LIBOATH], [test x"$with_system_liboath" = x"yes"])
 
 AC_CHECK_HEADERS([crypt.h])
 
@@ -133,13 +121,6 @@ SYSTEM_LIBPAM="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(SYSTEM_LIBPAM)
 
-saved_LIBS="${LIBS}"
-LIBS=""
-AC_CHECK_LIB([oath], [oath_key_alloc])
-SYSTEM_LIBOATH="${LIBS}"
-LIBS="${saved_LIBS}"
-AC_SUBST(SYSTEM_LIBOATH)
-
 AC_ARG_ENABLE([developer-warnings],
     AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
     [CFLAGS="${CFLAGS} -Wall -Wextra -Wcast-qual"])
@@ -153,7 +134,6 @@ AC_ARG_ENABLE([werror],
 AC_CONFIG_FILES([
     Makefile
     bin/Makefile
-    bin/oathkey/Makefile
     bin/openpam_dump_policy/Makefile
     bin/pamtest/Makefile
     bin/su/Makefile
@@ -162,14 +142,12 @@ AC_CONFIG_FILES([
     include/Makefile
     include/security/Makefile
     lib/Makefile
-    lib/liboath/Makefile
     lib/libpam/Makefile
     modules/Makefile
     modules/pam_deny/Makefile
     modules/pam_permit/Makefile
     modules/pam_return/Makefile
     modules/pam_unix/Makefile
-    modules/pam_oath/Makefile
     t/Makefile
 ])
 AC_CONFIG_FILES([mkpkgng],[chmod +x mkpkgng])
