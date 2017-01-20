@@ -151,6 +151,4 @@ AC_CONFIG_FILES([
     t/Makefile
 ])
 AC_CONFIG_FILES([mkpkgng],[chmod +x mkpkgng])
-AC_CONFIG_FILES([misc/coverage.sh],[chmod +x misc/coverage.sh])
-AC_CONFIG_FILES([misc/coverity.sh],[chmod +x misc/coverity.sh])
 AC_OUTPUT
