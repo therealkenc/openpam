@@ -39,6 +39,7 @@
 # include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -64,8 +65,10 @@ pam_putenv(pam_handle_t *pamh,
 	ENTER();
 
 	/* sanity checks */
-	if ((p = strchr(namevalue, '=')) == NULL)
+	if ((p = strchr(namevalue, '=')) == NULL) {
+		errno = EINVAL;
 		RETURNC(PAM_SYSTEM_ERR);
+	}
 
 	/* see if the variable is already in the environment */
 	if ((i = openpam_findenv(pamh, namevalue, p - namevalue)) >= 0) {

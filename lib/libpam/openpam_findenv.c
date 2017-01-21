@@ -39,6 +39,7 @@
 # include "config.h"
 #endif
 
+#include <errno.h>
 #include <string.h>
 
 #include <security/pam_appl.h>
@@ -63,6 +64,7 @@ openpam_findenv(pam_handle_t *pamh,
 		if (strncmp(pamh->env[i], name, len) == 0 &&
 		    pamh->env[i][len] == '=')
 			RETURNN(i);
+	errno = ENOENT;
 	RETURNN(-1);
 }
 
