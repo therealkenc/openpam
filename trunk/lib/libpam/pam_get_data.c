@@ -60,8 +60,6 @@ pam_get_data(const pam_handle_t *pamh,
 	pam_data_t *dp;
 
 	ENTERS(module_data_name);
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	for (dp = pamh->module_data; dp != NULL; dp = dp->next) {
 		if (strcmp(dp->name, module_data_name) == 0) {
 			*data = (void *)dp->data;
@@ -74,7 +72,6 @@ pam_get_data(const pam_handle_t *pamh,
 /*
  * Error codes:
  *
- *	PAM_SYSTEM_ERR
  *	PAM_NO_MODULE_DATA
  */
 

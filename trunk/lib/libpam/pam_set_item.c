@@ -64,8 +64,6 @@ pam_set_item(pam_handle_t *pamh,
 	size_t nsize, osize;
 
 	ENTERI(item_type);
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	slot = &pamh->item[item_type];
 	osize = nsize = 0;
 	switch (item_type) {

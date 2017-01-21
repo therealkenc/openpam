@@ -76,8 +76,6 @@ pam_get_authtok(pam_handle_t *pamh,
 	int pitem, r, style, twice;
 
 	ENTER();
-	if (pamh == NULL || authtok == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	*authtok = NULL;
 	twice = 0;
 	switch (item) {

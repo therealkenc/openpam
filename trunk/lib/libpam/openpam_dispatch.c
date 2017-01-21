@@ -69,8 +69,6 @@ openpam_dispatch(pam_handle_t *pamh,
 	int debug;
 
 	ENTER();
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 
 	/* prevent recursion */
 	if (pamh->current != NULL) {

@@ -69,8 +69,6 @@ pam_get_user(pam_handle_t *pamh,
 	int r;
 
 	ENTER();
-	if (pamh == NULL || user == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	r = pam_get_item(pamh, PAM_USER, (const void **)user);
 	if (r == PAM_SUCCESS && *user != NULL)
 		RETURNC(PAM_SUCCESS);

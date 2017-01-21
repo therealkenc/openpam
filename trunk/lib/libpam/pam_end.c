@@ -60,8 +60,6 @@ pam_end(pam_handle_t *pamh,
 	int i;
 
 	ENTER();
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 
 	/* clear module data */
 	while ((dp = pamh->module_data) != NULL) {
@@ -90,12 +88,6 @@ pam_end(pam_handle_t *pamh,
 
 	RETURNC(PAM_SUCCESS);
 }
-
-/*
- * Error codes:
- *
- *	PAM_SYSTEM_ERR
- */
 
 /**
  * The =pam_end function terminates a PAM transaction and destroys the

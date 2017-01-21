@@ -60,8 +60,6 @@ pam_getenvlist(pam_handle_t *pamh)
 	int i;
 
 	ENTER();
-	if (pamh == NULL)
-		RETURNP(NULL);
 	envlist = malloc(sizeof(char *) * (pamh->env_count + 1));
 	if (envlist == NULL) {
 		openpam_log(PAM_LOG_ERROR, "%s",
