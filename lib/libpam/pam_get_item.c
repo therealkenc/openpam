@@ -59,8 +59,6 @@ pam_get_item(const pam_handle_t *pamh,
 {
 
 	ENTERI(item_type);
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	switch (item_type) {
 	case PAM_SERVICE:
 	case PAM_USER:
@@ -86,7 +84,6 @@ pam_get_item(const pam_handle_t *pamh,
  * Error codes:
  *
  *	PAM_SYMBOL_ERR
- *	PAM_SYSTEM_ERR
  */
 
 /**

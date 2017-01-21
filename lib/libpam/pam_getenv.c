@@ -61,18 +61,12 @@ pam_getenv(pam_handle_t *pamh,
 	int i;
 
 	ENTERS(name);
-	if (pamh == NULL)
-		RETURNS(NULL);
-	if (name == NULL || strchr(name, '=') != NULL)
+	if (strchr(name, '=') != NULL)
 		RETURNS(NULL);
 	if ((i = openpam_findenv(pamh, name, strlen(name))) < 0)
 		RETURNS(NULL);
-	for (str = pamh->env[i]; *str != '\0'; ++str) {
-		if (*str == '=') {
-			++str;
-			break;
-		}
-	}
+	if ((str = strchr(pamh->env[i], '=')) == NULL)
+		RETURNS("");
 	RETURNS(str);
 }
 

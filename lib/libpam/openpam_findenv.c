@@ -59,8 +59,6 @@ openpam_findenv(pam_handle_t *pamh,
 	int i;
 
 	ENTER();
-	if (pamh == NULL)
-		RETURNN(-1);
 	for (i = 0; i < pamh->env_count; ++i)
 		if (strncmp(pamh->env[i], name, len) == 0 &&
 		    pamh->env[i][len] == '=')

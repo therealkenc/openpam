@@ -47,26 +47,6 @@
 
 const char *pam_return_so;
 
-T_FUNC(null, "null handle")
-{
-	int pam_err;
-
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-#elif __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull"
-#endif
-	pam_err = pam_authenticate(NULL, 0);
-#if __clang__
-#pragma clang diagnostic pop
-#elif __GNUC__
-#pragma GCC diagnostic pop
-#endif
-	return (pam_err == PAM_SYSTEM_ERR);
-}
-
 T_FUNC(empty_policy, "empty policy")
 {
 	struct t_pam_conv_script script;
@@ -81,7 +61,10 @@ T_FUNC(empty_policy, "empty policy")
 	tf = t_fopen(NULL);
 	t_fprintf(tf, "# empty policy\n");
 	pam_err = pam_start(tf->name, "test", &pamc, &pamh);
-	t_verbose("pam_start() returned %d\n", pam_err);
+	if (pam_err != PAM_SUCCESS) {
+		t_verbose("pam_start() returned %d\n", pam_err);
+		return (0);
+	}
 	/*
 	 * Note: openpam_dispatch() currently returns PAM_SYSTEM_ERR when
 	 * the chain is empty, it should possibly return PAM_SERVICE_ERR
@@ -156,9 +139,11 @@ T_FUNC(mod_return, "module return value")
 			    pam_err_name[tc->mod[j].modret]);
 		}
 		pam_err = pam_start(tf->name, "test", &pamc, &pamh);
-		t_verbose("pam_start() returned %d\n", pam_err);
-		if (pam_err != PAM_SUCCESS)
+		if (pam_err != PAM_SUCCESS) {
+			t_verbose("pam_start() returned %d\n", pam_err);
+			t_fclose(tf);
 			continue;
+		}
 		switch (tc->primitive) {
 		case PAM_SM_AUTHENTICATE:
 			pam_err = pam_authenticate(pamh, tc->flags);
@@ -192,7 +177,6 @@ T_FUNC(mod_return, "module return value")
  */
 
 static struct t_test *t_plan[] = {
-	T(null),
 	T(empty_policy),
 	T(mod_return),
 

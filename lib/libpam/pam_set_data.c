@@ -64,8 +64,6 @@ pam_set_data(pam_handle_t *pamh,
 	pam_data_t *dp;
 
 	ENTERS(module_data_name);
-	if (pamh == NULL)
-		RETURNC(PAM_SYSTEM_ERR);
 	for (dp = pamh->module_data; dp != NULL; dp = dp->next) {
 		if (strcmp(dp->name, module_data_name) == 0) {
 			if (dp->cleanup)

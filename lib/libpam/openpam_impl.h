@@ -130,19 +130,28 @@ struct pam_handle {
 /*
  * Internal functions
  */
-int		 openpam_configure(pam_handle_t *, const char *);
-int		 openpam_dispatch(pam_handle_t *, int, int);
-int		 openpam_findenv(pam_handle_t *, const char *, size_t);
-pam_module_t	*openpam_load_module(const char *);
-void		 openpam_clear_chains(pam_chain_t **);
+int		 openpam_configure(pam_handle_t *, const char *)
+	OPENPAM_NONNULL((1));
+int		 openpam_dispatch(pam_handle_t *, int, int)
+	OPENPAM_NONNULL((1));
+int		 openpam_findenv(pam_handle_t *, const char *, size_t)
+	OPENPAM_NONNULL((1,2));
+pam_module_t	*openpam_load_module(const char *)
+	OPENPAM_NONNULL((1));
+void		 openpam_clear_chains(pam_chain_t **)
+	OPENPAM_NONNULL((1));
 
-int		 openpam_check_desc_owner_perms(const char *, int);
-int		 openpam_check_path_owner_perms(const char *);
+int		 openpam_check_desc_owner_perms(const char *, int)
+	OPENPAM_NONNULL((1));
+int		 openpam_check_path_owner_perms(const char *)
+	OPENPAM_NONNULL((1));
 
 #ifdef OPENPAM_STATIC_MODULES
-pam_module_t	*openpam_static(const char *);
+pam_module_t	*openpam_static(const char *)
+	OPENPAM_NONNULL((1));
 #endif
-pam_module_t	*openpam_dynamic(const char *);
+pam_module_t	*openpam_dynamic(const char *)
+	OPENPAM_NONNULL((1));
 
 #define	FREE(p)					\
 	do {					\
