@@ -134,7 +134,7 @@ openpam_readword(FILE *f, int *lineno, size_t *lenp)
 	}
 	if (ch == EOF && (escape || quote)) {
 		/* Missing escaped character or closing quote. */
-		openpam_log(PAM_LOG_ERROR, "unexpected end of file");
+		openpam_log(PAM_LOG_DEBUG, "unexpected end of file");
 		free(word);
 		errno = EINVAL;
 		return (NULL);
