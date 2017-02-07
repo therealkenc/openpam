@@ -161,11 +161,11 @@ pam_module_t	*openpam_dynamic(const char *)
 
 #define FREEV(c, v)				\
 	do {					\
-		while (c) {			\
-			--(c);			\
-			FREE((v)[(c)]);		\
+		if ((v) != NULL) {		\
+			while ((c)-- > 0)	\
+				FREE((v)[(c)]);	\
+			FREE(v);		\
 		}				\
-		FREE(v);			\
 	} while (0)
 
 #include "openpam_constants.h"
