@@ -143,6 +143,7 @@ AC_CONFIG_FILES([
     include/security/Makefile
     lib/Makefile
     lib/libpam/Makefile
+    misc/Makefile
     modules/Makefile
     modules/pam_deny/Makefile
     modules/pam_permit/Makefile
@@ -151,4 +152,6 @@ AC_CONFIG_FILES([
     t/Makefile
 ])
 AC_CONFIG_FILES([mkpkgng],[chmod +x mkpkgng])
+AC_CONFIG_FILES([misc/coverage.sh],[chmod +x misc/coverage.sh])
+AC_CONFIG_FILES([misc/coverity.sh],[chmod +x misc/coverity.sh])
 AC_OUTPUT

@@ -2,7 +2,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = lib bin modules include
+SUBDIRS = misc include lib bin modules
 
 if WITH_DOC
 SUBDIRS += doc
