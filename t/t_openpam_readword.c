@@ -39,10 +39,18 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <cryb/test.h>
+
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
-#include "t.h"
+#define T_FUNC(n, d)							\
+	static const char *t_ ## n ## _desc = d;			\
+	static int t_ ## n ## _func(OPENPAM_UNUSED(char **desc),	\
+	    OPENPAM_UNUSED(void *arg))
+
+#define T(n)								\
+	t_add_test(&t_ ## n ## _func, NULL, t_ ## n ## _desc)
 
 /*
  * Read a word from the temp file and verify that the result matches our
@@ -56,49 +64,49 @@ orw_expect(struct t_file *tf, const char *expected, int lines, int eof, int eol)
 	int ch, lineno = 0;
 	char *got;
 	size_t len;
+	int ret;
 
 	got = openpam_readword(tf->file, &lineno, &len);
+	ret = 1;
 	if (t_ferror(tf))
 		err(1, "%s(): %s", __func__, tf->name);
 	if (expected != NULL && got == NULL) {
 		t_verbose("expected <<%s>>, got nothing\n", expected);
-		return (0);
-	}
-	if (expected == NULL && got != NULL) {
+		ret = 0;
+	} else if (expected == NULL && got != NULL) {
 		t_verbose("expected nothing, got <<%s>>\n", got);
-		return (0);
-	}
-	if (expected != NULL && got != NULL && strcmp(expected, got) != 0) {
+		ret = 0;
+	} else if (expected != NULL && got != NULL && strcmp(expected, got) != 0) {
 		t_verbose("expected <<%s>>, got <<%s>>\n", expected, got);
-		return (0);
+		ret = 0;
 	}
+	free(got);
 	if (lineno != lines) {
 		t_verbose("expected to advance %d lines, advanced %d lines\n",
 		    lines, lineno);
-		return (0);
+		ret = 0;
 	}
 	if (eof && !t_feof(tf)) {
 		t_verbose("expected EOF, but didn't get it\n");
-		return (0);
+		ret = 0;
 	}
 	if (!eof && t_feof(tf)) {
 		t_verbose("didn't expect EOF, but got it anyway\n");
-		return (0);
+		ret = 0;
 	}
 	ch = fgetc(tf->file);
 	if (t_ferror(tf))
 		err(1, "%s(): %s", __func__, tf->name);
 	if (eol && ch != '\n') {
 		t_verbose("expected EOL, but didn't get it\n");
-		return (0);
-	}
-	if (!eol && ch == '\n') {
+		ret = 0;
+	} else if (!eol && ch == '\n') {
 		t_verbose("didn't expect EOL, but got it anyway\n");
-		return (0);
+		ret = 0;
 	}
 	if (ch != EOF)
 		ungetc(ch, tf->file);
-	return (1);
+	return (ret);
 }
 
 
@@ -949,86 +957,85 @@ T_FUNC(line_continuation_within_word, "line continuation within word")
  * Boilerplate
  */
 
-static struct t_test *t_plan[] = {
-	T(empty_input),
-	T(empty_line),
-	T(unterminated_line),
-	T(single_whitespace),
-	T(multiple_whitespace),
-	T(comment),
-	T(whitespace_before_comment),
-	T(single_quoted_comment),
-	T(double_quoted_comment),
-	T(comment_at_eof),
-
-	T(single_word),
-	T(single_whitespace_before_word),
-	T(double_whitespace_before_word),
-	T(single_whitespace_after_word),
-	T(double_whitespace_after_word),
-	T(comment_after_word),
-	T(word_containing_hash),
-	T(two_words),
-
-	T(naked_escape),
-	T(escaped_escape),
-	T(escaped_whitespace),
-	T(escaped_newline_before_word),
-	T(escaped_newline_within_word),
-	T(escaped_newline_after_word),
-	T(escaped_letter),
-	T(escaped_comment),
-	T(escape_at_eof),
-
-	T(naked_single_quote),
-	T(naked_double_quote),
-	T(empty_single_quotes),
-	T(empty_double_quotes),
-	T(single_quotes_within_double_quotes),
-	T(double_quotes_within_single_quotes),
-	T(single_quoted_whitespace),
-	T(double_quoted_whitespace),
-	T(single_quoted_words),
-	T(double_quoted_words),
-
-	T(single_quote_before_word),
-	T(double_quote_before_word),
-	T(single_quote_within_word),
-	T(double_quote_within_word),
-	T(single_quote_after_word),
-	T(double_quote_after_word),
-
-	T(escaped_single_quote),
-	T(escaped_double_quote),
-	T(escaped_whitespace_within_single_quotes),
-	T(escaped_whitespace_within_double_quotes),
-	T(escaped_letter_within_single_quotes),
-	T(escaped_letter_within_double_quotes),
-	T(escaped_escape_within_single_quotes),
-	T(escaped_escape_within_double_quotes),
-	T(escaped_single_quote_within_single_quotes),
-	T(escaped_double_quote_within_single_quotes),
-	T(escaped_single_quote_within_double_quotes),
-	T(escaped_double_quote_within_double_quotes),
-
-	T(line_continuation_within_whitespace),
-	T(line_continuation_before_whitespace),
-	T(line_continuation_after_whitespace),
-	T(line_continuation_within_word),
-
-	NULL
-};
-
-struct t_test **
+static int
 t_prepare(int argc, char *argv[])
 {
 
 	(void)argc;
 	(void)argv;
-	return (t_plan);
+
+	T(empty_input);
+	T(empty_line);
+	T(unterminated_line);
+	T(single_whitespace);
+	T(multiple_whitespace);
+	T(comment);
+	T(whitespace_before_comment);
+	T(single_quoted_comment);
+	T(double_quoted_comment);
+	T(comment_at_eof);
+
+	T(single_word);
+	T(single_whitespace_before_word);
+	T(double_whitespace_before_word);
+	T(single_whitespace_after_word);
+	T(double_whitespace_after_word);
+	T(comment_after_word);
+	T(word_containing_hash);
+	T(two_words);
+
+	T(naked_escape);
+	T(escaped_escape);
+	T(escaped_whitespace);
+	T(escaped_newline_before_word);
+	T(escaped_newline_within_word);
+	T(escaped_newline_after_word);
+	T(escaped_letter);
+	T(escaped_comment);
+	T(escape_at_eof);
+
+	T(naked_single_quote);
+	T(naked_double_quote);
+	T(empty_single_quotes);
+	T(empty_double_quotes);
+	T(single_quotes_within_double_quotes);
+	T(double_quotes_within_single_quotes);
+	T(single_quoted_whitespace);
+	T(double_quoted_whitespace);
+	T(single_quoted_words);
+	T(double_quoted_words);
+
+	T(single_quote_before_word);
+	T(double_quote_before_word);
+	T(single_quote_within_word);
+	T(double_quote_within_word);
+	T(single_quote_after_word);
+	T(double_quote_after_word);
+
+	T(escaped_single_quote);
+	T(escaped_double_quote);
+	T(escaped_whitespace_within_single_quotes);
+	T(escaped_whitespace_within_double_quotes);
+	T(escaped_letter_within_single_quotes);
+	T(escaped_letter_within_double_quotes);
+	T(escaped_escape_within_single_quotes);
+	T(escaped_escape_within_double_quotes);
+	T(escaped_single_quote_within_single_quotes);
+	T(escaped_double_quote_within_single_quotes);
+	T(escaped_single_quote_within_double_quotes);
+	T(escaped_double_quote_within_double_quotes);
+
+	T(line_continuation_within_whitespace);
+	T(line_continuation_before_whitespace);
+	T(line_continuation_after_whitespace);
+	T(line_continuation_within_word);
+
+	return (0);
 }
 
-void
-t_cleanup(void)
+int
+main(int argc, char *argv[])
 {
+
+	t_main(t_prepare, NULL, argc, argv);
 }

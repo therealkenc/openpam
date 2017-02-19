@@ -35,16 +35,18 @@
 
 #include <err.h>
 #include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <cryb/test.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
 #include "openpam_impl.h"
 #include "openpam_asprintf.h"
-#include "t.h"
 
 #include "t_pam_conv.h"
 
