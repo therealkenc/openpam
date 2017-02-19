@@ -1,4 +1,4 @@
-OpenPAM Radula							2017-01-28
+OpenPAM Radula							2017-02-19
 
  - BUGFIX: Fix an inverted test which prevented pam_get_authtok(3) and
    pam_get_user(3) from using application-provided custom prompts.
