@@ -3,6 +3,8 @@ OpenPAM Radula							2017-01-28
  - BUGFIX: Fix an inverted test which prevented pam_get_authtok(3) and
    pam_get_user(3) from using application-provided custom prompts.
 
+ - BUGFIX: Plug a memory leak in pam_set_item(3).
+
  - BUGFIX: Plug a potential memory leak in openpam_readlinev(3).
 
  - BUGFIX: In openpam_readword(3), support line continuations within
