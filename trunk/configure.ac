@@ -121,6 +121,18 @@ SYSTEM_LIBPAM="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(SYSTEM_LIBPAM)
 
+save_LIBS="${LIBS}"
+LIBS=""
+AC_SEARCH_LIBS([cryb_test_version], [cryb-test], [
+  CRYB_TEST_LIBS="${LIBS}"
+], [
+  CRYB_TEST_LIBS=""
+  AC_MSG_WARN([cryb-test library not available, unit tests disabled])
+])
+LIBS="${save_LIBS}"
+AC_SUBST(CRYB_TEST_LIBS)
+AM_CONDITIONAL([WITH_TEST], [ test x"$CRYB_TEST_LIBS" != x"" ])
+
 AC_ARG_ENABLE([developer-warnings],
     AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
     [CFLAGS="${CFLAGS} -Wall -Wextra -Wcast-qual"])

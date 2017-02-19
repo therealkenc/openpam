@@ -34,15 +34,25 @@
 #endif
 
 #include <err.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <cryb/test.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
 #include "openpam_impl.h"
-#include "t.h"
+
+#define T_FUNC(n, d)							\
+	static const char *t_ ## n ## _desc = d;			\
+	static int t_ ## n ## _func(OPENPAM_UNUSED(char **desc),	\
+	    OPENPAM_UNUSED(void *arg))
+
+#define T(n)								\
+	t_add_test(&t_ ## n ## _func, NULL, t_ ## n ## _desc)
 
 /*
  * Read a line from the temp file and verify that the result matches our
@@ -55,7 +65,9 @@ orlv_expect(struct t_file *tf, const char **expectedv, int lines, int eof)
 {
 	int expectedc, gotc, i, lineno = 0;
 	char **gotv;
+	int ret;
 
+	ret = 1;
 	expectedc = 0;
 	if (expectedv != NULL)
 		while (expectedv[expectedc] != NULL)
@@ -65,44 +77,38 @@ orlv_expect(struct t_file *tf, const char **expectedv, int lines, int eof)
 		err(1, "%s(): %s", __func__, tf->name);
 	if (expectedv != NULL && gotv == NULL) {
 		t_verbose("expected %d words, got nothing\n", expectedc);
-		return (0);
-	}
-	if (expectedv == NULL && gotv != NULL) {
+		ret = 0;
+	} else if (expectedv == NULL && gotv != NULL) {
 		t_verbose("expected nothing, got %d words\n", gotc);
-		FREEV(gotc, gotv);
-		return (0);
-	}
-	if (expectedv != NULL && gotv != NULL) {
+		ret = 0;
+	} else if (expectedv != NULL && gotv != NULL) {
 		if (expectedc != gotc) {
 			t_verbose("expected %d words, got %d\n",
 			    expectedc, gotc);
-			FREEV(gotc, gotv);
-			return (0);
+			ret = 0;
 		}
 		for (i = 0; i < gotc; ++i) {
 			if (strcmp(expectedv[i], gotv[i]) != 0) {
 				t_verbose("word %d: expected <<%s>>, "
 				    "got <<%s>>\n", i, expectedv[i], gotv[i]);
-				FREEV(gotc, gotv);
-				return (0);
+				ret = 0;
 			}
 		}
-		FREEV(gotc, gotv);
 	}
+	FREEV(gotc, gotv);
 	if (lineno != lines) {
 		t_verbose("expected to advance %d lines, advanced %d lines\n",
 		    lines, lineno);
-		return (0);
+		ret = 0;
 	}
 	if (eof && !t_feof(tf)) {
 		t_verbose("expected EOF, but didn't get it\n");
-		return (0);
-	}
-	if (!eof && t_feof(tf)) {
+		ret = 0;
+	} else if (!eof && t_feof(tf)) {
 		t_verbose("didn't expect EOF, but got it anyway\n");
-		return (0);
+		ret = 0;
 	}
-	return (1);
+	return (ret);
 }
 
 
@@ -302,33 +308,32 @@ T_FUNC(unterminated_line, "unterminated line")
  * Boilerplate
  */
 
-static struct t_test *t_plan[] = {
-	T(empty_input),
-	T(empty_line),
-	T(unterminated_empty_line),
-	T(whitespace),
-	T(comment),
-	T(whitespace_before_comment),
-	T(line_continuation_within_whitespace),
-
-	T(one_word),
-	T(two_words),
-	T(many_words),
-	T(unterminated_line),
-
-	NULL
-};
-
-struct t_test **
+static int
 t_prepare(int argc, char *argv[])
 {
 
 	(void)argc;
 	(void)argv;
-	return (t_plan);
+
+	T(empty_input);
+	T(empty_line);
+	T(unterminated_empty_line);
+	T(whitespace);
+	T(comment);
+	T(whitespace_before_comment);
+	T(line_continuation_within_whitespace);
+
+	T(one_word);
+	T(two_words);
+	T(many_words);
+	T(unterminated_line);
+
+	return (0);
 }
 
-void
-t_cleanup(void)
+int
+main(int argc, char *argv[])
 {
+
+	t_main(t_prepare, NULL, argc, argv);
 }

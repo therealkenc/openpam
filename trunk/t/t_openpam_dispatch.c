@@ -34,16 +34,27 @@
 #endif
 
 #include <err.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+#include <cryb/test.h>
 
 #include <security/pam_appl.h>
 #include <security/openpam.h>
 
 #include "openpam_impl.h"
-#include "t.h"
 #include "t_pam_conv.h"
+
+#define T_FUNC(n, d)							\
+	static const char *t_ ## n ## _desc = d;			\
+	static int t_ ## n ## _func(OPENPAM_UNUSED(char **desc),	\
+	    OPENPAM_UNUSED(void *arg))
+
+#define T(n)								\
+	t_add_test(&t_ ## n ## _func, NULL, t_ ## n ## _desc)
 
 const char *pam_return_so;
 
@@ -72,24 +83,23 @@ T_FUNC(empty_policy, "empty policy")
 	 */
 	pam_err = pam_authenticate(pamh, 0);
 	t_verbose("pam_authenticate() returned %d\n", pam_err);
-	ret = (pam_err != PAM_SUCCESS);
+	ret = (pam_err == PAM_SYSTEM_ERR);
 	pam_err = pam_setcred(pamh, 0);
 	t_verbose("pam_setcred() returned %d\n", pam_err);
-	ret |= (pam_err != PAM_SUCCESS);
+	ret &= (pam_err == PAM_SYSTEM_ERR);
 	pam_err = pam_acct_mgmt(pamh, 0);
 	t_verbose("pam_acct_mgmt() returned %d\n", pam_err);
-	ret |= (pam_err != PAM_SUCCESS);
+	ret &= (pam_err == PAM_SYSTEM_ERR);
 	pam_err = pam_chauthtok(pamh, 0);
 	t_verbose("pam_chauthtok() returned %d\n", pam_err);
-	ret |= (pam_err != PAM_SUCCESS);
+	ret &= (pam_err == PAM_SYSTEM_ERR);
 	pam_err = pam_open_session(pamh, 0);
 	t_verbose("pam_open_session() returned %d\n", pam_err);
-	ret |= (pam_err != PAM_SUCCESS);
+	ret &= (pam_err == PAM_SYSTEM_ERR);
 	pam_err = pam_close_session(pamh, 0);
 	t_verbose("pam_close_session() returned %d\n", pam_err);
-	ret |= (pam_err != PAM_SUCCESS);
-	pam_err = pam_end(pamh, pam_err);
-	ret |= (pam_err == PAM_SUCCESS);
+	ret &= (pam_err == PAM_SYSTEM_ERR);
+	pam_end(pamh, pam_err);
 	t_fclose(tf);
 	return (ret);
 }
@@ -166,6 +176,8 @@ T_FUNC(mod_return, "module return value")
 		}
 		t_verbose("%s returned %d\n",
 		    pam_func_name[tc->primitive], pam_err);
+		pam_end(pamh, pam_err);
+		t_verbose("here\n");
 		t_fclose(tf);
 	}
 	return (1);
@@ -176,19 +188,17 @@ T_FUNC(mod_return, "module return value")
  * Boilerplate
  */
 
-static struct t_test *t_plan[] = {
-	T(empty_policy),
-	T(mod_return),
-
-	NULL
-};
-
-struct t_test **
+static int
 t_prepare(int argc, char *argv[])
 {
 
-	if ((pam_return_so = getenv("PAM_RETURN_SO")) == NULL)
-		return (NULL);
+	(void)argc;
+	(void)argv;
+
+	if ((pam_return_so = getenv("PAM_RETURN_SO")) == NULL) {
+		t_verbose("define PAM_RETURN_SO before running these tests\n");
+		return (0);
+	}
 
 	openpam_set_feature(OPENPAM_RESTRICT_MODULE_NAME, 0);
 	openpam_set_feature(OPENPAM_VERIFY_MODULE_FILE, 0);
@@ -196,12 +206,15 @@ t_prepare(int argc, char *argv[])
 	openpam_set_feature(OPENPAM_VERIFY_POLICY_FILE, 0);
 	openpam_set_feature(OPENPAM_FALLBACK_TO_OTHER, 0);
 
-	(void)argc;
-	(void)argv;
-	return (t_plan);
+	T(empty_policy);
+	T(mod_return);
+
+	return (0);
 }
 
-void
-t_cleanup(void)
+int
+main(int argc, char *argv[])
 {
+
+	t_main(t_prepare, NULL, argc, argv);
 }
