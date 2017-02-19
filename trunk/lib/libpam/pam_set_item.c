@@ -60,7 +60,7 @@ pam_set_item(pam_handle_t *pamh,
 	int item_type,
 	const void *item)
 {
-	void **slot, *tmp;
+	void **slot;
 	size_t nsize, osize;
 
 	ENTERI(item_type);
@@ -69,7 +69,7 @@ pam_set_item(pam_handle_t *pamh,
 	switch (item_type) {
 	case PAM_SERVICE:
 		/* set once only, by pam_start() */
-		if (*slot != NULL)
+		if (*slot != NULL && item != NULL)
 			RETURNC(PAM_SYSTEM_ERR);
 		/* fall through */
 	case PAM_USER:
@@ -101,13 +101,12 @@ pam_set_item(pam_handle_t *pamh,
 		FREE(*slot);
 	}
 	if (item != NULL) {
-		if ((tmp = malloc(nsize)) == NULL)
+		if ((*slot = malloc(nsize)) == NULL)
 			RETURNC(PAM_BUF_ERR);
-		memcpy(tmp, item, nsize);
+		memcpy(*slot, item, nsize);
 	} else {
-		tmp = NULL;
+		*slot = NULL;
 	}
-	*slot = tmp;
 	RETURNC(PAM_SUCCESS);
 }
 
