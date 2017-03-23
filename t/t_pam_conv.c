@@ -99,16 +99,16 @@ t_pam_conv(int nm, const struct pam_message **msgs,
 		}
 		switch (msgs[i]->msg_style) {
 		case PAM_PROMPT_ECHO_OFF:
-			t_verbose("[PAM_PROMPT_ECHO_OFF] %s\n", msgs[i]->msg);
+			t_printv("[PAM_PROMPT_ECHO_OFF] %s\n", msgs[i]->msg);
 			break;
 		case PAM_PROMPT_ECHO_ON:
-			t_verbose("[PAM_PROMPT_ECHO_ON] %s\n", msgs[i]->msg);
+			t_printv("[PAM_PROMPT_ECHO_ON] %s\n", msgs[i]->msg);
 			break;
 		case PAM_ERROR_MSG:
-			t_verbose("[PAM_ERROR_MSG] %s\n", msgs[i]->msg);
+			t_printv("[PAM_ERROR_MSG] %s\n", msgs[i]->msg);
 			break;
 		case PAM_TEXT_INFO:
-			t_verbose("[PAM_TEXT_INFO] %s\n", msgs[i]->msg);
+			t_printv("[PAM_TEXT_INFO] %s\n", msgs[i]->msg);
 			break;
 		default:
 			asprintf(&s->comment, "invalid message style %d",
