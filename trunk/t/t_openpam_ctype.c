@@ -75,7 +75,7 @@ static const char oc_pfcs[] = OC_PFCS;
 			crib[(int)oc_##set[i]] = 1;			\
 		for (i = ret = 0; i < sizeof crib; ++i) {		\
 			if (is_##set(i) != crib[i]) {			\
-				t_verbose("is_%s() incorrect "		\
+				t_printv("is_%s() incorrect "		\
 				    "for %#02x\n", #set, i);		\
 				++ret;					\
 			}						\
