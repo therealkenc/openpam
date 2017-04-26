@@ -76,14 +76,14 @@ pam_get_item(const pam_handle_t *pamh,
 		*item = pamh->item[item_type];
 		RETURNC(PAM_SUCCESS);
 	default:
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_ITEM);
 	}
 }
 
 /*
  * Error codes:
  *
- *	PAM_SYMBOL_ERR
+ *	PAM_BAD_ITEM
  */
 
 /**

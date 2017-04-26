@@ -60,6 +60,8 @@ pam_end(pam_handle_t *pamh,
 	int i;
 
 	ENTER();
+	if (pamh == NULL)
+		RETURNC(PAM_BAD_HANDLE);
 
 	/* clear module data */
 	while ((dp = pamh->module_data) != NULL) {
@@ -88,6 +90,12 @@ pam_end(pam_handle_t *pamh,
 
 	RETURNC(PAM_SUCCESS);
 }
+
+/*
+ * Error codes:
+ *
+ *	PAM_BAD_HANDLE
+ */
 
 /**
  * The =pam_end function terminates a PAM transaction and destroys the
