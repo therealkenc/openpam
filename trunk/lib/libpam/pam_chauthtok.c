@@ -60,7 +60,7 @@ pam_chauthtok(pam_handle_t *pamh,
 
 	ENTER();
 	if (flags & ~(PAM_SILENT|PAM_CHANGE_EXPIRED_AUTHTOK))
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_CONSTANT);
 	r = openpam_dispatch(pamh, PAM_SM_CHAUTHTOK,
 	    flags | PAM_PRELIM_CHECK);
 	if (r == PAM_SUCCESS)
@@ -77,7 +77,7 @@ pam_chauthtok(pam_handle_t *pamh,
  *	=openpam_dispatch
  *	=pam_sm_chauthtok
  *	!PAM_IGNORE
- *	PAM_SYMBOL_ERR
+ *	PAM_BAD_CONSTANT
  */
 
 /**
@@ -93,5 +93,5 @@ pam_chauthtok(pam_handle_t *pamh,
  *	=PAM_CHANGE_EXPIRED_AUTHTOK:
  *		Change only those authentication tokens that have expired.
  *
- * If any other bits are set, =pam_chauthtok will return =PAM_SYMBOL_ERR.
+ * If any other bits are set, =pam_chauthtok will return =PAM_BAD_CONSTANT.
  */

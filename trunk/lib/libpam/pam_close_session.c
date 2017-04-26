@@ -60,7 +60,7 @@ pam_close_session(pam_handle_t *pamh,
 
 	ENTER();
 	if (flags & ~(PAM_SILENT))
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_CONSTANT);
 	r = openpam_dispatch(pamh, PAM_SM_CLOSE_SESSION, flags);
 	RETURNC(r);
 }
@@ -71,7 +71,7 @@ pam_close_session(pam_handle_t *pamh,
  *	=openpam_dispatch
  *	=pam_sm_close_session
  *	!PAM_IGNORE
- *	PAM_SYMBOL_ERR
+ *	PAM_BAD_CONSTANT
  */
 
 /**
@@ -85,5 +85,5 @@ pam_close_session(pam_handle_t *pamh,
  *		Do not emit any messages.
  *
  * If any other bits are set, =pam_close_session will return
- * =PAM_SYMBOL_ERR.
+ * =PAM_BAD_CONSTANT.
  */

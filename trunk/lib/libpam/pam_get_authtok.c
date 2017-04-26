@@ -104,7 +104,7 @@ pam_get_authtok(pam_handle_t *pamh,
 		twice = 0;
 		break;
 	default:
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_CONSTANT);
 	}
 	if (openpam_get_option(pamh, "try_first_pass") ||
 	    openpam_get_option(pamh, "use_first_pass")) {
@@ -170,6 +170,7 @@ pam_get_authtok(pam_handle_t *pamh,
  *	=pam_prompt
  *	=pam_set_item
  *	!PAM_SYMBOL_ERR
+ *	PAM_BAD_CONSTANT
  *	PAM_TRY_AGAIN
  */
 
