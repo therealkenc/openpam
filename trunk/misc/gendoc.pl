@@ -95,6 +95,8 @@ The OpenPAM library is maintained by
     PAM_DOMAIN_UNKNOWN		=> "Unknown authentication domain",
     PAM_BAD_HANDLE		=> "Invalid PAM handle",
     PAM_BAD_ITEM		=> "Unrecognized or restricted item",
+    PAM_BAD_FEATURE		=> "Unrecognized or restricted feature",
+    PAM_BAD_CONSTANT		=> "Bad constant",
 );
 
 sub parse_source($) {
