@@ -80,6 +80,8 @@ enum {
 	PAM_DOMAIN_UNKNOWN		=  29,
 	PAM_BAD_HANDLE			=  30,		/* OpenPAM extension */
 	PAM_BAD_ITEM			=  31,		/* OpenPAM extension */
+	PAM_BAD_FEATURE			=  32,		/* OpenPAM extension */
+	PAM_BAD_CONSTANT		=  33,		/* OpenPAM extension */
 	PAM_NUM_ERRORS					/* OpenPAM extension */
 };
 

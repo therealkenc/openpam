@@ -50,7 +50,7 @@ openpam_get_feature(int feature, int *onoff)
 
 	ENTERF(feature);
 	if (feature < 0 || feature >= OPENPAM_NUM_FEATURES)
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_FEATURE);
 	*onoff = openpam_features[feature].onoff;
 	RETURNC(PAM_SUCCESS);
 }
@@ -58,7 +58,7 @@ openpam_get_feature(int feature, int *onoff)
 /*
  * Error codes:
  *
- *	PAM_SYMBOL_ERR
+ *	PAM_BAD_FEATURE
  */
 
 /**

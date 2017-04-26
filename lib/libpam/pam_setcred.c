@@ -61,7 +61,7 @@ pam_setcred(pam_handle_t *pamh,
 	ENTER();
 	if (flags & ~(PAM_SILENT|PAM_ESTABLISH_CRED|PAM_DELETE_CRED|
 		PAM_REINITIALIZE_CRED|PAM_REFRESH_CRED))
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_CONSTANT);
 	/* XXX enforce exclusivity */
 	r = openpam_dispatch(pamh, PAM_SM_SETCRED, flags);
 	RETURNC(r);
@@ -73,7 +73,7 @@ pam_setcred(pam_handle_t *pamh,
  *	=openpam_dispatch
  *	=pam_sm_setcred
  *	!PAM_IGNORE
- *	PAM_SYMBOL_ERR
+ *	PAM_BAD_CONSTANT
  */
 
 /**
@@ -95,5 +95,5 @@ pam_setcred(pam_handle_t *pamh,
  *
  * The latter four are mutually exclusive.
  *
- * If any other bits are set, =pam_setcred will return =PAM_SYMBOL_ERR.
+ * If any other bits are set, =pam_setcred will return =PAM_BAD_CONSTANT.
  */

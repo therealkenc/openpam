@@ -76,6 +76,8 @@ const char *pam_err_name[PAM_NUM_ERRORS] = {
 	[PAM_DOMAIN_UNKNOWN]		 = "PAM_DOMAIN_UNKNOWN",
 	[PAM_BAD_HANDLE]		 = "PAM_BAD_HANDLE",
 	[PAM_BAD_ITEM]			 = "PAM_BAD_ITEM",
+	[PAM_BAD_FEATURE]		 = "PAM_BAD_FEATURE",
+	[PAM_BAD_CONSTANT]		 = "PAM_BAD_CONSTANT",
 };
 
 const char *pam_err_text[PAM_NUM_ERRORS] = {
@@ -111,6 +113,8 @@ const char *pam_err_text[PAM_NUM_ERRORS] = {
 	[PAM_DOMAIN_UNKNOWN]		 = "Unknown authentication domain",
 	[PAM_BAD_HANDLE]		 = "Invalid PAM handle",
 	[PAM_BAD_ITEM]			 = "Unrecognized or restricted item",
+	[PAM_BAD_FEATURE]		 = "Unrecognized or restricted feature",
+	[PAM_BAD_CONSTANT]		 = "Invalid constant",
 };
 
 const char *pam_item_name[PAM_NUM_ITEMS] = {
