@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #-
 # Copyright (c) 2002-2003 Networks Associates Technology, Inc.
-# Copyright (c) 2004-2014 Dag-Erling Smørgrav
+# Copyright (c) 2004-2017 Dag-Erling Smørgrav
 # All rights reserved.
 #
 # This software was developed for the FreeBSD Project by ThinkSec AS and
