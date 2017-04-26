@@ -33,6 +33,7 @@
 #define OPENPAM_CONSTANTS_H_INCLUDED
 
 extern const char *pam_err_name[PAM_NUM_ERRORS];
+extern const char *pam_err_text[PAM_NUM_ERRORS];
 extern const char *pam_item_name[PAM_NUM_ITEMS];
 extern const char *pam_facility_name[PAM_NUM_FACILITIES];
 extern const char *pam_control_flag_name[PAM_NUM_CONTROL_FLAGS];
