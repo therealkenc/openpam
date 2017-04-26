@@ -70,7 +70,7 @@ pam_set_item(pam_handle_t *pamh,
 	case PAM_SERVICE:
 		/* set once only, by pam_start() */
 		if (*slot != NULL && item != NULL)
-			RETURNC(PAM_SYSTEM_ERR);
+			RETURNC(PAM_BAD_ITEM);
 		/* fall through */
 	case PAM_USER:
 	case PAM_AUTHTOK:
@@ -94,7 +94,7 @@ pam_set_item(pam_handle_t *pamh,
 		osize = nsize = sizeof(struct pam_conv);
 		break;
 	default:
-		RETURNC(PAM_SYMBOL_ERR);
+		RETURNC(PAM_BAD_ITEM);
 	}
 	if (*slot != NULL) {
 		memset(*slot, 0xd0, osize);
@@ -113,8 +113,7 @@ pam_set_item(pam_handle_t *pamh,
 /*
  * Error codes:
  *
- *	PAM_SYMBOL_ERR
- *	PAM_SYSTEM_ERR
+ *	PAM_BAD_ITEM
  *	PAM_BUF_ERR
  */
 

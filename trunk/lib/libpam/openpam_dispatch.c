@@ -107,7 +107,7 @@ openpam_dispatch(pam_handle_t *pamh,
 		if (chain->module->func[primitive] == NULL) {
 			openpam_log(PAM_LOG_ERROR, "%s: no %s()",
 			    chain->module->path, pam_sm_func_name[primitive]);
-			r = PAM_SYSTEM_ERR;
+			r = PAM_SYMBOL_ERR;
 		} else {
 			pamh->primitive = primitive;
 			pamh->current = chain;
