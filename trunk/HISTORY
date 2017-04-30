@@ -1,4 +1,4 @@
-OpenPAM Reboulia						2017-04-30
+OpenPAM Resedacea						2017-04-30
 
  - BUGFIX: Reinstore the NULL check in pam_end(3) which was removed in
    OpenPAM Radula, as it breaks common error-handling constructs.
