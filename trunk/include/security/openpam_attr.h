@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $OpenPAM$
  */
 
 #ifndef SECURITY_OPENPAM_ATTR_H_INCLUDED

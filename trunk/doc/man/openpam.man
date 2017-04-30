@@ -1,5 +1,5 @@
 .\"
-.\" $Id$
+.\" $OpenPAM$
 .\"
 .Sh DESCRIPTION
 These functions are OpenPAM extensions to the PAM API.

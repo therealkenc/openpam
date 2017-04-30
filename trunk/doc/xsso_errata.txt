@@ -1,4 +1,4 @@
-$Id$
+$OpenPAM$
 
 Errata in XSSO, chapter 5:
 

@@ -1,4 +1,4 @@
-# $Id$
+# $OpenPAM$
 
 ACLOCAL_AMFLAGS = -I m4
 

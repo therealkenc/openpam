@@ -1,3 +1,3 @@
-# $Id$
+# $OpenPAM$
 
 SUBDIRS = security
