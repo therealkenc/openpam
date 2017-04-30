@@ -40,6 +40,6 @@
 
 #define OPENPAM
 #define OPENPAM_VERSION	20170430
-#define OPENPAM_RELEASE	"Reboulia"
+#define OPENPAM_RELEASE	"Resedacea"
 
 #endif /* !SECURITY_OPENPAM_VERSION_H_INCLUDED */
