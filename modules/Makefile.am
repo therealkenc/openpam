@@ -1,4 +1,4 @@
-# $Id$
+# $OpenPAM$
 
 SUBDIRS = pam_deny pam_permit pam_return
 

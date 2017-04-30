@@ -1,4 +1,4 @@
-# $Id$
+# $OpenPAM$
 
 SUBDIRS = openpam_dump_policy
 

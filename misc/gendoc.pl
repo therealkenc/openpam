@@ -33,7 +33,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $Id$
+# $OpenPAM$
 #
 
 use strict;
@@ -134,7 +134,7 @@ sub parse_source($) {
     return undef
 	if ($source =~ m/^ \* NOPARSE\s*$/m);
 
-    if ($source =~ m/(\$Id:[^\$]+\$)/) {
+    if ($source =~ m/(\$OpenPAM:[^\$]+\$)/) {
 	$version = $1;
     }
 

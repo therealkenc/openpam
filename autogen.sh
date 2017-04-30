@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $OpenPAM$
 #
 
 libtoolize --copy --force
