@@ -1,12 +1,6 @@
 /*-
- * Copyright (c) 2002-2003 Networks Associates Technology, Inc.
- * Copyright (c) 2004-2017 Dag-Erling Smørgrav
+ * Copyright (c) 2018 Dag-Erling Smørgrav
  * All rights reserved.
- *
- * This software was developed for the FreeBSD Project by ThinkSec AS and
- * Network Associates Laboratories, the Security Research Division of
- * Network Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
- * ("CBOSS"), as part of the DARPA CHATS research program.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,47 +33,31 @@
 # include "config.h"
 #endif
 
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
+#include <unistd.h>
+
+#include <cryb/test.h>
 
 #include <security/pam_appl.h>
+#include <security/openpam.h>
 
 #include "openpam_impl.h"
 
-/*
- * XSSO 4.2.1
- * XSSO 6 page 44
- *
- * Retrieve the value of a PAM environment variable
- */
+#include "t_pam_err.h"
 
-const char *
-pam_getenv(pam_handle_t *pamh,
-	const char *name)
+int
+t_compare_pam_err(int expected, int received)
 {
-	size_t len;
-	int i;
 
-	ENTERS(name);
-	for (len = 0; name[len] != '\0'; ++len) {
-		if (name[len] == '=') {
-			errno = EINVAL;
-			RETURNS(NULL);
-		}
-	}
-	if ((i = openpam_findenv(pamh, name, len)) < 0)
-		RETURNS(NULL);
-	/* assert(pamh->env[i][len] == '='); */
-	RETURNS(pamh->env[i] + len + 1);
+	if (expected == received)
+		return (1);
+	if (expected >= 0 && expected < PAM_NUM_ERRORS)
+		t_printv("expected %s, ", pam_err_name[expected]);
+	else
+		t_printv("expected %d, ", expected);
+	if (received >= 0 && received < PAM_NUM_ERRORS)
+		t_printv("received %s\n", pam_err_name[received]);
+	else
+		t_printv("received %d\n", received);
+	return (0);
 }
-
-/**
- * The =pam_getenv function returns the value of an environment variable.
- * Its semantics are similar to those of =getenv, but it accesses the PAM
- * context's environment list instead of the application's.
- *
- * >pam_getenvlist
- * >pam_putenv
- * >pam_setenv
- */
