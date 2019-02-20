@@ -22,6 +22,9 @@ AC_C_VOLATILE
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static dlopen])
 
+# pkg-config
+AX_PROG_PKG_CONFIG
+
 # other programs
 AC_PROG_INSTALL
 
@@ -121,16 +124,12 @@ SYSTEM_LIBPAM="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(SYSTEM_LIBPAM)
 
-save_LIBS="${LIBS}"
-LIBS=""
-AC_SEARCH_LIBS([cryb_test_version], [cryb-test], [
-  CRYB_TEST_LIBS="${LIBS}"
-], [
-  CRYB_TEST_LIBS=""
-  AC_MSG_WARN([cryb-test library not available, unit tests disabled])
-])
-LIBS="${save_LIBS}"
-AC_SUBST(CRYB_TEST_LIBS)
+CRYB_INIT()
+CRYB_LIB_REQUIRE([test])
+CRYB_RESOLVE
+dnl AX_PKG_CONFIG_CHECK([cryb-test],
+dnl   [AC_MSG_NOTICE([Cryb test framework found, unit tests enabled.])],
+dnl   [AC_MSG_WARN([Cryb test framework not found, unit tests disabled.])])
 AM_CONDITIONAL([WITH_TEST], [ test x"$CRYB_TEST_LIBS" != x"" ])
 
 AC_ARG_ENABLE([developer-warnings],
