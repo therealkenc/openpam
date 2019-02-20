@@ -105,20 +105,6 @@ AC_SUBST(DL_LIBS)
 
 saved_LIBS="${LIBS}"
 LIBS=""
-AC_CHECK_LIB([crypt], [crypt])
-CRYPT_LIBS="${LIBS}"
-LIBS="${saved_LIBS}"
-AC_SUBST(CRYPT_LIBS)
-
-saved_LIBS="${LIBS}"
-LIBS=""
-AC_CHECK_LIB([crypto], [HMAC_CTX_init])
-CRYPTO_LIBS="${LIBS}"
-LIBS="${saved_LIBS}"
-AC_SUBST(CRYPTO_LIBS)
-
-saved_LIBS="${LIBS}"
-LIBS=""
 AC_CHECK_LIB([pam], [pam_start])
 SYSTEM_LIBPAM="${LIBS}"
 LIBS="${saved_LIBS}"
