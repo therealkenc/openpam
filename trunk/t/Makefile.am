@@ -2,7 +2,8 @@
 
 if WITH_TEST
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/libpam \
+	$(CRYB_TEST_CFLAGS)
 
 AM_TESTS_ENVIRONMENT = \
 	PAM_RETURN_SO=$(abs_top_builddir)/modules/pam_return/.libs/pam_return.so
