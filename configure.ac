@@ -110,13 +110,10 @@ SYSTEM_LIBPAM="${LIBS}"
 LIBS="${saved_LIBS}"
 AC_SUBST(SYSTEM_LIBPAM)
 
-CRYB_INIT()
-CRYB_LIB_REQUIRE([test])
-CRYB_RESOLVE
-dnl AX_PKG_CONFIG_CHECK([cryb-test],
-dnl   [AC_MSG_NOTICE([Cryb test framework found, unit tests enabled.])],
-dnl   [AC_MSG_WARN([Cryb test framework not found, unit tests disabled.])])
-AM_CONDITIONAL([WITH_TEST], [ test x"$CRYB_TEST_LIBS" != x"" ])
+AX_PKG_CONFIG_CHECK([cryb-test],
+  [AC_MSG_NOTICE([Cryb test framework found, unit tests enabled.])],
+  [AC_MSG_WARN([Cryb test framework not found, unit tests disabled.])])
+AM_CONDITIONAL([WITH_TEST], [test x"$CRYB_TEST_LIBS" != x""])
 
 AC_ARG_ENABLE([developer-warnings],
     AS_HELP_STRING([--enable-developer-warnings], [enable strict warnings (default is NO)]),
