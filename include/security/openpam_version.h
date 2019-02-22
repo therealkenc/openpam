@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 2002-2003 Networks Associates Technology, Inc.
- * Copyright (c) 2004-2017 Dag-Erling Smørgrav
+ * Copyright (c) 2004-2019 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * This software was developed for the FreeBSD Project by ThinkSec AS and
@@ -39,7 +39,7 @@
 #define SECURITY_OPENPAM_VERSION_H_INCLUDED
 
 #define OPENPAM
-#define OPENPAM_VERSION	20170430
-#define OPENPAM_RELEASE	"Resedacea"
+#define OPENPAM_VERSION	20190224
+#define OPENPAM_RELEASE	"Tabebuia"
 
 #endif /* !SECURITY_OPENPAM_VERSION_H_INCLUDED */
