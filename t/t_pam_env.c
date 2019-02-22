@@ -182,6 +182,8 @@ static int
 t_prepare(int argc CRYB_UNUSED, char *argv[] CRYB_UNUSED)
 {
 
+	openpam_set_feature(OPENPAM_FALLBACK_TO_OTHER, 0);
+
 	t_add_test(t_env_empty, NULL, "initially empty");
 	t_add_test(t_putenv_simple, NULL, "put - simple");
 	t_add_test(t_setenv_simple, NULL, "set - simple");
